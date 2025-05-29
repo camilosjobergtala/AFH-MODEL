@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15541551.svg)](https://doi.org/10.5281/zenodo.15541551)
+
 # 🧠 AFH* MODEL – Simulation of Consciousness Emergence
 
 Welcome to the official repository of the **AFH\*** model: a falsifiable and structural hypothesis for the **emergence of consciousness** through the formation of an **Autopsyquic Fold** (PAH\*) once a critical topological threshold is crossed – the **Horizon H\***.
