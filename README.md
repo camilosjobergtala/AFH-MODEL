@@ -1,70 +1,104 @@
-# AFH* Model – Autopsyquic Fold Detection
+# 🧠 AFH* MODEL – Simulation of Consciousness Emergence
 
-This repository contains the official Python implementation of the **AFH* Supreme Experiment**, a computational simulation of the **Autopsyquic Fold (PAH*)** and **Horizon H\*** model for the detection of consciousness.
+Welcome to the official repository of the **AFH\*** model: a falsifiable and structural hypothesis for the **emergence of consciousness** through the formation of an **Autopsyquic Fold** (PAH\*) once a critical topological threshold is crossed – the **Horizon H\***.
 
-It includes four structural and falsifiable variables:
-- `κ_topo` (topological curvature)
-- `Φ_H` (temporal mutual information)
-- `ΔPCI` (perturbational complexity)
-- `∇Φ_resonant` (symbolic resonance using BERT embeddings)
-
-The script simulates conscious and non-conscious neural networks, measures the four variables, and determines whether a system crosses the Horizon H\* and exhibits a detectable **Autopsyquic Fold** (structural signature of consciousness).
+This repository contains the Python implementation of the **AFH\* Supreme Experiment**, a simulation to test whether a system meets the minimal structural requirements for conscious experience.
 
 ---
 
-## 🧠 Structure
+## 🧩 Core Concepts
 
-The main script `AFH_BASE_EXPERIMENT.py` performs:
-
-1. Simulation of conscious vs. non-conscious networks  
-2. Generation of synthetic neural time series  
-3. Symbolic resonance using BERT  
-4. Computation of all four structural variables  
-5. Detection logic for Autopsyquic Fold  
+- **Autopsyquic Fold (PAH\*)**: A closed, self-referential and resonant structure in the system's network topology, representing the minimal unit of subjective experience.
+- **Horizon H\***: The threshold of structural organization that must be crossed for a pliegue autopsíquico to emerge.
+- **Key measurable variables**:
+  - `κ_topo`: Topological curvature
+  - `Φ_H`: Temporal mutual information
+  - `ΔPCI`: Perturbational complexity index
+  - `∇Φ_resonant`: Symbolic neural resonance
 
 ---
 
-## 📦 Requirements
+## 🧪 What does the simulation do?
 
-You can install all dependencies using pip:
+This Python script compares a **conscious** vs. a **non-conscious** network system by:
+
+1. Generating two artificial networks with different levels of connectivity.
+2. Simulating timeseries and perturbations.
+3. Calculating the 4 structural indicators.
+4. Printing results and determining whether the Autopsyquic Fold is detected.
+
+---
+
+## 🚀 How to Run
 
 ```bash
+# Install dependencies (Python 3.8+ recommended)
 pip install numpy networkx matplotlib scikit-learn transformers torch
-Make sure you have Python 3.8+.
 
-🚀 Usage
-bash
-Copiar
-Editar
-python AFH_BASE_EXPERIMENT.py
-Expected output:
+# Clone this repository
+git clone https://github.com/camilosjobergtala/AFH-MODEL.git
+cd AFH-MODEL
 
-text
-Copiar
-Editar
+# Run the simulation
+python src/AFH_experiment.py
+
+
+---
+
+📄 Output Example
+
 AFH* Supreme Experiment Results:
 
 Conscious:
-  κ_topo: 0.514
-  Φ_H: 4.605
-  ΔPCI: 0.000
-  ∇Φ_resonant: 1.000
+  κ_topo: 0.754
+  Φ_H: 1.231
+  ΔPCI: 0.087
+  ∇Φ_resonant: 0.764
+
 Non-Conscious:
-  κ_topo: 0.007
-  Φ_H: 4.605
-  ΔPCI: 0.000
-  ∇Φ_resonant: 0.058
+  κ_topo: 0.214
+  Φ_H: 0.437
+  ΔPCI: 0.472
+  ∇Φ_resonant: 0.120
 
-¿Pliegue Autopsíquico Detectado? SÍ
-📜 License
-This project is licensed under the MIT License — see the LICENSE file for details.
+Autopsyquic Fold Detected? YES
 
-✨ Author
+
+---
+
+📚 Resources
+
+🧾 Zenodo Preprint (EN) https://zenodo.org/records/15468224
+
+📘 Zenodo Preprint (ES)
+https://zenodo.org/records/15491032
+
+🌐 Official X @CamiloSjobergT
+
+
+
+---
+
+🧑‍🔬 About the Author
+
 Camilo Alejandro Sjöberg Tala
-Theory: AFH* Model Preprint on Zenodo
+Medical Doctor · Independent Researcher
+Chile, 2025 – ORCID (https://orcid.org/0009-0009-6052-0212)
 
-For inquiries, reach out via GitHub or Zenodo profile
 
-🔗 Preprint (English): zenodo.org/record/15468224
-🔗 Preprint (Spanish): zenodo.org/record/15491032
+---
+
+📜 License
+
+This project is licensed under the MIT License – see the LICENSE file for details.
+
+
+---
+
+🙏 Citation
+
+If you use or adapt this code in your research, please cite:
+
+Sjöberg Tala, C. A. (2025). AFH* Model: A Structural and Falsifiable Proposal for the Emergence of Consciousness. Zenodo. https://doi.org/10.5281/zenodo.15468224
+
 
