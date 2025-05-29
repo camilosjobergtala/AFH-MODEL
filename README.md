@@ -1,36 +1,69 @@
-🧠 AFH* Supreme Experiment
-Corrected and expanded computational simulation for the detection of the Autopsyquic Fold (AFH Model)*
+# AFH* Model – Autopsyquic Fold Detection
 
-✨ Description
-This repository contains a Python-based computational simulation implementing the AFH* model (Autopsyquic Fold and Horizon H*) to simulate the structural emergence of conscious experience. The script compares two types of networks (conscious vs. non-conscious) and evaluates four key structural variables:
+This repository contains the official Python implementation of the **AFH* Supreme Experiment**, a computational simulation of the **Autopsyquic Fold (PAH*)** and **Horizon H\*** model for the detection of consciousness.
 
-κ_topo: Topological curvature (simplified version)
+It includes four structural and falsifiable variables:
+- `κ_topo` (topological curvature)
+- `Φ_H` (temporal mutual information)
+- `ΔPCI` (perturbational complexity)
+- `∇Φ_resonant` (symbolic resonance using BERT embeddings)
 
-Φ_H: Temporal mutual information (causal synchronization)
+The script simulates conscious and non-conscious neural networks, measures the four variables, and determines whether a system crosses the Horizon H\* and exhibits a detectable **Autopsyquic Fold** (structural signature of consciousness).
 
-ΔPCI: Perturbational complexity index (Lempel-Ziv simplified)
+---
 
-∇Φ_resonant: Symbolic structural resonance (BERT-based correlation)
+## 🧠 Structure
 
-🧪 Objective
-To determine whether the system crosses the Horizon H* threshold, which—according to the AFH* model—marks the structural point of conscious emergence through the formation of an Autopsyquic Fold.
+The main script `AFH_BASE_EXPERIMENT.py` performs:
 
-📦 Requirements
+1. Simulation of conscious vs. non-conscious networks  
+2. Generation of synthetic neural time series  
+3. Symbolic resonance using BERT  
+4. Computation of all four structural variables  
+5. Detection logic for Autopsyquic Fold  
+
+---
+
+## 📦 Requirements
+
+You can install all dependencies using pip:
+
+```bash
+pip install numpy networkx matplotlib scikit-learn transformers torch
+Make sure you have Python 3.8+.
+
+🚀 Usage
 bash
 Copiar
 Editar
-pip install numpy networkx matplotlib scikit-learn torch transformers
-🚀 Run the Experiment
-bash
+python AFH_BASE_EXPERIMENT.py
+Expected output:
+
+text
 Copiar
 Editar
-python afh_experiment.py
-The script will output the calculated metrics for each simulated network and provide a final summary:
+AFH* Supreme Experiment Results:
 
-Autopsyquic Fold Detected? YES / NO
+Conscious:
+  κ_topo: 0.514
+  Φ_H: 4.605
+  ΔPCI: 0.000
+  ∇Φ_resonant: 1.000
+Non-Conscious:
+  κ_topo: 0.007
+  Φ_H: 4.605
+  ΔPCI: 0.000
+  ∇Φ_resonant: 0.058
 
-📚 About the AFH* Model
-This experiment is part of an independent research project led by Camilo Alejandro Sjöberg Tala, author of the AFH* model—a structural and falsifiable theory on the emergence of consciousness.
+¿Pliegue Autopsíquico Detectado? SÍ
+📜 License
+This project is licensed under the MIT License — see the LICENSE file for details.
+
+✨ Author
+Camilo Alejandro Sjöberg Tala
+Theory: AFH* Model Preprint on Zenodo
+
+For inquiries, reach out via GitHub or Zenodo profile
 
 🔗 Preprint (English): zenodo.org/record/15468224
 🔗 Preprint (Spanish): zenodo.org/record/15491032
