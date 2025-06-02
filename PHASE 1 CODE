@@ -1,0 +1,162 @@
+# ── AFH* Proyecto Eclipse – Versión Base con Copilot ──────────────
+# Estructura inicial para detectar pliegue autopsíquico
+# Autor: Camilo Alejandro Sjöberg Tala
+
+import numpy as np
+import networkx as nx
+from sklearn.metrics import mutual_info_score
+import matplotlib.pyplot as plt
+import csv
+
+# ── 1. Calcular κ_topo (curvatura estructural del grafo cerebral) ─
+def calcular_kappa_topo(grafo):
+    curvaturas = []
+    for u, v in grafo.edges():
+        peso = grafo[u][v]['weight']
+        vecinos_u = set(grafo.neighbors(u))
+        vecinos_v = set(grafo.neighbors(v))
+        interseccion = len(vecinos_u & vecinos_v)
+        total = len(vecinos_u) + len(vecinos_v)
+        curvaturas.append(peso * interseccion / max(1, total))
+    return np.mean(curvaturas)
+
+# ── 2. Calcular Φ_H (integración funcional usando mutual information) ─
+def calcular_phi_H(series):
+    scores = []
+    for i in range(series.shape[1] - 1):
+        scores.append(mutual_info_score(series[:, i], series[:, i+1]))
+    return np.mean(scores)
+
+# ── 3. Calcular ΔPCI (complejidad pre/post perturbación) ─
+def calcular_delta_PCI(par):
+    def lz(signal):
+        binario = ''.join('1' if x > np.median(signal) else '0' for x in signal)
+        return len(binario) / (len(set(binario)) + 1e-10)
+    return abs(lz(par[0]) - lz(par[1]))
+
+# ── 4. Detectar colapso del pliegue autopsíquico ─
+def detectar_colapso(variables):
+    fallan = []
+    if variables['κ_topo'] < 0.5:
+        fallan.append('κ_topo')
+    if variables['Φ_H'] < 1.0:
+        fallan.append('Φ_H')
+    if variables['ΔPCI'] < 0.1:
+        fallan.append('ΔPCI')
+    return {
+        "colapso": len(fallan) > 0,
+        "fallan": fallan
+    }
+
+# ── 5. Detectar singularidad convergente ─
+def detectar_singularidad_convergente(prev_vars, curr_vars):
+    condiciones = [
+        prev_vars['κ_topo'] < 0.5 and curr_vars['κ_topo'] >= 0.5,
+        prev_vars['Φ_H'] < 1.0 and curr_vars['Φ_H'] >= 1.0,
+        prev_vars['ΔPCI'] < 0.1 and curr_vars['ΔPCI'] >= 0.1,
+    ]
+    return sum(condiciones) >= 2  # al menos 2 de 3 se cumplen
+
+# ── 6. Detectar singularidad divergente ─
+def detectar_singularidad_divergente(prev_vars, curr_vars):
+    condiciones = [
+        prev_vars['κ_topo'] >= 0.5 and curr_vars['κ_topo'] < 0.5,
+        prev_vars['Φ_H'] >= 1.0 and curr_vars['Φ_H'] < 1.0,
+        prev_vars['ΔPCI'] >= 0.1 and curr_vars['ΔPCI'] < 0.1,
+    ]
+    return sum(condiciones) >= 2  # al menos 2 de 3 se cumplen
+
+# ── 7. Detectar estabilidad del pliegue ─
+def detectar_estabilidad(estados, min_duracion=3):
+    """
+    Detecta periodos donde todas las variables están sobre umbral por al menos min_duracion pasos.
+    Devuelve lista de índices centrales de los periodos estables.
+    """
+    umbrales = {'κ_topo': 0.5, 'Φ_H': 1.0, 'ΔPCI': 0.1}
+    estables = []
+    actual = []
+    for i, v in enumerate(estados):
+        if v['κ_topo'] >= umbrales['κ_topo'] and v['Φ_H'] >= umbrales['Φ_H'] and v['ΔPCI'] >= umbrales['ΔPCI']:
+            actual.append(i)
+        else:
+            if len(actual) >= min_duracion:
+                estables.append(actual[len(actual)//2])  # índice central del periodo estable
+            actual = []
+    if len(actual) >= min_duracion:
+        estables.append(actual[len(actual)//2])
+    return estables
+
+if __name__ == "__main__":
+    # 1. Generar lista temporal de estados fluctuantes
+    estados = [
+        {'κ_topo': 0.3, 'Φ_H': 0.7, 'ΔPCI': 0.05},  # bajo umbral
+        {'κ_topo': 0.4, 'Φ_H': 0.8, 'ΔPCI': 0.08},  # bajo umbral
+        {'κ_topo': 0.6, 'Φ_H': 1.1, 'ΔPCI': 0.12},  # subida (activación pliegue)
+        {'κ_topo': 0.7, 'Φ_H': 1.2, 'ΔPCI': 0.13},  # estabilidad interna
+        {'κ_topo': 0.65, 'Φ_H': 1.05, 'ΔPCI': 0.11},# estabilidad interna
+        {'κ_topo': 0.45, 'Φ_H': 0.9, 'ΔPCI': 0.07}, # bajada (colapso)
+        {'κ_topo': 0.35, 'Φ_H': 0.6, 'ΔPCI': 0.03}  # bajo umbral
+    ]
+
+    # 2. Aplicar funciones de detección en cada par de pasos
+    convergentes = []
+    divergentes = []
+    eventos = []
+    for i in range(1, len(estados)):
+        prev_vars = estados[i-1]
+        curr_vars = estados[i]
+        if detectar_singularidad_convergente(prev_vars, curr_vars):
+            print(f"🔹 Singularidad convergente detectada en t={i} (activación pliegue)")
+            convergentes.append(i)
+            eventos.append({'tipo': 'convergente', 't': i})
+        if detectar_singularidad_divergente(prev_vars, curr_vars):
+            print(f"🔹 Singularidad divergente detectada en t={i} (colapso pliegue)")
+            divergentes.append(i)
+            eventos.append({'tipo': 'divergente', 't': i})
+
+    # 3. Detectar estabilidad interna (≥3 pasos en secuencia)
+    estables = detectar_estabilidad(estados, min_duracion=3)
+    for idx in estables:
+        print(f"🔹 Estabilidad interna detectada en t={idx}")
+
+    # 4. Visualización del proceso
+    tiempos = list(range(len(estados)))
+    kappa = [e['κ_topo'] for e in estados]
+    phi = [e['Φ_H'] for e in estados]
+    pci = [e['ΔPCI'] for e in estados]
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(tiempos, kappa, '-o', label='κ_topo')
+    plt.plot(tiempos, phi, '-o', label='Φ_H')
+    plt.plot(tiempos, pci, '-o', label='ΔPCI')
+
+    # Líneas horizontales de umbral
+    plt.axhline(0.5, color='blue', linestyle='dotted', linewidth=1, label='Umbral κ_topo')
+    plt.axhline(1.0, color='orange', linestyle='dotted', linewidth=1, label='Umbral Φ_H')
+
+    # Marcar transiciones convergentes
+    plt.scatter(convergentes, [kappa[i] for i in convergentes], color='green', s=120, marker='^', label='Convergente')
+    # Marcar transiciones divergentes
+    plt.scatter(divergentes, [kappa[i] for i in divergentes], color='red', s=120, marker='v', label='Divergente')
+    # Marcar estabilidad interna
+    plt.scatter(estables, [kappa[i] for i in estables], color='purple', s=120, marker='*', label='Estabilidad')
+
+    plt.xlabel('Tiempo')
+    plt.ylabel('Valor')
+    plt.title('Evolución de κ_topo, Φ_H y ΔPCI con transiciones y estabilidad')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    # 5. Exportar eventos como CSV
+    with open('eventos_pah.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['tipo', 't']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for evento in eventos:
+            writer.writerow(evento)
+        for idx in estables:
+            writer.writerow({'tipo': 'estabilidad', 't': idx})
+
+    print("Eventos exportados a eventos_pah.csv")
