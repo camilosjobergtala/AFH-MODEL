@@ -1,7 +1,8 @@
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=UserWarning, message=".*legend with loc=\"best\".*")
-
+import threading
+import time
 import os
 import re
 import glob
@@ -12,8 +13,72 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from sklearn.model_selection import KFold
 import multiprocessing
 import random
+from sklearn.metrics import mutual_info_score
+import mne
+from tqdm import tqdm
 
-# Mapa de estados de sueño
+def heartbeat():
+    while True:
+        print(f"[HEARTBEAT] Proceso sigue vivo: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        time.sleep(60)  # imprime cada 60 segundos
+
+def cargar_eeg_y_segmentar(pgs_edf_path, dur_ventana_s=30):
+    """
+    Carga el PSG EDF y lo segmenta en ventanas de dur_ventana_s (por defecto 30s).
+    Devuelve: eeg_data shape (n_ventanas, n_canales, muestras_por_ventana)
+    """
+    raw = mne.io.read_raw_edf(pgs_edf_path, preload=True)
+    data = raw.get_data()  # (n_canales, n_muestras_totales)
+    sfreq = raw.info['sfreq']
+    ventana_muestras = int(dur_ventana_s * sfreq)
+    n_ventanas = data.shape[1] // ventana_muestras
+    eeg_data = np.zeros((n_ventanas, data.shape[0], ventana_muestras))
+    for i in range(n_ventanas):
+        eeg_data[i] = data[:, i*ventana_muestras:(i+1)*ventana_muestras]
+    return eeg_data
+
+# ==== MÉTRICAS PROXYS INSPIRADAS EN RICCI, MASSIMINI, TONONI ====
+
+def kappa_topologico(corr_matrix, threshold=0.5):
+    bin_matrix = (np.abs(corr_matrix) > threshold).astype(int)
+    np.fill_diagonal(bin_matrix, 0)
+    grado_promedio = np.mean(np.sum(bin_matrix, axis=0))
+    return grado_promedio
+
+def mutual_information(x, y, bins=16):
+    c_xy = np.histogram2d(x, y, bins)[0]
+    return mutual_info_score(None, None, contingency=c_xy)
+
+def phi_h(mi_matrix):
+    return np.nanmean(mi_matrix[np.triu_indices_from(mi_matrix, k=1)])
+
+def lz_complexity(binary_signal):
+    s = ''.join([str(int(i)) for i in binary_signal])
+    i, c, l = 0, 1, 1
+    n = len(s)
+    while True:
+        if s[i:i+l] not in s[0:i]:
+            c += 1
+            i += l
+            l = 1
+            if i + l > n:
+                break
+        else:
+            l += 1
+            if i + l > n:
+                break
+    return c
+
+def delta_pci(seg1, seg2):
+    med = np.median(np.concatenate([seg1, seg2]))
+    bin1 = (seg1 > med).astype(int)
+    bin2 = (seg2 > med).astype(int)
+    lz1 = lz_complexity(bin1)
+    lz2 = lz_complexity(bin2)
+    return np.abs(lz1 - lz2)
+
+# ================== RESTO DEL PIPELINE =====================
+
 SLEEP_STAGE_MAP = {
     "W": 0,
     "1": 1,
@@ -106,7 +171,7 @@ def convert_all_hypnograms_to_pipeline_csv(input_folder, output_folder):
     print("Terminé de recorrer la carpeta.")
     return generated_files
 
-def calcular_metricas_por_ventana(df, modo='simulado', eeg_data=None, random_seed=None):
+def calcular_metricas_por_ventana(df, modo='simulado', eeg_data=None, random_seed=None, corr_threshold=0.5, bins=16):
     np.random.seed(random_seed)
     n = len(df)
     if modo == 'simulado':
@@ -116,10 +181,23 @@ def calcular_metricas_por_ventana(df, modo='simulado', eeg_data=None, random_see
     elif modo == 'real':
         if eeg_data is None:
             raise ValueError("En modo 'real', eeg_data (señal cruda) debe ser provisto para calcular las métricas.")
+        prev_bin = None
         for i, row in df.iterrows():
-            df.at[i, 'k_topo'] = np.random.normal(5, 1)
-            df.at[i, 'phi_h'] = np.random.normal(0.8, 0.2)
-            df.at[i, 'delta_pci'] = np.random.normal(0, 0.08)
+            segmento = eeg_data[i]  # shape = (n_canales, n_muestras)
+            corr_matrix = np.corrcoef(segmento)
+            df.at[i, 'k_topo'] = kappa_topologico(corr_matrix, threshold=corr_threshold)
+            n_can = segmento.shape[0]
+            mi_matrix = np.zeros((n_can, n_can))
+            for ch1 in range(n_can):
+                for ch2 in range(n_can):
+                    mi_matrix[ch1, ch2] = mutual_information(segmento[ch1], segmento[ch2], bins=bins)
+            df.at[i, 'phi_h'] = phi_h(mi_matrix)
+            seg_bin = (segmento.flatten() > np.median(segmento)).astype(int)
+            if prev_bin is not None:
+                df.at[i, 'delta_pci'] = delta_pci(seg_bin, prev_bin)
+            else:
+                df.at[i, 'delta_pci'] = np.nan
+            prev_bin = seg_bin
     else:
         raise ValueError("El modo debe ser 'simulado' o 'real'.")
     for col in ['k_topo', 'phi_h', 'delta_pci']:
@@ -488,7 +566,7 @@ def procesar_archivo(
         return None
 
     if df['k_topo'].isnull().all() or df['phi_h'].isnull().all() or df['delta_pci'].isnull().all():
-        df = calcular_metricas_por_ventana(df, modo=modo_metricas, eeg_data=eeg_data, random_seed=random_seed)
+        df = calcular_metricas_por_ventana(df, modo='real', eeg_data=eeg_data, random_seed=random_seed)
 
     despertares, dormidas = detectar_transiciones(df)
     percentil = 75
@@ -611,8 +689,45 @@ def procesar_archivo(
         "n_control": len(idx_control),
     }
 
-def get_optimal_workers(estimated_usage_per_process_gb=2):
-    return min(12, multiprocessing.cpu_count())
+def procesar_archivo_wrapper(args):
+    archivo = args[0]
+    try:
+        # Carga el EEG SOLO aquí, dentro del proceso hijo
+        psg_path = os.path.join(CARPETA_BASE, 'SC4122E0-PSG.edf')
+        eeg_data = cargar_eeg_y_segmentar(psg_path, dur_ventana_s=30)
+        df_temp = pd.read_csv(archivo)
+        n_ventanas = len(df_temp)
+        eeg_data_alineado = eeg_data[:n_ventanas]
+        resultado = procesar_archivo(
+            archivo,
+            modo_metricas='real',
+            eeg_data=eeg_data_alineado,
+            random_seed=42
+        )
+        print(f"[OK] Terminado: {archivo}")
+        return resultado
+    except Exception as e:
+        print(f"[ERROR] procesando {archivo}: {e}")
+        return None
+
+def procesar_archivo_wrapper_estricto(args):
+    archivo = args[0]
+    try:
+        psg_path = os.path.join(CARPETA_BASE, 'SC4122E0-PSG.edf')
+        eeg_data = cargar_eeg_y_segmentar(psg_path, dur_ventana_s=30)
+        df_temp = pd.read_csv(archivo)
+        n_ventanas = len(df_temp)
+        eeg_data_alineado = eeg_data[:n_ventanas]
+        return procesar_archivo(
+            archivo,
+            False, None, 50, 5, True,
+            'real',
+            eeg_data_alineado,
+            42
+        )
+    except Exception as e:
+        print(f"[ERROR] procesando (estricto) {archivo}: {e}")
+        return None
 
 def main_batch():
     print("Buscando y convirtiendo archivos Hypnogram Sleep-EDF a formato ventana...")
@@ -628,38 +743,36 @@ def main_batch():
 
     safe_makedirs(CARPETA_RESULTADOS)
 
-    num_workers = get_optimal_workers(estimated_usage_per_process_gb=2)
-    print(f"Usando {num_workers} procesos paralelos.")
+    # ======== PROCESAMIENTO PARALELO CON TQDM ========
+    max_workers = min(8, multiprocessing.cpu_count())  # ajusta según tu RAM/CPU
 
+    print("\nProcesando archivos (batch estándar, paralelo)...")
+    tareas = [(archivo,) for archivo in archivos]
     resumen_batch = []
-    with ProcessPoolExecutor(max_workers=num_workers) as executor:
-        future_to_file = {executor.submit(procesar_archivo, archivo, modo_metricas='simulado', random_seed=42): archivo for archivo in archivos}
-        for future in as_completed(future_to_file):
-            try:
-                resultado = future.result()
-                if resultado:
-                    resumen_batch.append(resultado)
-            except Exception as e:
-                print(f"[ERROR] Archivo {future_to_file[future]}: {e}")
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futuros = [executor.submit(procesar_archivo_wrapper, arg) for arg in tareas]
+        for f in tqdm(as_completed(futuros), total=len(futuros), desc="Archivos batch"):
+            resultado = f.result()
+            if resultado:
+                resumen_batch.append(resultado)
     resumen_df = pd.DataFrame(resumen_batch)
     resumen_csv_path = os.path.join(CARPETA_RESULTADOS, "resumen_batch.csv")
     resumen_df.to_csv(resumen_csv_path, index=False)
     print(f"\nResumen batch guardado en {resumen_csv_path}")
 
+    print("\nProcesando archivos (batch ESTRICTO, paralelo)...")
     resumen_batch_estricto = []
-    with ProcessPoolExecutor(max_workers=num_workers) as executor:
-        future_to_file = {executor.submit(procesar_archivo, archivo, False, None, 50, 5, True, 'simulado', None, 42): archivo for archivo in archivos}
-        for future in as_completed(future_to_file):
-            try:
-                resultado = future.result()
-                if resultado:
-                    resumen_batch_estricto.append(resultado)
-            except Exception as e:
-                print(f"[ERROR] Archivo (estricto) {future_to_file[future]}: {e}")
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futuros = [executor.submit(procesar_archivo_wrapper_estricto, arg) for arg in tareas]
+        for f in tqdm(as_completed(futuros), total=len(futuros), desc="Archivos estrictos"):
+            resultado = f.result()
+            if resultado:
+                resumen_batch_estricto.append(resultado)
     resumen_df_estricto = pd.DataFrame(resumen_batch_estricto)
     resumen_csv_path_estricto = os.path.join(CARPETA_RESULTADOS, "resumen_batch_estricto.csv")
     resumen_df_estricto.to_csv(resumen_csv_path_estricto, index=False)
     print(f"\nResumen batch ESTRICTO guardado en {resumen_csv_path_estricto}")
 
 if __name__ == "__main__":
+    threading.Thread(target=heartbeat, daemon=True).start()
     main_batch()
