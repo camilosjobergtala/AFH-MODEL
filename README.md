@@ -1,54 +1,61 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15541551.svg)](https://doi.org/10.5281/zenodo.15541551)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15541551.svg)](https://doi.org/10.5281/zenodo.15541551)
+
 # 🧠 AFH* MODEL – Simulation of Consciousness Emergence
 
-Welcome to the official repository of the **AFH\*** model: a falsifiable and structural hypothesis for the **emergence of consciousness** through the formation of an **Autopsyquic Fold** (PAH\*) once a critical topological threshold is crossed – the **Horizon H\***.
-
-This repository contains the Python implementation of the **AFH\* Supreme Experiment**, a simulation to test whether a system meets the minimal structural requirements for conscious experience.
+Welcome to the official repository of the **AFH*** model: a falsifiable and structurally grounded hypothesis for the emergence of consciousness. The model posits that consciousness arises through the formation of an **Autopsyquic Fold (PAH\*)** once a **critical topological threshold (H\*)** is crossed.
 
 ---
 
 ## 🧩 Core Concepts
 
-- **Autopsyquic Fold (PAH\*)**: A closed, self-referential and resonant structure in the system's network topology, representing the minimal unit of subjective experience.
-- **Horizon H\***: The threshold of structural organization that must be crossed for a pliegue autopsíquico to emerge.
-- **Key measurable variables**:
-  - `κ_topo`: Topological curvature
-  - `Φ_H`: Temporal mutual information
-  - `ΔPCI`: Perturbational complexity index
-  - `∇Φ_resonant`: Symbolic neural resonance
+- **Autopsyquic Fold (PAH\*)**: A self-referential and resonant structure in neural topology, representing the minimal unit of subjective experience.
+- **Horizon H\***: The critical region in the structural space (κ, Σ, Φ) that enables consciousness to potentially emerge.
+
+### Key measurable variables:
+
+| Symbol           | Description                                          |
+|------------------|------------------------------------------------------|
+| `κ_topo`         | Topological curvature (e.g., Ricci, clustering)      |
+| `Φ_H`            | Temporal mutual information between neural channels |
+| `ΔPCI`           | Perturbational Complexity Index                      |
+| `∇Φ_resonant`    | Symbolic neural resonance (semantic divergence)      |
 
 ---
 
-## 🧪 What does the simulation do?
+## 🧪 What Does the Simulation Do?
 
-This Python script compares a **conscious** vs. a **non-conscious** network system by:
+This Python simulation compares a **conscious-like** vs. **non-conscious** network by:
 
-1. Generating two artificial networks with different levels of connectivity.
-2. Simulating timeseries and perturbations.
-3. Calculating the 4 structural indicators.
-4. Printing results and determining whether the Autopsyquic Fold is detected.
+1. Generating artificial graphs with varied connectivity and modularity.
+2. Simulating temporal dynamics and symbolic perturbations.
+3. Computing the four structural indicators (`κ_topo`, `Φ_H`, `ΔPCI`, `∇Φ_resonant`).
+4. Determining if the Autopsyquic Fold is detected (i.e., if H\* is crossed and stabilized).
 
 ---
 
 ## 🚀 How to Run
 
-```bash
-# Install dependencies (Python 3.8+ recommended)
-pip install numpy networkx matplotlib scikit-learn transformers torch
+### 1. Clone the repository
 
-# Clone this repository
+```bash
 git clone https://github.com/camilosjobergtala/AFH-MODEL.git
 cd AFH-MODEL
-
-# Run the simulation
+2. Install dependencies (Python ≥ 3.8 recommended)
+bash
+Copiar
+Editar
+pip install numpy networkx matplotlib scikit-learn transformers torch
+3. Run the main experiment
+bash
+Copiar
+Editar
 python src/AFH_experiment.py
-
-
----
-
 📄 Output Example
-
+yaml
+Copiar
+Editar
 AFH* Supreme Experiment Results:
 
 Conscious:
@@ -64,43 +71,23 @@ Non-Conscious:
   ∇Φ_resonant: 0.120
 
 Autopsyquic Fold Detected? YES
-
-
----
-
 📚 Resources
+🔬 *AFH Preprint (English)**: https://zenodo.org/records/15468224
 
-🧾 Zenodo Preprint (EN) https://zenodo.org/records/15468224
+📘 *AFH Preprint (Spanish)**: https://zenodo.org/records/15491032
 
-📘 Zenodo Preprint (ES)
-https://zenodo.org/records/15491032
-
-🌐 Official X @CamiloSjobergT
-
-
-
----
+🌐 Author’s X profile: @CamiloSjobergT
 
 🧑‍🔬 About the Author
-
 Camilo Alejandro Sjöberg Tala
 Medical Doctor · Independent Researcher
-Chile, 2025 – ORCID (https://orcid.org/0009-0009-6052-0212)
-
-
----
+Viña del Mar, Chile – 2025
+ORCID: 0009-0009-6052-0212
 
 📜 License
-
 This project is licensed under the MIT License – see the LICENSE file for details.
 
-
----
-
 🙏 Citation
-
-If you use or adapt this code in your research, please cite:
+If you use or adapt this model in your research, please cite:
 
 Sjöberg Tala, C. A. (2025). AFH* Model: A Structural and Falsifiable Proposal for the Emergence of Consciousness. Zenodo. https://doi.org/10.5281/zenodo.15468224
-
-
