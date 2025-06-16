@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the following work."
+title: "AFH* Model: A Structural and Falsifiable Proposal for the Emergence of Consciousness"
+authors:
+  - family-names: Sjöberg Tala
+    given-names: Camilo Alejandro
+    orcid: https://orcid.org/0009-0009-6052-0212
+date-released: 2025-06-16
+version: "4.0"
+doi: 10.5281/zenodo.15468224
+license: MIT
+repository-code: https://github.com/camilosjobergtala/AFH-MODEL
+url: https://doi.org/10.5281/zenodo.15468224
+keywords:
+  - consciousness
+  - topology
+  - neuroscience
+  - emergence
+  - falsifiability
