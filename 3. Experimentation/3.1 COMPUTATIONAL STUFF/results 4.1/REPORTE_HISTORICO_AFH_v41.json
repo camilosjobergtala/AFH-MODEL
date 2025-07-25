@@ -1,0 +1,427 @@
+{
+  "metadata_historico_v41": {
+    "titulo": "Primera Simplificación Post-Exploración en Consciousness Science",
+    "modelo": "AFH* v4.1 - 3 variables sólidas + ECLIPSE FINAL preservado",
+    "investigador": "Camilo Alejandro Sjöberg Tala",
+    "fecha_validacion": "2025-07-23 03:14:26",
+    "significado_historico": "Primera simplificación basada en fundamentos teóricos",
+    "metodologia": "ECLIPSE FINAL preservada + 3 variables v4.1",
+    "nivel_honestidad": "MÁXIMO",
+    "falsabilidad": "REAL PRESERVADA"
+  },
+  "simplificacion_v41": {
+    "version_anterior": "AFH* v4.0 (4 variables)",
+    "variable_removida": "nabla_phi_resonante (experimental)",
+    "variables_conservadas": {
+      "k_topo_ricci": "Ollivier-Ricci curvature en redes funcionales",
+      "sigma_estabilidad": "Coherencia temporal multiescala",
+      "phi_h_transfer": "Transfer entropy direccional"
+    },
+    "arquitectura_preservada": "ECLIPSE FINAL completa"
+  },
+  "split_irreversible": {
+    "archivo": "G:\\Mi unidad\\AFH\\EXPERIMENTO\\FASE 2\\SLEEP-EDF\\DATABASE\\sleep-cassette\\AFH_v41_ECLIPSE_FINAL_HONESTO\\SPLIT_DEFINITIVO_AFH_v41.json",
+    "seed_sagrado": 2025,
+    "sujetos_desarrollo": [
+      "SC4051E0",
+      "SC4552F0",
+      "SC4041E0",
+      "SC4022E0",
+      "SC4752E0",
+      "SC4731E0",
+      "SC4762E0",
+      "SC4212E0",
+      "SC4811G0",
+      "SC4112E0",
+      "SC4412E0",
+      "SC4332F0",
+      "SC4121E0",
+      "SC4501E0",
+      "SC4542F0",
+      "SC4562F0",
+      "SC4242E0",
+      "SC4341F0",
+      "SC4592G0",
+      "SC4221E0",
+      "SC4241E0",
+      "SC4082E0",
+      "SC4801G0",
+      "SC4661E0",
+      "SC4431E0",
+      "SC4711E0",
+      "SC4742E0",
+      "SC4632E0",
+      "SC4131E0",
+      "SC4511E0",
+      "SC4621E0",
+      "SC4402E0",
+      "SC4702E0",
+      "SC4462F0",
+      "SC4532E0",
+      "SC4101E0",
+      "SC4381F0",
+      "SC4152E0",
+      "SC4062E0",
+      "SC4352F0",
+      "SC4211E0",
+      "SC4671G0",
+      "SC4491G0",
+      "SC4362F0",
+      "SC4651E0",
+      "SC4291G0",
+      "SC4322E0",
+      "SC4712E0",
+      "SC4001E0",
+      "SC4321E0",
+      "SC4151E0",
+      "SC4451F0",
+      "SC4282G0",
+      "SC4822G0",
+      "SC4292G0",
+      "SC4011E0",
+      "SC4141E0",
+      "SC4442E0",
+      "SC4471F0",
+      "SC4581G0",
+      "SC4482F0",
+      "SC4732E0",
+      "SC4372F0",
+      "SC4541F0",
+      "SC4092E0",
+      "SC4772G0",
+      "SC4261F0",
+      "SC4561F0",
+      "SC4171E0",
+      "SC4512E0",
+      "SC4021E0",
+      "SC4722E0",
+      "SC4432E0",
+      "SC4622E0",
+      "SC4411E0",
+      "SC4421E0",
+      "SC4601E0",
+      "SC4342F0",
+      "SC4611E0",
+      "SC4111E0",
+      "SC4191E0",
+      "SC4161E0",
+      "SC4761E0",
+      "SC4481F0",
+      "SC4231E0",
+      "SC4232E0",
+      "SC4262F0",
+      "SC4102E0",
+      "SC4201E0",
+      "SC4741E0",
+      "SC4162E0",
+      "SC4181E0",
+      "SC4202E0",
+      "SC4602E0",
+      "SC4031E0",
+      "SC4492G0",
+      "SC4002E0",
+      "SC4612E0",
+      "SC4502E0",
+      "SC4572F0",
+      "SC4531E0",
+      "SC4721E0",
+      "SC4812G0",
+      "SC4662E0",
+      "SC4461F0",
+      "SC4192E0",
+      "SC4401E0"
+    ],
+    "sujetos_holdout": [
+      "SC4642E0",
+      "SC4382F0",
+      "SC4052E0",
+      "SC4091E0",
+      "SC4631E0",
+      "SC4071E0",
+      "SC4371F0",
+      "SC4472F0",
+      "SC4751E0",
+      "SC4652E0",
+      "SC4591G0",
+      "SC4802G0",
+      "SC4312E0",
+      "SC4641E0",
+      "SC4012E0",
+      "SC4272F0",
+      "SC4042E0",
+      "SC4351F0",
+      "SC4821G0",
+      "SC4422E0",
+      "SC4081E0",
+      "SC4142E0",
+      "SC4061E0",
+      "SC4222E0",
+      "SC4271F0",
+      "SC4551F0",
+      "SC4251E0",
+      "SC4172E0",
+      "SC4571F0",
+      "SC4522E0",
+      "SC4582G0",
+      "SC4452F0",
+      "SC4122E0",
+      "SC4672G0",
+      "SC4441E0",
+      "SC4252E0",
+      "SC4281G0",
+      "SC4771G0",
+      "SC4311E0",
+      "SC4302E0",
+      "SC4072E0",
+      "SC4182E0",
+      "SC4301E0",
+      "SC4032E0",
+      "SC4331F0",
+      "SC4701E0"
+    ],
+    "es_inmutable": true
+  },
+  "criterios_vinculantes_v41": {
+    "modelo_evaluado": "AFH* v4.1 - 3 VARIABLES SÓLIDAS + Horizonte H* v4.1",
+    "investigador": "Camilo Alejandro Sjöberg Tala",
+    "fecha_definicion": "2025-07-22 22:19:46",
+    "timestamp_definicion": "2025-07-22T22:19:46.984760",
+    "criterios_falsacion": {
+      "f1_minimo_eureka": 0.6,
+      "precision_minima": 0.7,
+      "recall_minimo": 0.5,
+      "tasa_deteccion_minima": 0.01,
+      "tasa_deteccion_maxima": 0.15,
+      "estabilidad_cv_maxima": 0.1,
+      "cobertura_poblacional_minima": 0.8
+    },
+    "interpretacion_automatica": {
+      "EUREKA_REAL_v41": {
+        "condicion": "Todos los criterios v4.1 cumplidos",
+        "significado": "AFH* v4.1 VALIDADO empíricamente - 3 variables sólidas exitosas",
+        "implicacion": "Framework simplificado y robusto para detección de conciencia"
+      },
+      "EVIDENCIA_PARCIAL_v41": {
+        "condicion": "Mayoría de criterios v4.1 cumplidos",
+        "significado": "AFH* v4.1 con evidencia limitada - Refinamiento v4.2 requerido",
+        "implicacion": "Base sólida confirmada, optimización de umbrales necesaria"
+      },
+      "FALSADO_v41": {
+        "condicion": "Criterios v4.1 no cumplidos",
+        "significado": "AFH* v4.1 FALSADO - Reformulación v5.0 requerida",
+        "implicacion": "Incluso 3 variables sólidas insuficientes, enfoque fundamental nuevo"
+      }
+    },
+    "configuracion_validacion": {
+      "metodo": "Split irreversible + Validación cruzada + Holdout final v4.1",
+      "k_folds_cv": 5,
+      "seed_reproducibilidad": 2025,
+      "arquitectura_preservada": "ECLIPSE FINAL",
+      "variables_solidas": "3 variables robustas sin experimental"
+    },
+    "hash_criterios_v41": "a36bba32f61ba3b52af632c8c8d40803"
+  },
+  "desarrollo_limpio_v41": {
+    "f1_mean_v41": 0.7595286498541773,
+    "f1_std_v41": 0.18556779287813702,
+    "n_folds_exitosos": 5,
+    "resultados_detallados": [
+      {
+        "fold": 1,
+        "f1_v41": 0.8666666666666666,
+        "precision_v41": 0.7647058823529411,
+        "recall_v41": 1.0,
+        "umbrales_v41": {
+          "k_topo_ricci": 0.2744813418960491,
+          "sigma_estabilidad": 0.2596772676032132,
+          "phi_h_transfer": 0.05648799844872956,
+          "desc": "Top 30% todas las 3 variables",
+          "tasa_deteccion": 2.595494613124388,
+          "n_candidatos": 212
+        },
+        "n_train": 85,
+        "n_test": 22
+      },
+      {
+        "fold": 2,
+        "f1_v41": 0.9253731343283582,
+        "precision_v41": 0.8611111111111112,
+        "recall_v41": 1.0,
+        "umbrales_v41": {
+          "k_topo_ricci": 0.2732975192113418,
+          "sigma_estabilidad": 0.2470720574263755,
+          "phi_h_transfer": 0.07822160814426518,
+          "desc": "Top 30% todas las 3 variables",
+          "tasa_deteccion": 1.4173998044965785,
+          "n_candidatos": 116
+        },
+        "n_train": 85,
+        "n_test": 22
+      },
+      {
+        "fold": 3,
+        "f1_v41": 0.4,
+        "precision_v41": 1.0,
+        "recall_v41": 0.25,
+        "umbrales_v41": {
+          "k_topo_ricci": 0.26842883505417314,
+          "sigma_estabilidad": 0.2731927264244258,
+          "phi_h_transfer": 0.0762686586931173,
+          "desc": "Top 30% todas las 3 variables",
+          "tasa_deteccion": 2.048371174728529,
+          "n_candidatos": 166
+        },
+        "n_train": 86,
+        "n_test": 21
+      },
+      {
+        "fold": 4,
+        "f1_v41": 0.8125000000000001,
+        "precision_v41": 0.6842105263157895,
+        "recall_v41": 1.0,
+        "umbrales_v41": {
+          "k_topo_ricci": 0.26842883505417314,
+          "sigma_estabilidad": 0.2731927264244258,
+          "phi_h_transfer": 0.0762686586931173,
+          "desc": "Top 30% todas las 3 variables",
+          "tasa_deteccion": 2.048371174728529,
+          "n_candidatos": 166
+        },
+        "n_train": 86,
+        "n_test": 21
+      },
+      {
+        "fold": 5,
+        "f1_v41": 0.7931034482758621,
+        "precision_v41": 1.0,
+        "recall_v41": 0.6571428571428571,
+        "umbrales_v41": {
+          "k_topo_ricci": 0.26842883505417314,
+          "sigma_estabilidad": 0.2731927264244258,
+          "phi_h_transfer": 0.0762686586931173,
+          "desc": "Top 30% todas las 3 variables",
+          "tasa_deteccion": 2.048371174728529,
+          "n_candidatos": 166
+        },
+        "n_train": 86,
+        "n_test": 21
+      }
+    ]
+  },
+  "umbrales_calibrados_v41": {
+    "k_topo_ricci": 0.2702625231301105,
+    "sigma_estabilidad": 0.25388083227364433,
+    "phi_h_transfer": 0.06924424027854008,
+    "desc": "Top 30% todas las 3 variables",
+    "tasa_deteccion": 1.4669560661627123,
+    "n_candidatos": 392
+  },
+  "validacion_final_v41": {
+    "modelo_evaluado": "AFH* v4.1 - 3 VARIABLES SÓLIDAS + Horizonte H* v4.1",
+    "investigador": "Camilo Alejandro Sjöberg Tala",
+    "timestamp_eureka": "2025-07-23T03:14:26.871055",
+    "fecha_eureka": "2025-07-23 03:14:26",
+    "variables_v41_evaluadas": {
+      "k_topo_ricci": "Ollivier-Ricci curvature en redes funcionales",
+      "sigma_estabilidad": "Coherencia temporal multiescala",
+      "phi_h_transfer": "Transfer entropy direccional"
+    },
+    "configuracion_validacion": {
+      "metodo": "Split irreversible + BESTIA MODE + Holdout final v4.1",
+      "n_sujetos_holdout": 46,
+      "n_ventanas_holdout": 126160,
+      "hardware_utilizado": "8C/16T, 31GB RAM",
+      "workers_bestia": 15,
+      "arquitectura_preservada": "ECLIPSE FINAL",
+      "simplificacion_variables": "v4.0 → v4.1 (sin variable experimental)"
+    },
+    "umbrales_aplicados_v41": {
+      "k_topo_ricci": 0.2702625231301105,
+      "sigma_estabilidad": 0.25388083227364433,
+      "phi_h_transfer": 0.06924424027854008,
+      "desc": "Top 30% todas las 3 variables",
+      "tasa_deteccion": 1.4669560661627123,
+      "n_candidatos": 392
+    },
+    "metricas_finales_v41": {
+      "f1_score": 0.03672532517214996,
+      "precision": 0.025043478260869566,
+      "recall": 0.06883365200764818,
+      "tasa_deteccion": 0.02278852251109702,
+      "coincidencias": 72,
+      "singularidades_detectadas": 2875,
+      "transiciones_reales": 1046
+    },
+    "evaluacion_criterios_v41": {
+      "cumple_f1": false,
+      "cumple_precision": false,
+      "cumple_recall": false,
+      "cumple_tasa_deteccion": true,
+      "criterios_cumplidos_total": 2,
+      "criterios_requeridos": 5
+    },
+    "veredicto_final": "FALSADO_v41",
+    "interpretacion": {
+      "condicion": "Criterios v4.1 no cumplidos",
+      "significado": "AFH* v4.1 FALSADO - Reformulación v5.0 requerida",
+      "implicacion": "Incluso 3 variables sólidas insuficientes, enfoque fundamental nuevo"
+    },
+    "es_definitivo": true,
+    "es_irreversible": true,
+    "criterios_aplicados": {
+      "modelo_evaluado": "AFH* v4.1 - 3 VARIABLES SÓLIDAS + Horizonte H* v4.1",
+      "investigador": "Camilo Alejandro Sjöberg Tala",
+      "fecha_definicion": "2025-07-22 22:19:46",
+      "timestamp_definicion": "2025-07-22T22:19:46.984760",
+      "criterios_falsacion": {
+        "f1_minimo_eureka": 0.6,
+        "precision_minima": 0.7,
+        "recall_minimo": 0.5,
+        "tasa_deteccion_minima": 0.01,
+        "tasa_deteccion_maxima": 0.15,
+        "estabilidad_cv_maxima": 0.1,
+        "cobertura_poblacional_minima": 0.8
+      },
+      "interpretacion_automatica": {
+        "EUREKA_REAL_v41": {
+          "condicion": "Todos los criterios v4.1 cumplidos",
+          "significado": "AFH* v4.1 VALIDADO empíricamente - 3 variables sólidas exitosas",
+          "implicacion": "Framework simplificado y robusto para detección de conciencia"
+        },
+        "EVIDENCIA_PARCIAL_v41": {
+          "condicion": "Mayoría de criterios v4.1 cumplidos",
+          "significado": "AFH* v4.1 con evidencia limitada - Refinamiento v4.2 requerido",
+          "implicacion": "Base sólida confirmada, optimización de umbrales necesaria"
+        },
+        "FALSADO_v41": {
+          "condicion": "Criterios v4.1 no cumplidos",
+          "significado": "AFH* v4.1 FALSADO - Reformulación v5.0 requerida",
+          "implicacion": "Incluso 3 variables sólidas insuficientes, enfoque fundamental nuevo"
+        }
+      },
+      "configuracion_validacion": {
+        "metodo": "Split irreversible + Validación cruzada + Holdout final v4.1",
+        "k_folds_cv": 5,
+        "seed_reproducibilidad": 2025,
+        "arquitectura_preservada": "ECLIPSE FINAL",
+        "variables_solidas": "3 variables robustas sin experimental"
+      },
+      "hash_criterios_v41": "a36bba32f61ba3b52af632c8c8d40803"
+    },
+    "hash_integridad_resultado": "a58513ce31ad9c9824d3e74f616342ef",
+    "seed_verificacion": 2025,
+    "declaracion_final": "El Modelo AFH* v4.1 ha sido FALSADO_v41 de forma definitiva e irreversible mediante validación empírica honesta con 3 variables sólidas."
+  },
+  "archivos_criticos_v41": {
+    "split_definitivo": "G:\\Mi unidad\\AFH\\EXPERIMENTO\\FASE 2\\SLEEP-EDF\\DATABASE\\sleep-cassette\\AFH_v41_ECLIPSE_FINAL_HONESTO\\SPLIT_DEFINITIVO_AFH_v41.json",
+    "criterios_vinculantes": "G:\\Mi unidad\\AFH\\EXPERIMENTO\\FASE 2\\SLEEP-EDF\\DATABASE\\sleep-cassette\\AFH_v41_ECLIPSE_FINAL_HONESTO\\CRITERIOS_VINCULANTES_v41.json",
+    "eureka_final": "G:\\Mi unidad\\AFH\\EXPERIMENTO\\FASE 2\\SLEEP-EDF\\DATABASE\\sleep-cassette\\AFH_v41_ECLIPSE_FINAL_HONESTO\\EUREKA_FINAL_AFH_v41.json",
+    "reporte_historico": "G:\\Mi unidad\\AFH\\EXPERIMENTO\\FASE 2\\SLEEP-EDF\\DATABASE\\sleep-cassette\\AFH_v41_ECLIPSE_FINAL_HONESTO\\REPORTE_HISTORICO_AFH_v41.txt"
+  },
+  "verificacion_integridad": {
+    "hash_resultado": "a58513ce31ad9c9824d3e74f616342ef",
+    "timestamp_reporte": "2025-07-23T03:14:26.884930",
+    "es_inmutable": true,
+    "replicable": true
+  }
+}

@@ -1,0 +1,96 @@
+🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯
+🚀 MODELO PAH* - REPORTE HISTÓRICO DEFINITIVO
+💫 PRIMERA VALIDACIÓN EMPÍRICA HONESTA DE TEORÍA DE CONCIENCIA
+🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯
+
+📋 INFORMACIÓN HISTÓRICA
+======================================================================
+Modelo: PAH* v2.3 (Pliegue Autopsíquico + Horizonte H*)
+Investigador: Camilo Alejandro Sjöberg Tala, M.D.
+Institución: Investigador Independiente
+Fecha validación: 2025-06-13 10:50:03
+Dataset: Sleep-EDF Database (PhysioNet)
+Hardware: 8C/16T, 31GB RAM
+Metodología: Split irreversible + BESTIA MODE + Holdout final
+
+🎲 DISEÑO EXPERIMENTAL (IRREVERSIBLE)
+======================================================================
+Seed sagrado: 2025 (NUNCA modificado)
+Total sujetos: 153
+Desarrollo: 107 sujetos (70%)
+Holdout sagrado: 46 sujetos (30%)
+Validación cruzada: K=5 folds en desarrollo
+Validación final: Una sola oportunidad en holdout
+
+📋 CRITERIOS PRE-REGISTRADOS (VINCULANTES)
+======================================================================
+F1 mínimo: 0.25
+Precisión mínima: 0.3
+Recall mínimo: 0.2
+Rango detección: 0.5% - 10.0%
+Fecha pre-registro: 2025-06-13 09:40:04
+
+🔧 DESARROLLO (DATOS NO CONTAMINADOS)
+======================================================================
+Validación cruzada K=5:
+  F1 promedio: 0.420 ± 0.399
+  Folds exitosos: 5/5
+Umbrales calibrados:
+  κ_topo ≥ 0.062857
+  Φ_H ≥ 0.146670
+  ΔPCI ≤ 2.000000
+
+🚨 VALIDACIÓN FINAL (IRREVERSIBLE)
+======================================================================
+F1-Score: 0.031 ❌
+Precisión: 0.032 ❌
+Recall: 0.030 ❌
+Tasa detección: 0.8% ✅
+Criterios cumplidos: 2/5
+
+🏆 VEREDICTO HISTÓRICO
+======================================================================
+RESULTADO: FALSADO
+SIGNIFICADO: Modelo PAH* FALSADO empÃ­ricamente
+IMPLICACIÓN: Requiere reformulaciÃ³n teÃ³rica fundamental
+DEFINITIVO: SÍ (irreversible para siempre)
+
+🔬 IMPLICACIONES CIENTÍFICAS
+======================================================================
+❌ FALSACIÓN HONESTA - VALOR CIENTÍFICO CRÍTICO:
+• Eliminación de una hipótesis incorrecta del campo
+• Demostración de honestidad científica ejemplar
+• Redirección de investigación hacia caminos más prometedores
+• Contribución al conocimiento por eliminación
+• Estándar de rigor para futuras teorías de conciencia
+
+🔒 GARANTÍAS DE INTEGRIDAD
+======================================================================
+• Split irreversible pre-registrado
+• Criterios de falsación vinculantes
+• Validación final única e irreversible
+• Metodología completamente transparente
+• Código y datos disponibles para replicación
+• Falsabilidad real, no cosmética
+
+📞 INFORMACIÓN DE CONTACTO
+======================================================================
+Investigador: Camilo Alejandro Sjöberg Tala, M.D.
+Email: cst@afhmodel.org
+Modelo: PAH* (Pliegue Autopsíquico + Horizonte H*)
+Versión: v2.3 - BESTIA MODE + Máxima Honestidad
+Fecha: Junio 2025
+Institución: Investigador Independiente
+
+🎯 DECLARACIÓN FINAL
+======================================================================
+El Modelo PAH* ha sido FALSADO de forma definitiva e irreversible mediante validación empírica honesta.
+
+Este reporte constituye el registro histórico definitivo
+de la primera validación empírica honesta de una teoría
+estructural y falsable de la conciencia.
+
+La metodología empleada establece un nuevo estándar
+de rigor epistemológico para las ciencias de la conciencia.
+
+🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯

@@ -1,0 +1,106 @@
+====================================================================================================
+MODELO AFH* v4.1 - REPORTE HISTÓRICO DEFINITIVO
+VALIDACIÓN EMPÍRICA HONESTA CON 3 VARIABLES SÓLIDAS
+SIMPLIFICACIÓN POST-VARIABLE EXPERIMENTAL
+====================================================================================================
+
+INFORMACIÓN HISTÓRICA v4.1
+======================================================================
+Modelo: AFH* v4.1 (3 variables sólidas)
+Investigador: Camilo Alejandro Sjöberg Tala, M.D.
+Institución: Investigador Independiente
+Fecha validación: 2025-07-23 03:14:26
+Dataset: Sleep-EDF Database (PhysioNet)
+Hardware: 8C/16T, 31GB RAM
+Metodología: ECLIPSE FINAL preservada + 3 variables v4.1
+
+VARIABLES AFH* v4.1 (SÓLIDAS)
+======================================================================
+k_topo_ricci: Ollivier-Ricci curvature en redes funcionales
+sigma_estabilidad: Coherencia temporal multiescala
+phi_h_transfer: Transfer entropy direccional
+
+Variable experimental removida: nabla_phi_resonante
+Razón: Simplificación a variables con base teórica sólida
+
+DISEÑO EXPERIMENTAL (ARQUITECTURA PRESERVADA)
+======================================================================
+Seed sagrado: 2025 (NUNCA modificado)
+Total sujetos: 153
+Desarrollo: 107 sujetos (70%)
+Holdout sagrado: 46 sujetos (30%)
+Validación cruzada: K=5 folds en desarrollo
+Validación final: Una sola oportunidad en holdout
+
+CRITERIOS PRE-REGISTRADOS v4.1 (VINCULANTES)
+======================================================================
+F1 mínimo v4.1: 0.6
+Precisión mínima: 0.7
+Recall mínimo: 0.5
+Rango detección: 1.0% - 15.0%
+Fecha pre-registro: 2025-07-22 22:19:46
+
+DESARROLLO v4.1 (DATOS NO CONTAMINADOS)
+======================================================================
+Validación cruzada K=5:
+  F1 promedio v4.1: 0.760 ± 0.186
+  Folds exitosos: 5/5
+Umbrales calibrados v4.1:
+  kappa_topo_ricci >= 0.270263
+  sigma_estabilidad >= 0.253881
+  phi_h_transfer >= 0.069244
+
+VALIDACIÓN FINAL v4.1 (IRREVERSIBLE)
+======================================================================
+F1-Score: 0.037 NO CUMPLE
+Precisión: 0.025 NO CUMPLE
+Recall: 0.069 NO CUMPLE
+Tasa detección: 2.3% CUMPLE
+Criterios cumplidos: 2/5
+
+VEREDICTO HISTÓRICO v4.1
+======================================================================
+RESULTADO: FALSADO_v41
+SIGNIFICADO: AFH* v4.1 FALSADO - Reformulación v5.0 requerida
+IMPLICACIÓN: Incluso 3 variables sólidas insuficientes, enfoque fundamental nuevo
+DEFINITIVO: SÍ (irreversible para siempre)
+
+IMPLICACIONES CIENTÍFICAS v4.1
+======================================================================
+FALSACIÓN v4.1 HONESTA - INSIGHT CIENTÍFICO:
+• Incluso 3 variables sólidas insuficientes
+• Enfoque fundamental nuevo requerido v5.0
+• Metodología de simplificación validada
+• Eliminación sistemática de enfoques insuficientes
+• Estándar de rigor científico preservado
+
+GARANTÍAS DE INTEGRIDAD v4.1
+======================================================================
+• Split irreversible pre-registrado (ARQUITECTURA PRESERVADA)
+• Criterios de falsación vinculantes v4.1
+• Validación final única e irreversible
+• Simplificación basada en fundamentos teóricos
+• Código y datos disponibles para replicación
+• Falsabilidad real mantenida en v4.1
+
+INFORMACIÓN DE CONTACTO
+======================================================================
+Investigador: Camilo Alejandro Sjöberg Tala, M.D.
+Email: cst@afhmodel.org
+Modelo: AFH* v4.1 (3 variables sólidas)
+Versión: v4.1 - ECLIPSE FINAL + Variables simplificadas
+Fecha: Julio 2025
+Institución: Investigador Independiente
+
+DECLARACIÓN FINAL v4.1
+======================================================================
+El Modelo AFH* v4.1 ha sido FALSADO_v41 de forma definitiva e irreversible mediante validación empírica honesta con 3 variables sólidas.
+
+Este reporte constituye el registro histórico definitivo
+de la primera simplificación empírica post-exploración de
+variables en una teoría falsable de la conciencia.
+
+La metodología v4.1 establece un precedente de simplificación
+científica basada en fundamentos teóricos sólidos.
+
+====================================================================================================

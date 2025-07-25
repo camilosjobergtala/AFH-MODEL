@@ -1,0 +1,40 @@
+{
+  "modelo_evaluado": "AFH* v4.1 - 3 VARIABLES SÓLIDAS + Horizonte H* v4.1",
+  "investigador": "Camilo Alejandro Sjöberg Tala",
+  "fecha_definicion": "2025-07-22 22:19:46",
+  "timestamp_definicion": "2025-07-22T22:19:46.984760",
+  "criterios_falsacion": {
+    "f1_minimo_eureka": 0.6,
+    "precision_minima": 0.7,
+    "recall_minimo": 0.5,
+    "tasa_deteccion_minima": 0.01,
+    "tasa_deteccion_maxima": 0.15,
+    "estabilidad_cv_maxima": 0.1,
+    "cobertura_poblacional_minima": 0.8
+  },
+  "interpretacion_automatica": {
+    "EUREKA_REAL_v41": {
+      "condicion": "Todos los criterios v4.1 cumplidos",
+      "significado": "AFH* v4.1 VALIDADO empíricamente - 3 variables sólidas exitosas",
+      "implicacion": "Framework simplificado y robusto para detección de conciencia"
+    },
+    "EVIDENCIA_PARCIAL_v41": {
+      "condicion": "Mayoría de criterios v4.1 cumplidos",
+      "significado": "AFH* v4.1 con evidencia limitada - Refinamiento v4.2 requerido",
+      "implicacion": "Base sólida confirmada, optimización de umbrales necesaria"
+    },
+    "FALSADO_v41": {
+      "condicion": "Criterios v4.1 no cumplidos",
+      "significado": "AFH* v4.1 FALSADO - Reformulación v5.0 requerida",
+      "implicacion": "Incluso 3 variables sólidas insuficientes, enfoque fundamental nuevo"
+    }
+  },
+  "configuracion_validacion": {
+    "metodo": "Split irreversible + Validación cruzada + Holdout final v4.1",
+    "k_folds_cv": 5,
+    "seed_reproducibilidad": 2025,
+    "arquitectura_preservada": "ECLIPSE FINAL",
+    "variables_solidas": "3 variables robustas sin experimental"
+  },
+  "hash_criterios_v41": "a36bba32f61ba3b52af632c8c8d40803"
+}
