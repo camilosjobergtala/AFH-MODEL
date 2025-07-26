@@ -1,6 +1,6 @@
 # 🧬 Sleep-EDF Dataset – EEG Input for AFH* Simulation
 
-This folder contains references to real EEG data used in the AFH* model simulation, specifically in the `ECLIPSE_FINAL.py` script.
+This folder contains references to real EEG data used in the AFH* model simulation.
 
 ## 📦 Dataset Origin
 
