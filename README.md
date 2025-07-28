@@ -1,6 +1,6 @@
 # 🧠 AFH* MODEL – Simulation of Consciousness Emergence
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15541551.svg)](https://doi.org/10.5281/zenodo.15541551)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15541550.svg)](https://doi.org/10.5281/zenodo.15541550)
 
 Welcome to the official repository of the **AFH*** model (Autopsychic Fold + Horizon), a falsifiable and structurally grounded hypothesis for the emergence of consciousness. The model proposes that consciousness arises when a neural system crosses a **topological threshold** (`H*`) and exhibits **resonant symbolic divergence** (`∇Φ > 0`), forming an **Autopsychic Fold** (`ψ > 0`).
 
