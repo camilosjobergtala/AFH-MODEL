@@ -32,7 +32,7 @@ pip install -r "3. Experimentation/3.1 COMPUTATIONAL STUFF/requirements.txt"
 python "3. Experimentation/3.1 COMPUTATIONAL STUFF/ECLIPSE 4.1.py"
 ```
 
-> 💡 **Note:** `ECLIPSE 4.1.py` is the **definitive version** used for the v4.1 falsification analysis (F1 = 0.037). Older scripts are archived in `/3_simulation/` for reference.
+> 💡 **Note:** `ECLIPSE 4.1.py` is the **definitive version** used for the v4.1 falsification analysis (F1 = 0.037). Older scripts are archived for reference.
 
 ---
 
