@@ -1,46 +1,56 @@
-# 🧬 Sleep-EDF Dataset – EEG Input for AFH* Simulation
+# 🧬 AFH* Experimentation – ECLIPSE 4.1 Pipeline
 
-This folder contains references to real EEG data used in the AFH* model simulation.
+This folder contains the **computational experiments** that operationalize the AFH* model on EEG data.
 
 ## 📦 Dataset Origin
 
-The data comes from the **Sleep-EDF Expanded Dataset** (version 1.0.0), a publicly available polysomnography dataset hosted by [PhysioNet](https://physionet.org/content/sleep-edfx/1.0.0/).
+The analysis uses the **Sleep-EDF Expanded Dataset (v1.0.0)**, a public polysomnography dataset hosted by [PhysioNet](https://physionet.org/content/sleep-edfx/1.0.0/).
 
 ## 📁 Required Files
 
-These files must be manually downloaded and placed in this folder:
+Manually download these files and place them in this folder’s `/data` subfolder:
 
-- `SC4051E0-PSG.edf`: EEG signal recording (polysomnography)  
-- `SC4042EC-Hypnogram.edf`: Corresponding expert sleep stage annotations
+- `SC4051E0-PSG.edf` → EEG signal recording
+- `SC4042EC-Hypnogram.edf` → Sleep stage annotations
 
-These files are **not distributed** in this repository due to licensing restrictions.
-
----
-
-## 🔽 How to Download
-
-1. Visit: [Sleep-EDF on PhysioNet](https://physionet.org/content/sleep-edfx/1.0.0/)
-2. Log in with a free PhysioNet account.
-3. Download the following files from the *Sleep Cassette Study*:
-   - `SC4051E0-PSG.edf`
-   - `SC4042EC-Hypnogram.edf`
-4. Place them in this folder: `3_simulation/3.3_data/`
+> ⚠️ These files are **not included** in this repository due to licensing restrictions.
 
 ---
 
-## 📌 Notes
+## 🚀 How to Run the Pipeline
 
-- These files are used to simulate topological and symbolic variables of the AFH* model.
-- The data must match the filenames exactly for the Python script to work.
-- For more details on how these files are used, see [`ECLIPSE_FINAL.py`](../3.1_src/ECLIPSE_FINAL.py).
+1️⃣ **Open in Visual Studio Code** (or any IDE).  
+Make sure you have **Python ≥ 3.10** installed.
+
+2️⃣ **Install dependencies:**
+```bash
+pip install -r "3. Experimentation/3.1 COMPUTATIONAL STUFF/requirements.txt"
+```
+
+3️⃣ **Run the latest pipeline:**
+```bash
+python "3. Experimentation/3.1 COMPUTATIONAL STUFF/ECLIPSE 4.1.py"
+```
+
+> 💡 **Note:** `ECLIPSE 4.1.py` is the **definitive version** used for the v4.1 falsification analysis (F1 = 0.037). Older scripts are archived in `/3_simulation/` for reference.
 
 ---
 
-> **Ethical Notice**: These data were collected with informed consent and are publicly shared for research purposes. Please respect all licensing terms and privacy considerations when using them.
+## 📊 What You Get
 
-python requirements
-_____
+After running the script (with the dataset in place), a folder will be created:
+```
+3. Experimentation/3.1 COMPUTATIONAL STUFF/results 4.1/
+```
+This contains:
+- 📈 **plots/** → κ_topo, Σ_stability, Φ_integration, ∇Φ graphs
+- 📊 **metrics.csv** → summary table (includes F1 score)
+- 📝 **log.txt** → run log for reproducibility
 
+---
+
+## 🐍 Python Requirements
+```
 mne>=1.5.1
 numpy>=1.24.0
 scipy>=1.11.0
@@ -52,3 +62,8 @@ torch>=2.0.0
 transformers>=4.35.0
 tqdm>=4.66.0
 statsmodels>=0.14.0
+```
+
+---
+
+> **Ethical Notice**: Sleep-EDF data were collected with informed consent and are shared for research purposes. Please respect licensing terms and privacy considerations.

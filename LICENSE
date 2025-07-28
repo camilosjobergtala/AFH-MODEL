@@ -1,6 +1,6 @@
-MIT License
+MIT License (with Commercial Use Notice)
 
-Copyright (c) 2025 camilosjobergtala
+Copyright (c) 2025 Camilo Sjöberg Tala
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -11,6 +11,12 @@ furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
+
+⚠️ **Commercial Use Restriction**: While the Software is released under the MIT
+license for research, educational, and non-commercial purposes, **all commercial
+rights are reserved by the author**. Commercial use (including sale, licensing,
+or integration into for-profit products) requires **explicit written permission**
+from the copyright holder.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
