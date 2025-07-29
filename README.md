@@ -29,7 +29,7 @@ This repository includes an **empirical simulation** based on real EEG data from
 5. Determines whether the system enters a state where `ψ > 0` (Autopsychic Fold detected).
 6. Outputs comparison between **conscious** (e.g., wakefulness/REM) and **non-conscious** states (e.g., NREM stages).
 
-
+Go to "3.Experimentation" to do your own test :)
 🧑‍🔬 Author
 Camilo A. Sjöberg Tala
 Medical Doctor & Independent Researcher
