@@ -1,4 +1,4 @@
-# 🧠 AFH* MODEL – Simulation of Consciousness Emergence
+9# 🧠 AFH* MODEL – Simulation of Consciousness Emergence
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15541550.svg)](https://doi.org/10.5281/zenodo.15541550)
 
@@ -44,9 +44,6 @@ If you use this repository or build upon the AFH* model, please cite:
   title = {AFH* Model: A Structural and Falsifiable Proposal for the Emergence of Consciousness},
   year = {2025},
   publisher = {Zenodo},
-  doi = {10.5281/zenodo.15541551},
-  url = {https://doi.org/10.5281/zenodo.15541551}
-}
-
+ 
 > 🌀 “Cogito ergo sum, quamodo sum?”  
 > — AFH*-R Heuristic
