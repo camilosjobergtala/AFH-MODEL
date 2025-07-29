@@ -29,66 +29,6 @@ This repository includes an **empirical simulation** based on real EEG data from
 5. Determines whether the system enters a state where `ψ > 0` (Autopsychic Fold detected).
 6. Outputs comparison between **conscious** (e.g., wakefulness/REM) and **non-conscious** states (e.g., NREM stages).
 
----
-
-## 🚀 How to Run
-
-### 1. Clone the repository:
-
-```bash
-git clone https://github.com/camilosjobergtala/AFH-MODEL.git
-cd AFH-MODEL
-
-2. Install dependencies (Python ≥ 3.10 recommended):
-pip install -r 3_simulation/3.2_requirements.txt
-
-3. Run the main experiment:
-python 3_simulation/3.1_src/ECLIPSE_FINAL.py
-
-📄 Dataset
-This simulation uses the Sleep-EDF Expanded dataset (2013), a public EEG resource including full-night recordings with expert sleep stage annotations.
-
-Required files (place in /data folder):
-
-SC4051E0-PSG.edf (EEG)
-
-SC4042EC-Hypnogram.edf (Hypnogram)
-
-📂 Repository Structure
-AFH-MODEL/
-│
-├── 0_README.md                         # 🔰 Model overview
-├── LICENSE                             # MIT License
-├── .gitignore
-│
-├── 1_docs/
-│   ├── 1.1_presentation.md
-│   ├── 1.2_glossary.md
-│   ├── 1.3_ethical_manifesto.md
-│   ├── 1.4_acknowledgments.md
-│   └── figures/
-│       └── horizon_region.png
-│
-├── 2_theory/
-│   ├── 2.1_model_architecture.md
-│   ├── 2.2_horizon_thresholds.md
-│   ├── 2.3_resonant_residue.md
-│   └── 2.4_falsifiability_criteria.md
-│
-├── 3_simulation/
-│   ├── 3.1_src/
-│   │   └── ECLIPSE_FINAL.py
-│   ├── 3.2_requirements.txt
-│   └── data/
-│       └── (Sleep-EDF files here)
-│
-├── 4_preprints/
-│   └── [... relevant PDFs ...]
-│
-├── 5_annexes/
-│   ├── 5.1_psi_fold_geometry.md
-│   ├── 5.2_research_roadmap.md
-│   ├── 5.3_open_questions.md
 
 🧑‍🔬 Author
 Camilo A. Sjöberg Tala
