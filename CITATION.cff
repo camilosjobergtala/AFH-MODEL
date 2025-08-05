@@ -1,19 +1,46 @@
 cff-version: 1.2.0
 message: "If you use this repository, please cite the following work."
-title: "AFH* Model: A Structural and Falsifiable Proposal for the Emergence of Consciousness"
+title: "AFH* Model: Structural Theory with ECLIPSE Validation Framework"
 authors:
   - family-names: Sjöberg Tala
     given-names: Camilo Alejandro
     orcid: https://orcid.org/0009-0009-6052-0212
-date-released: 2025-07-25
-version: "4.1"
-doi: 10.5281/zenodo.15541551
+date-released: 2025-08-04
+version: "4.2"
+doi: 10.5281/zenodo.15541550
 license: MIT
 repository-code: https://github.com/camilosjobergtala/AFH-MODEL
-url: https://doi.org/10.5281/zenodo.15541551
+url: https://doi.org/10.5281/zenodo.15541550
+abstract: "The AFH* (Autopsychic Fold + Horizon H*) model proposes consciousness emerges through convergence across topological network structure, causal information integration, and temporal stability patterns. ECLIPSE provides systematic falsification protocols to validate this structural framework and other consciousness theories through rigorous empirical testing."
 keywords:
   - consciousness
-  - topology
-  - neuroscience
-  - emergence
+  - afh-model
+  - autopsychic-fold
+  - systematic-falsification
+  - eclipse-framework
+  - topological-neuroscience
+  - structural-consciousness
   - falsifiability
+  - neuroscience
+  - eeg-analysis
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Sjöberg Tala
+      given-names: Camilo Alejandro
+      orcid: https://orcid.org/0009-0009-6052-0212
+  title: "ECLIPSE: A systematic falsification framework for consciousness science"
+  journal: "Scientific Reports"
+  year: 2025
+  publisher: "Nature Publishing Group"
+  status: "in-press"
+  note: "Systematic validation of AFH* structural implementations"
+references:
+  - type: software
+    title: "AFH* Base Experiment - First public validation"
+    authors:
+      - family-names: Sjöberg Tala
+        given-names: Camilo Alejandro
+    date-released: 2025-05-29
+    version: "3.7"
+    repository-code: https://github.com/camilosjobergtala/AFH-MODEL
