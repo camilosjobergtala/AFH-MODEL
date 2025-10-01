@@ -10,6 +10,16 @@
 
 ---
 
+## ⚠️ Current Project Status (October 2025)
+
+**This repository documents ongoing analysis following systematic falsification results.**
+
+Initial ECLIPSE validations (v3.7, v4.1) yielded negative results (F1=0.031-0.037), systematically falsifying the tested implementations. We are currently analyzing what these results mean for the theoretical framework and determining next steps.
+
+**Current focus:** Understanding why the implementations failed and what this tells us about operationalizing consciousness theories.
+
+---
+
 ## Abstract
 
 The **AFH*** (Autopsychic Fold + H* Horizon) model proposes a structural framework for consciousness emergence, integrating:
@@ -22,22 +32,22 @@ This repository includes the full implementation of **ECLIPSE**, a falsification
 
 ---
 
-## Theoretical Framework
+## Empirical Results
 
-### Mathematical Formulation
+| Version | Scope | F1 Score | Precision | Recall | Status |
+|---------|-------|----------|-----------|--------|---------|
+| **v3.7** | Basic AFH* prototype | 0.031 | 0.032 | 0.030 | ❌ Falsified |
+| **v4.1** | Refined topological operations | 0.037 | 0.025 | 0.069 | ❌ Falsified |
 
-```
-Consciousness ⇔ (κ_topo ≥ θ_κ) ∧ (Σ_stability ≥ θ_Σ) ∧ (Φ_integration ≥ θ_Φ)
-```
+### Current Analysis
 
-**Where:**
-- κ_topo: Ollivier-Ricci curvature of functional brain networks
-- Σ_stability: Multiscale temporal coherence across frequency bands  
-- Φ_integration: Transfer entropy-based directional causal integration
+We are analyzing these negative results to understand:
+- What the falsification tells us about the specific implementations tested
+- Whether the theoretical framework requires modification
+- What alternative approaches might be more promising
+- How to interpret these findings within consciousness science methodology
 
-### H* Horizon Hypothesis
-
-Consciousness arises when neural systems cross a critical threshold in structural space, forming an **Autopsychic Fold**—a self-referential configuration capable of sustaining subjective experience.
+This analysis is ongoing and will inform future research directions.
 
 ---
 
@@ -61,141 +71,4 @@ Consciousness arises when neural systems cross a critical threshold in structura
 
 ---
 
-## Empirical Results
-
-| Version | Scope | F1 Score | Precision | Recall | Status |
-|---------|-------|----------|-----------|--------|---------|
-| **v3.7** | Basic AFH* prototype | 0.031 | 0.032 | 0.030 | ❌ Falsified |
-| **v4.1** | Refined topological operations | 0.037 | 0.025 | 0.069 | ❌ Falsified |
-
-### Interpretation
-
-Systematic falsification confirms empirical limits of partial implementations and validates the robustness of the ECLIPSE methodology.
-
----
-
 ## Repository Structure
-
-```
-AFH-MODEL/
-├── README.md                       → Main project overview
-├── requirements.txt                → Python dependencies
-├── LICENSE                         → MIT license
-├── .gitignore                      → Version control exclusions
-├── CITATION.cff                    → Citation metadata
-├── NISA'S CODE                     → Alternative implementations
-│
-├── 1. Docs/                        → Presentations & conceptual material
-│   ├── figures/                    → Scientific illustrations
-│   ├── 1.1 presentation.md         → Lab presentation script
-│   ├── 1.2 glossary.md             → Terms and variables
-│   ├── 1.3 ethical_manifesto.md    → Ethical commitments
-│   └── 1.4 acknowledgments.md      → Scientific credits
-│
-├── 2. Theory/                      → Core theoretical files
-│   ├── 2.1 model_architecture.md   → AFH* formalism
-│   ├── 2.2 horizon_thresholds.md   → H* criticality
-│   ├── 2.3 resonant_residue.md     → Symbolic divergence
-│   └── 2.4 falsifiability_criteria.md → Empirical test design
-│
-├── 3. Experimentation/             → ECLIPSE pipeline
-│   ├── 3.1 COMPUTATIONAL STUFF/    → Main implementations
-│   │   ├── legacy/                 → Older versions
-│   │   ├── results 3.7/            → Output v3.7
-│   │   ├── results 4.1/            → Output v4.1
-│   │   ├── ECLIPSE 3.7.py          → Code v3.7
-│   │   └── ECLIPSE 4.1.py          → Code v4.1
-│   └── README.txt                  → Pipeline description
-│
-└── 4. Annexes/
-    └── 4_open_questions.md         → Theoretical frontiers
-```
-
----
-
-## Quick Start
-
-### Setup
-
-```bash
-pip install -r requirements.txt
-```
-
-### Run Validation
-
-```bash
-cd "3.Experimentation/3.1 COMPUTATIONAL STUFF/"
-python "ECLIPSE 4.1.py" --model afh --validation complete
-```
-
-### Outputs Include:
-
-- Holdout predictions
-- Cryptographic SHA256 checksum
-- Automatic threshold comparison
-- Reproducibility seed log (Seed 2025)
-
----
-
-## Scientific Contributions
-
-### AFH Model*
-
-- Structural theory of consciousness grounded in topology, causality, and temporal dynamics
-- Explicit, falsifiable predictions across neurotypical populations
-
-### ECLIPSE Pipeline
-
-- First systematic falsification tool for consciousness science
-- Avoids statistical artifacts and overfitting
-- Theory-agnostic: applicable to IIT, GWT, QSP, and beyond
-
----
-
-## Clinical & Technological Applications
-
-| Domain | Application |
-|--------|-------------|
-| **Anesthesia** | Structural detection of loss-of-consciousness transitions |
-| **Disorders of Consciousness** | Diagnosis beyond behavioral inference |
-| **BCI** | Integration into neural decoding pipelines |
-| **Pharmacology** | Mechanistic assessment of consciousness-modulating compounds |
-
----
-
-## Citation
-
-```bibtex
-@article{sjoberg2025eclipse,
-  title={ECLIPSE: A systematic falsification framework for consciousness science},
-  author={Sjöberg Tala, Camilo Alejandro},
-  journal={Scientific Reports},
-  year={2025},
-  note={Submitted – under review},
-  doi={10.5281/zenodo.15541550}
-}
-```
-
----
-
-## Author
-
-**Dr. Camilo Alejandro Sjöberg Tala, M.D.**  
-Independent Researcher – Viña del Mar, Chile  
-Email: cst@afhmodel.org  
-ORCID: https://orcid.org/0009-0009-6052-0212
-
----
-
-## Future Directions
-
-- Implementation of fold detection (ψ) and symbolic resonance (∇Φ)
-- Multimodal datasets (fMRI, MEG) for structural convergence
-- Experimental paradigms targeting causal topology transitions
-- Cross-cultural validation and developmental neuroscience applications
-
----
-
-**"The systematic falsification of AFH v3.7 and v4.1 represents methodological success, not theoretical failure. ECLIPSE ensures consciousness science enters its post-hoc-free era."**
-
-**"Cogito ergo sum, quamodo sum?"** — **AFH-R Heuristic**
