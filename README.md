@@ -72,3 +72,93 @@ This analysis is ongoing and will inform future research directions.
 ---
 
 ## Repository Structure
+
+AFH-MODEL/
+├── README.md                       → Main project overview
+├── requirements.txt                → Python dependencies
+├── LICENSE                         → MIT license
+├── .gitignore                      → Version control exclusions
+├── CITATION.cff                    → Citation metadata
+│
+├── 1. Docs/                        → Presentations & conceptual material
+│   ├── figures/                    → Scientific illustrations
+│   ├── 1.1 presentation.md         → Lab presentation script
+│   ├── 1.2 glossary.md             → Terms and variables
+│   ├── 1.3 ethical_manifesto.md    → Ethical commitments
+│   └── 1.4 acknowledgments.md      → Scientific credits
+│
+├── 2. Theory/                      → Core theoretical files
+│   ├── 2.1 model_architecture.md   → AFH* formalism
+│   ├── 2.2 horizon_thresholds.md   → H* criticality
+│   ├── 2.3 resonant_residue.md     → Symbolic divergence
+│   └── 2.4 falsifiability_criteria.md → Empirical test design
+│
+├── 3. Experimentation/             → ECLIPSE pipeline
+│   ├── 3.1 COMPUTATIONAL STUFF/    → Main implementations
+│   │   ├── legacy/                 → Older versions
+│   │   ├── results 3.7/            → Output v3.7
+│   │   ├── results 4.1/            → Output v4.1
+│   │   ├── ECLIPSE 3.7.py          → Code v3.7
+│   │   └── ECLIPSE 4.1.py          → Code v4.1
+│   └── README.txt                  → Pipeline description
+│
+└── 4. Annexes/
+└── 4_open_questions.md         → Theoretical frontiers
+---
+
+## Quick Start
+
+### Setup
+```bash
+pip install -r requirements.txt
+
+Run Validation
+bashcd "3.Experimentation/3.1 COMPUTATIONAL STUFF/"
+python "ECLIPSE 4.1.py" --model afh --validation complete
+
+Outputs Include:
+
+Holdout predictions
+Cryptographic SHA256 checksum
+Automatic threshold comparison
+Reproducibility seed log (Seed 2025)
+
+
+Scientific Contributions
+ECLIPSE Pipeline
+
+Systematic falsification tool for consciousness science
+Prevents statistical artifacts and overfitting through irreversible pre-registration
+Theory-agnostic: applicable to IIT, GWT, QSP, and other frameworks
+Validated contribution: Methodology demonstrated regardless of AFH* outcomes
+
+Transparent Result Reporting
+
+Complete documentation of negative results
+Analysis of what falsification means for theory development
+Establishes precedent for honest reporting in consciousness research
+
+
+Citation
+bibtex@article{sjoberg2025eclipse,
+  title={ECLIPSE: A systematic falsification framework for consciousness science},
+  author={Sjöberg Tala, Camilo Alejandro},
+  journal={Scientific Reports},
+  year={2025},
+  note={Submitted – under review},
+  doi={10.5281/zenodo.15541550}
+}
+
+Author
+Dr. Camilo Alejandro Sjöberg Tala, M.D.
+Independent Researcher – Viña del Mar, Chile
+Email: cst@afhmodel.org
+ORCID: https://orcid.org/0009-0009-6052-0212
+
+Current Status
+Post-falsification analysis ongoing. We are carefully examining what the systematic negative results tell us about consciousness theory operationalization and determining appropriate next steps based on this analysis.
+Updates will be posted as the analysis progresses.
+
+"Systematic falsification provides critical information for theory development. We are analyzing what these results mean for the framework."
+"Cogito ergo sum, quomodo sum?" — AFH-R Heuristic
+
