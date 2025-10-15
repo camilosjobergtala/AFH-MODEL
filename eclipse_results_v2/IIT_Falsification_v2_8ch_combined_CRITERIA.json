@@ -1,0 +1,56 @@
+{
+  "project_name": "IIT_Falsification_v2_8ch_combined",
+  "registration_date": "2025-10-15T01:51:35.672711",
+  "criteria": [
+    {
+      "name": "balanced_accuracy",
+      "threshold": 0.65,
+      "comparison": ">=",
+      "description": "Balanced Accuracy \u2265 0.65",
+      "is_required": true
+    },
+    {
+      "name": "mcc",
+      "threshold": 0.3,
+      "comparison": ">=",
+      "description": "MCC \u2265 0.30 (correlaci\u00f3n moderada)",
+      "is_required": true
+    },
+    {
+      "name": "specificity",
+      "threshold": 0.5,
+      "comparison": ">=",
+      "description": "Specificity \u2265 0.50 (detecta sue\u00f1o)",
+      "is_required": true
+    },
+    {
+      "name": "precision",
+      "threshold": 0.6,
+      "comparison": ">=",
+      "description": "Precision \u2265 0.60",
+      "is_required": false
+    },
+    {
+      "name": "recall",
+      "threshold": 0.6,
+      "comparison": ">=",
+      "description": "Recall \u2265 0.60",
+      "is_required": false
+    },
+    {
+      "name": "roc_auc",
+      "threshold": 0.65,
+      "comparison": ">=",
+      "description": "ROC-AUC \u2265 0.65",
+      "is_required": false
+    },
+    {
+      "name": "f1_score",
+      "threshold": 0.6,
+      "comparison": ">=",
+      "description": "F1 Score \u2265 0.60",
+      "is_required": false
+    }
+  ],
+  "criteria_hash": "15760f558a3b2b17140737bb49e0ebac65bd11804c98bd1e297b0d8f1be180d5"
+}

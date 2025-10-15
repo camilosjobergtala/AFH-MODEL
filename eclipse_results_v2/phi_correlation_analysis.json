@@ -1,0 +1,16 @@
+{
+  "conscious_phi_mean": 0.018434996992594956,
+  "conscious_phi_std": 0.03063367480924704,
+  "conscious_phi_median": 0.00801829679028998,
+  "unconscious_phi_mean": 0.04040275349054716,
+  "unconscious_phi_std": 0.03480947674484608,
+  "unconscious_phi_median": 0.03266756618833311,
+  "mannwhitney_u": 9726922607.0,
+  "mannwhitney_p": 0.0,
+  "ttest_t": -205.6644192041198,
+  "ttest_p": 0.0,
+  "pearson_r": -0.3036584669231837,
+  "pearson_p": 0.0,
+  "spearman_rho": -0.38580152328204603,
+  "spearman_p": 0.0
+}
