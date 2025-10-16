@@ -1028,11 +1028,17 @@ def analyze_phi_correlation(df: pd.DataFrame, output_dir: Path):
         'spearman_p': float(spearman_p)
     }
     
-    analysis_file = output_dir / "phi_correlation_analysis.json"
-    with open(analysis_file, 'w', encoding='utf-8') as f:
-        json.dump(correlation_analysis, f, indent=2)
+    # Fix: Usar timestamp único para evitar conflictos
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    analysis_file = output_dir / f"phi_correlation_analysis_{timestamp}.json"
     
-    logging.info(f"Análisis de correlación guardado: {analysis_file}")
+    try:
+        with open(analysis_file, 'w', encoding='utf-8') as f:
+            json.dump(correlation_analysis, f, indent=2)
+        logging.info(f"Análisis guardado: {analysis_file}")
+    except Exception as e:
+        logging.warning(f"No se pudo guardar análisis: {e}")
+        # Continuar sin guardar
     
     return correlation_analysis
 
