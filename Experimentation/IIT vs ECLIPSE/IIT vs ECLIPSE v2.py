@@ -1,6 +1,6 @@
 """
 ═══════════════════════════════════════════════════════════════════════════════
-FALSIFICACIÓN DEFINITIVA DE IIT CON ECLIPSE - VERSIÓN 2.0 MEJORADA
+IIT vs ECLIPSE - VERSIÓN 2.0 MEJORADA
 ═══════════════════════════════════════════════════════════════════════════════
 Autor: Camilo Alejandro Sjöberg Tala + Claude
 DOI: 10.5281/zenodo.15541550
