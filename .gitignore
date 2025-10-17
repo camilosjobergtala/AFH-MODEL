@@ -172,3 +172,58 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# ============================================================================
+# ECLIPSE v3.2.0 - Project Specific
+# ============================================================================
+
+# API Keys y Secrets (CRÍTICO - NUNCA SUBIR)
+*api*key*
+*.key
+**/*secret*
+**/*token*
+.anthropic
+
+# Datos procesados grandes (PKL/Pickle files)
+*.pkl
+*.pickle
+
+# Datos crudos EEG (archivos muy pesados - GB de tamaño)
+*.edf
+*.rec
+*.fif
+sleep-cassette/
+sleep-telemetry/
+SLEEPEDF/
+CAPSLPDB/
+**/sleep*/
+**/eeg-data/
+
+# Checkpoints de procesamiento ECLIPSE
+processing_*.pkl
+checkpoint_*.pkl
+*_checkpoint_*.pkl
+
+# Logs extensos
+logs/
+*.log
+eclipse_results*/logs/
+**/*.log
+
+# Resultados intermedios grandes
+temp_results/
+intermediate/
+cache/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Archivos temporales de Windows
+~$*
