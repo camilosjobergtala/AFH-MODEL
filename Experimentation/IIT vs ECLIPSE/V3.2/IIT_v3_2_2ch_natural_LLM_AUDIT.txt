@@ -1,0 +1,42 @@
+================================================================================
+LLM-POWERED CODE AUDIT - ECLIPSE v3.2.0
+================================================================================
+
+File: IIT vs ECLIPSE v3.2.py
+Date: 1760700254.669
+
+```json
+{
+  "adherence_score": 85,
+  "violations": [
+    {
+      "severity": "high",
+      "description": "EclipseConfig dataclass contains 'holdout_ratio' field which could indicate planned access to holdout data parameters",
+      "line": 484
+    },
+    {
+      "severity": "medium", 
+      "description": "Multiple Φ calculation methods without clear preregistered justification - could enable method shopping",
+      "line": 338
+    },
+    {
+      "severity": "medium",
+      "description": "Dynamic method selection in calculate_all_phi_methods() allows post-hoc switching between 'fast', 'accurate', 'all' modes",
+      "line": 400
+    },
+    {
+      "severity": "low",
+      "description": "Adaptive channel selection based on variance could introduce data-driven bias",
+      "line": 168
+    },
+    {
+      "severity": "low",
+      "description": "Multiple threshold calculations using percentiles without clear correction for multiple comparisons",
+      "line": 315
+    }
+  ],
+  "risk_level": "medium",
+  "passed": false,
+  "summary": "The code shows moderate adherence to preregistration protocols but contains concerning elements. The 'holdout_ratio' parameter in EclipseConfig suggests potential access to holdout data configuration. Multiple Φ calculation methods with dynamic selection could enable method shopping or p-hacking. While no direct holdout data access is visible in this code fragment, the infrastructure for potential violations exists. The adaptive preprocessing (channel selection, thresholding) could introduce subtle biases. Recommend: 1) Remove or justify holdout_ratio parameter, 2) Preregister which Φ methods will be used, 3) Apply multiple testing corrections, 4) Lock method selection before seeing any results."
+}
+```
