@@ -1,0 +1,31 @@
+{
+  "project_name": "IIT_Falsification_v2_Demo",
+  "registration_date": "2025-10-17T15:16:20.253307",
+  "criteria": [
+    {
+      "name": "f1_score",
+      "threshold": 0.6,
+      "comparison": ">=",
+      "description": "F1 >= 0.60",
+      "is_required": true
+    },
+    {
+      "name": "precision",
+      "threshold": 0.7,
+      "comparison": ">=",
+      "description": "Precision >= 0.70",
+      "is_required": true
+    },
+    {
+      "name": "recall",
+      "threshold": 0.5,
+      "comparison": ">=",
+      "description": "Recall >= 0.50",
+      "is_required": true
+    }
+  ],
+  "n_required": 3,
+  "n_optional": 0,
+  "criteria_hash": "7e7bb7ac7d156efb6328194dd03acb7df0f291209e220e06d91b0b1167e21698",
+  "binding_declaration": "These criteria are binding and cannot be modified after registration. Any changes invalidate all subsequent analyses."
+}

@@ -1,0 +1,27 @@
+================================================================================
+ECLIPSE INTEGRITY SCORE (EIS) REPORT v2.0
+================================================================================
+Project: IIT_Falsification_v2_Demo
+Computed: 2025-10-17T15:16:32.117481
+
+OVERALL EIS: 0.8060 / 1.00
+Interpretation: VERY GOOD - High methodological quality
+
+COMPONENT SCORES:
+--------------------------------------------------------------------------------
+  Pre-registration completeness      : 0.6000
+  Split strength (entropy)           : 0.9050
+  Protocol adherence                 : 1.0000
+  Data leakage score (1-risk)        : 0.5000
+  Transparency & documentation       : 1.0000
+
+INTERPRETATION:
+--------------------------------------------------------------------------------
+  ⚠️  Pre-registration incomplete or weak
+  🚨 HIGH RISK of data leakage detected
+  ✅ Study meets high methodological standards
+
+================================================================================
+Novel Metric: First quantitative integrity score for consciousness research
+Citation: Sjöberg Tala, C.A. (2025). ECLIPSE v2.0. DOI: 10.5281/zenodo.15541550
+================================================================================

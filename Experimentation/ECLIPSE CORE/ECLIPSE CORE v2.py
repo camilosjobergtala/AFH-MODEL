@@ -11,21 +11,29 @@ NEW in v2.0:
 ✅ Automated report generation with integrity metrics
 
 Based on the methodology by Camilo Alejandro Sjöberg Tala (2025)
-Paper: "ECLIPSE: A systematic falsification framework for consciousness science"
-DOI: 10.5281/zenodo.15541550
+Paper: "ECLIPSE v2.0: A Systematic Falsification Framework"
+https://doi.org/10.5281/zenodo.17380878
 
 Version: 2.0.0
-License: MIT
 Author: Camilo Alejandro Sjöberg Tala
+Contact: cst@afhmodel.org
 ───────────────────────────────────────────────────────────────────────────────
 
-FIVE-STAGE PROTOCOL + INTEGRITY VALIDATION:
-1. Irreversible Data Splitting (cryptographic verification)
-2. Pre-registered Falsification Criteria (binding thresholds)
-3. Clean Development Protocol (k-fold cross-validation)
-4. Single-Shot Validation (one attempt only)
-5. Final Assessment (automatic verdict)
-6. Integrity Metrics (EIS, STDS, Code Audit) ← NEW
+LICENSE: DUAL LICENSE (AGPL v3.0 / Commercial)
+
+This software is available under two licenses:
+
+1. AGPL v3.0 (Open Source)
+   - Free for research, education, and non-commercial use
+   - See LICENSE-AGPL for full terms
+
+2. Commercial License
+   - Required for commercial/proprietary use
+   - See LICENSE-COMMERCIAL for details
+   - Contact: cst@afhmodel.org
+
+Choose the license that fits your use case.
+More info: https://github.com/camilosjobergtala/AFH-MODEL
 
 ═══════════════════════════════════════════════════════════════════════════════
 """

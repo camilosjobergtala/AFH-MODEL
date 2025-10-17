@@ -1,0 +1,273 @@
+{
+  "project_name": "IIT_Falsification_v2_Demo",
+  "researcher": "Demo User",
+  "assessment_date": "2025-10-17T15:16:32.105682",
+  "assessment_timestamp": "2025-10-17 15:16:32",
+  "configuration": {
+    "project_name": "IIT_Falsification_v2_Demo",
+    "researcher": "Demo User",
+    "sacred_seed": 2025,
+    "development_ratio": 0.7,
+    "holdout_ratio": 0.3,
+    "n_folds_cv": 5,
+    "output_dir": "./eclipse_v2_demo",
+    "timestamp": "2025-10-17T15:16:20.229824"
+  },
+  "development_summary": {
+    "n_folds": 5,
+    "n_successful": 5,
+    "aggregated_metrics": {
+      "accuracy": {
+        "mean": 0.7377142857142858,
+        "std": 0.018835485398685167,
+        "min": 0.7185714285714285,
+        "max": 0.7657142857142857,
+        "median": 0.7285714285714285,
+        "values": [
+          0.7657142857142857,
+          0.7214285714285714,
+          0.7185714285714285,
+          0.7285714285714285,
+          0.7542857142857143
+        ]
+      },
+      "balanced_accuracy": {
+        "mean": 0.7212265433962507,
+        "std": 0.01047268568366121,
+        "min": 0.70650368617892,
+        "max": 0.7332105237129717,
+        "median": 0.7251125067998615,
+        "values": [
+          0.70650368617892,
+          0.7332105237129717,
+          0.7299333234950831,
+          0.7251125067998615,
+          0.7113726767944175
+        ]
+      },
+      "precision": {
+        "mean": 0.41305552395632306,
+        "std": 0.03238182614821469,
+        "min": 0.37404580152671757,
+        "max": 0.4717948717948718,
+        "median": 0.40892193308550184,
+        "values": [
+          0.4717948717948718,
+          0.40892193308550184,
+          0.37404580152671757,
+          0.41338582677165353,
+          0.39712918660287083
+        ]
+      },
+      "recall": {
+        "mean": 0.6930824770070249,
+        "std": 0.06039559082965669,
+        "min": 0.6013071895424836,
+        "max": 0.7534246575342466,
+        "median": 0.7191780821917808,
+        "values": [
+          0.6013071895424836,
+          0.7534246575342466,
+          0.7480916030534351,
+          0.7191780821917808,
+          0.6434108527131783
+        ]
+      },
+      "f1_score": {
+        "mean": 0.514741621967121,
+        "std": 0.01644262940648839,
+        "min": 0.4911242603550296,
+        "max": 0.5301204819277109,
+        "median": 0.525,
+        "values": [
+          0.5287356321839081,
+          0.5301204819277109,
+          0.49872773536895676,
+          0.525,
+          0.4911242603550296
+        ]
+      },
+      "mcc": {
+        "mean": 0.3759083194185452,
+        "std": 0.010710761229699491,
+        "min": 0.35816064468692593,
+        "max": 0.3895782254900304,
+        "median": 0.38043165137645313,
+        "values": [
+          0.3807449816564896,
+          0.3895782254900304,
+          0.37062609388282686,
+          0.38043165137645313,
+          0.35816064468692593
+        ]
+      },
+      "true_negatives": {
+        "mean": 418.8,
+        "std": 21.301643129110957,
+        "min": 395.0,
+        "max": 445.0,
+        "median": 405.0,
+        "values": [
+          444.0,
+          395.0,
+          405.0,
+          405.0,
+          445.0
+        ]
+      },
+      "false_positives": {
+        "mean": 140.2,
+        "std": 22.727956353354784,
+        "min": 103.0,
+        "max": 164.0,
+        "median": 149.0,
+        "values": [
+          103.0,
+          159.0,
+          164.0,
+          149.0,
+          126.0
+        ]
+      },
+      "false_negatives": {
+        "mean": 43.4,
+        "std": 9.850888284819801,
+        "min": 33.0,
+        "max": 61.0,
+        "median": 41.0,
+        "values": [
+          61.0,
+          36.0,
+          33.0,
+          41.0,
+          46.0
+        ]
+      },
+      "true_positives": {
+        "mean": 97.6,
+        "std": 9.520504188329523,
+        "min": 83.0,
+        "max": 110.0,
+        "median": 98.0,
+        "values": [
+          92.0,
+          110.0,
+          98.0,
+          105.0,
+          83.0
+        ]
+      },
+      "specificity": {
+        "mean": 0.7493706097854768,
+        "std": 0.039636039350578495,
+        "min": 0.7117750439367311,
+        "max": 0.8117001828153565,
+        "median": 0.7310469314079422,
+        "values": [
+          0.8117001828153565,
+          0.7129963898916968,
+          0.7117750439367311,
+          0.7310469314079422,
+          0.7793345008756567
+        ]
+      },
+      "npv": {
+        "mean": 0.9069448334808378,
+        "std": 0.015333208698875786,
+        "min": 0.8792079207920792,
+        "max": 0.9246575342465754,
+        "median": 0.9080717488789237,
+        "values": [
+          0.8792079207920792,
+          0.9164733178654292,
+          0.9246575342465754,
+          0.9080717488789237,
+          0.9063136456211812
+        ]
+      }
+    }
+  },
+  "validation_summary": {
+    "status": "success",
+    "n_holdout_samples": 1500,
+    "metrics": {
+      "accuracy": 0.7266666666666667,
+      "balanced_accuracy": 0.7224799538437989,
+      "precision": 0.3754716981132076,
+      "recall": 0.7158273381294964,
+      "f1_score": 0.49257425742574257,
+      "mcc": 0.36170547319705665,
+      "true_negatives": 891.0,
+      "false_positives": 331.0,
+      "false_negatives": 79.0,
+      "true_positives": 199.0,
+      "specificity": 0.7291325695581015,
+      "npv": 0.9185567010309278
+    }
+  },
+  "criteria_evaluation": [
+    {
+      "criterion": {
+        "name": "f1_score",
+        "threshold": 0.6,
+        "comparison": ">=",
+        "description": "F1 >= 0.60",
+        "is_required": true
+      },
+      "value": 0.49257425742574257,
+      "passed": false
+    },
+    {
+      "criterion": {
+        "name": "precision",
+        "threshold": 0.7,
+        "comparison": ">=",
+        "description": "Precision >= 0.70",
+        "is_required": true
+      },
+      "value": 0.3754716981132076,
+      "passed": false
+    },
+    {
+      "criterion": {
+        "name": "recall",
+        "threshold": 0.5,
+        "comparison": ">=",
+        "description": "Recall >= 0.50",
+        "is_required": true
+      },
+      "value": 0.7158273381294964,
+      "passed": true
+    }
+  ],
+  "verdict": "FALSIFIED",
+  "verdict_description": "1/3 required criteria passed",
+  "required_criteria_passed": "1/3",
+  "integrity_metrics": {
+    "eis": {
+      "eis": 0.8060065438769108,
+      "components": {
+        "preregistration_score": 0.6,
+        "split_strength": 0.9050327193845542,
+        "protocol_adherence": 1.0,
+        "leakage_risk": 0.5,
+        "leakage_score": 0.5,
+        "transparency_score": 1.0
+      },
+      "weights": {
+        "preregistration": 0.25,
+        "split_strength": 0.2,
+        "protocol_adherence": 0.25,
+        "leakage_risk": 0.15,
+        "transparency": 0.15
+      },
+      "timestamp": "2025-10-17T15:16:32.117481",
+      "interpretation": "VERY GOOD - High methodological quality"
+    },
+    "stds": {
+      "status": "error",
+      "message": "Could not load results file: [Errno 2] No such file or directory: 'eclipse_v2_demo\\\\IIT_Falsification_v2_Demo_FINAL_RESULT.json'"
+    }
+  },
+  "final_hash": "2ee95e91efcbd9fe1faed287f70f659f85dcbfb6aae9e29443e642d96d50a7c7"
+}
