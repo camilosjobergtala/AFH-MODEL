@@ -1,0 +1,42 @@
+{
+  "project_name": "IIT_v3_2_2ch_natural",
+  "split_date": "2025-10-17T03:45:16.228719",
+  "sacred_seed": 2025,
+  "development_ids": [
+    "SC4472F0",
+    "SC4542F0",
+    "SC4592G0",
+    "SC4442E0",
+    "SC4492G0",
+    "SC4011E0",
+    "SC4531E0",
+    "SC4451F0",
+    "SC4172E0",
+    "SC4332F0",
+    "SC4572F0",
+    "SC4571F0",
+    "SC4241E0",
+    "SC4801G0",
+    "SC4162E0",
+    "SC4581G0",
+    "SC4502E0",
+    "SC4321E0",
+    "SC4711E0",
+    "SC4151E0",
+    "SC4302E0"
+  ],
+  "holdout_ids": [
+    "SC4221E0",
+    "SC4072E0",
+    "SC4212E0",
+    "SC4232E0",
+    "SC4632E0",
+    "SC4122E0",
+    "SC4461F0",
+    "SC4601E0",
+    "SC4002E0"
+  ],
+  "integrity_verification": {
+    "split_hash": "7dc098de08da5482eb65df039965d6b966c6a1f27134149309eef59e505d75b0"
+  }
+}

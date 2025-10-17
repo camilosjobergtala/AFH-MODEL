@@ -1,0 +1,369 @@
+PS G:\Mi unidad\AFH\GITHUB\AFH-MODEL> & C:/Users/camil/AppData/Local/Programs/Python/Python313/python.exe "g:/Mi unidad/AFH/GITHUB/AFH-MODEL/Experimentation/IIT vs ECLIPSE/IIT vs ECLIPSE v3.2.py"
+g:\Mi unidad\AFH\GITHUB\AFH-MODEL\Experimentation\IIT vs ECLIPSE\IIT vs ECLIPSE v3.2.py:53: UserWarning: Anthropic library not available. LLM Auditor will be disabled.
+  warnings.warn("Anthropic library not available. LLM Auditor will be disabled.")
+================================================================================
+🧠 ECLIPSE v3.2.0 - INTEGRACIÓN COMPLETA
+   ✅ Sin SMOTE (datos naturales)
+   ✅ EIS + STDS + LLM Auditor
+   ✅ Múltiples aproximaciones de Φ
+================================================================================
+2025-10-17 00:46:21,740 [INFO] ================================================================================
+2025-10-17 00:46:21,742 [INFO] LOG INICIALIZADO - ECLIPSE v3.2.0 (FUSIÓN v2.0 + v3.1.0)
+2025-10-17 00:46:21,742 [INFO] Archivo: eclipse_results_v3_2\logs\iit_eclipse_v3_2_20251017_004621.log
+2025-10-17 00:46:21,742 [INFO] ================================================================================
+
+Ruta Sleep-EDF: G:\Mi unidad\NEUROCIENCIA\AFH\EXPERIMENTO\FASE 2\SLEEP-EDF\SLEEPEDF\sleep-cassette
+Limitar sujetos (Enter=30): 
+Canales EEG (Enter=2): 
+
+Métodos Φ:
+   1. fast (binary, multilevel_3, gaussian)
+   2. accurate (multilevel_4, gaussian)    
+Elegir (Enter=1):
+
+⚙️  Configuración:
+   - Canales: 2
+   - Métodos Φ: fast
+   - Límite: 30
+   - Balanceo: NINGUNO (datos naturales) ✅
+
+🔍 Buscando en: G:\Mi unidad\NEUROCIENCIA\AFH\EXPERIMENTO\FASE 2\SLEEP-EDF\SLEEPEDF\sleep-cassette
+📂 PSG: 153, Hypno: 153
+✅ 153 pares
+
+🔄 Procesando 30 sujetos...
+
+======================================================================
+📊 SUJETO 1/30: SC4212E0
+======================================================================
+      📊 Procesando 2694 ventanas
+      ✅ 2694 ventanas completadas
+
+======================================================================
+📊 SUJETO 2/30: SC4711E0
+======================================================================
+      📊 Procesando 2730 ventanas
+      ✅ 2730 ventanas completadas
+
+======================================================================
+📊 SUJETO 3/30: SC4542F0
+======================================================================
+      📊 Procesando 2680 ventanas
+      ✅ 2680 ventanas completadas
+
+======================================================================
+📊 SUJETO 4/30: SC4122E0
+======================================================================
+      📊 Procesando 2606 ventanas
+      ✅ 2606 ventanas completadas
+
+======================================================================
+📊 SUJETO 5/30: SC4801G0
+======================================================================
+      📊 Procesando 2774 ventanas
+      ✅ 2774 ventanas completadas
+
+   💾 Checkpoint (5/30)
+
+======================================================================
+📊 SUJETO 6/30: SC4221E0
+======================================================================
+      📊 Procesando 2700 ventanas
+      ✅ 2700 ventanas completadas
+
+======================================================================
+📊 SUJETO 7/30: SC4442E0
+======================================================================
+      📊 Procesando 2778 ventanas
+      ✅ 2778 ventanas completadas
+
+======================================================================
+📊 SUJETO 8/30: SC4581G0
+======================================================================
+      📊 Procesando 2738 ventanas
+      ✅ 2738 ventanas completadas
+
+======================================================================
+📊 SUJETO 9/30: SC4321E0
+======================================================================
+      📊 Procesando 2690 ventanas
+      ✅ 2690 ventanas completadas
+
+======================================================================
+📊 SUJETO 10/30: SC4492G0
+======================================================================
+      📊 Procesando 2136 ventanas
+      ✅ 2136 ventanas completadas
+
+   💾 Checkpoint (10/30)
+
+======================================================================
+📊 SUJETO 11/30: SC4302E0
+======================================================================
+      📊 Procesando 2808 ventanas
+      ✅ 2808 ventanas completadas
+
+======================================================================
+📊 SUJETO 12/30: SC4011E0
+======================================================================
+      📊 Procesando 2802 ventanas
+      ✅ 2802 ventanas completadas
+
+======================================================================
+📊 SUJETO 13/30: SC4601E0
+======================================================================
+      📊 Procesando 2730 ventanas
+      ✅ 2730 ventanas completadas
+
+======================================================================
+📊 SUJETO 14/30: SC4172E0
+======================================================================
+      📊 Procesando 2724 ventanas
+      ✅ 2724 ventanas completadas
+
+======================================================================
+📊 SUJETO 15/30: SC4151E0
+======================================================================
+      📊 Procesando 2620 ventanas
+      ✅ 2620 ventanas completadas
+
+   💾 Checkpoint (15/30)
+
+======================================================================
+📊 SUJETO 16/30: SC4531E0
+======================================================================
+      📊 Procesando 2602 ventanas
+      ✅ 2602 ventanas completadas
+
+======================================================================
+📊 SUJETO 17/30: SC4162E0
+======================================================================
+      📊 Procesando 2752 ventanas
+      ✅ 2752 ventanas completadas
+
+======================================================================
+📊 SUJETO 18/30: SC4472F0
+======================================================================
+      📊 Procesando 2790 ventanas
+      ✅ 2790 ventanas completadas
+
+======================================================================
+📊 SUJETO 19/30: SC4002E0
+======================================================================
+      📊 Procesando 2830 ventanas
+      ✅ 2830 ventanas completadas
+
+======================================================================
+📊 SUJETO 20/30: SC4632E0
+======================================================================
+      📊 Procesando 2848 ventanas
+      ✅ 2848 ventanas completadas
+
+   💾 Checkpoint (20/30)
+
+======================================================================
+📊 SUJETO 21/30: SC4592G0
+======================================================================
+      📊 Procesando 2040 ventanas
+      ✅ 2040 ventanas completadas
+
+======================================================================
+📊 SUJETO 22/30: SC4502E0
+======================================================================
+      📊 Procesando 2770 ventanas
+      ✅ 2770 ventanas completadas
+
+======================================================================
+📊 SUJETO 23/30: SC4072E0
+======================================================================
+      📊 Procesando 2770 ventanas
+      ✅ 2770 ventanas completadas
+
+======================================================================
+📊 SUJETO 24/30: SC4241E0
+======================================================================
+      📊 Procesando 2702 ventanas
+      ✅ 2702 ventanas completadas
+
+======================================================================
+📊 SUJETO 25/30: SC4461F0
+======================================================================
+      📊 Procesando 2696 ventanas
+      ✅ 2696 ventanas completadas
+
+   💾 Checkpoint (25/30)
+
+======================================================================
+📊 SUJETO 26/30: SC4572F0
+======================================================================
+      📊 Procesando 2880 ventanas
+      ✅ 2880 ventanas completadas
+
+======================================================================
+📊 SUJETO 27/30: SC4332F0
+======================================================================
+      📊 Procesando 2760 ventanas
+      ✅ 2760 ventanas completadas
+
+======================================================================
+📊 SUJETO 28/30: SC4571F0
+======================================================================
+      📊 Procesando 2850 ventanas
+      ✅ 2850 ventanas completadas
+
+======================================================================
+📊 SUJETO 29/30: SC4232E0
+======================================================================
+      📊 Procesando 2640 ventanas
+      ✅ 2640 ventanas completadas
+
+======================================================================
+📊 SUJETO 30/30: SC4451F0
+======================================================================
+      📊 Procesando 2790 ventanas
+      ✅ 2790 ventanas completadas
+
+   💾 Checkpoint (30/30)
+
+================================================================================
+✅ DATASET COMPLETO
+================================================================================
+Ventanas: 80930
+Sujetos: 30
+Conscientes: 55537
+Inconscientes: 25393
+
+================================================================================
+📊 ANÁLISIS COMPARATIVO
+================================================================================
+
+BINARY:
+
+📊 phi_binary:
+   Vigilia: 0.0008
+   Sueño: 0.0003
+   Pearson: 0.1767
+   Spearman: 0.2411
+
+MULTILEVEL_3:
+
+📊 phi_multilevel_3:
+   Vigilia: 0.0340
+   Sueño: 0.0557
+   Pearson: -0.2047
+   Spearman: -0.2794
+
+GAUSSIAN:
+
+📊 phi_gaussian:
+   Vigilia: 0.0385
+   Sueño: 0.0609
+   Pearson: -0.1784
+   Spearman: -0.2252
+
+🏆 MEJOR MÉTODO: MULTILEVEL_3
+
+✅ Usando distribución NATURAL (SIN SMOTE)
+   Consciente: 55537 ventanas
+   Inconsciente: 25393 ventanas
+================================================================================
+🔬 ECLIPSE v3.2.0 INITIALIZED
+================================================================================
+Project: IIT_v3_2_2ch_natural
+Canales: 2
+
+✅ CARACTERÍSTICAS v3.2.0:
+  • Sin SMOTE (datos naturales)
+  • Eclipse Integrity Score (EIS)
+  • Statistical Test for Data Snooping (STDS)
+  • LLM-Powered Code Auditor
+  • Múltiples aproximaciones de Φ
+================================================================================
+
+STAGE 1: SPLIT
+✅ 21 dev / 9 holdout
+
+📊 División:
+   Dev: 56416 ventanas
+   Holdout: 24514 ventanas
+
+STAGE 2: CRITERIA
+✅ 3 criteria
+
+STAGE 3: DEVELOPMENT
+
+FOLD 1/5
+   ✅ MCC: 0.034
+
+FOLD 2/5
+   ✅ MCC: 0.036
+
+FOLD 3/5
+   ✅ MCC: 0.034
+
+FOLD 4/5
+   ✅ MCC: 0.042
+
+FOLD 5/5
+   ✅ MCC: 0.038
+
+🔧 Entrenando modelo final...
+   Threshold: 0.2709
+   MCC train: 0.0384
+
+STAGE 4: VALIDATION
+
+🚨 Type 'I ACCEPT SINGLE-SHOT VALIDATION': I ACCEPT SINGLE-SHOT VALIDATION
+
+🚀 Executing...
+
+✅ Complete
+
+STAGE 5: ASSESSMENT
+❌ balanced_accuracy: 0.5001
+❌ f1_score: 0.0012
+❌ mcc: 0.0033
+
+🔬 Computing integrity metrics...
+
+📊 Computing Eclipse Integrity Score (EIS)...
+
+❌ VERDICT: FALSIFIED
+✅ Saved: eclipse_results_v3_2\IIT_v3_2_2ch_natural_RESULT.json
+✅ HTML report saved: eclipse_results_v3_2\IIT_v3_2_2ch_natural_REPORT.html
+
+🔍 Verifying ECLIPSE integrity...
+────────────────────────────────────────────────────────────────────────────────
+✅ Split file: VALID
+✅ Criteria file: VALID
+✅ Results file: VALID
+────────────────────────────────────────────────────────────────────────────────
+✅ ALL FILES VERIFIED - Integrity intact
+
+================================================================================
+✅ PROCESAMIENTO COMPLETADO v3.2.0
+================================================================================
+
+📊 MÉTRICAS HOLDOUT:
+   Balanced Accuracy: 0.5001
+   MCC: 0.0033
+   F1 Score: 0.0012
+
+❌ VEREDICTO: FALSIFIED
+
+📊 Eclipse Integrity Score: 0.7760
+   GOOD
+
+================================================================================
+🎯 RESUMEN CRÍTICO v3.2.0
+================================================================================
+✅ Datos 100% NATURALES (sin SMOTE)
+✅ Integridad verificada (EIS + STDS)
+✅ Framework completo v2.0 integrado
+✅ Tiempo total: 414.7 min
+
+================================================================================
+✅ ECLIPSE v3.2.0 COMPLETADO
+================================================================================
+2025-10-17 07:41:47,177 [INFO] EJECUCIÓN COMPLETADA v3.2.0
+PS G:\Mi unidad\AFH\GITHUB\AFH-MODEL> 

@@ -1,0 +1,28 @@
+{
+  "project_name": "IIT_v3_2_2ch_natural",
+  "registration_date": "2025-10-17T03:45:16.248549",
+  "criteria": [
+    {
+      "name": "balanced_accuracy",
+      "threshold": 0.6,
+      "comparison": ">=",
+      "description": "Bal.Acc >= 0.60",
+      "is_required": true
+    },
+    {
+      "name": "f1_score",
+      "threshold": 0.5,
+      "comparison": ">=",
+      "description": "F1 >= 0.50",
+      "is_required": true
+    },
+    {
+      "name": "mcc",
+      "threshold": 0.2,
+      "comparison": ">=",
+      "description": "MCC >= 0.20",
+      "is_required": true
+    }
+  ],
+  "criteria_hash": "a89df2ada2628d4bc102379bf26ae5d38d356016dfd519a2590f787265516f20"
+}
