@@ -44,9 +44,7 @@ import multiprocessing as mp
 import ast
 import re
 
-# ═══════════════════════════════════════════════════════════════════════════
-# NUEVO v3.2.0: LLM SUPPORT
-# ═══════════════════════════════════════════════════════════════════════════
+# LLM SUPPORT
 try:
     import anthropic
     LLM_AVAILABLE = True
@@ -85,9 +83,6 @@ if not USE_GPU:
 
 N_WORKERS = min(8, mp.cpu_count())
 
-# ═══════════════════════════════════════════════════════════════════════════
-# LOGGING CON FLUSH INMEDIATO
-# ═══════════════════════════════════════════════════════════════════════════
 
 def setup_logging(output_dir: str):
     log_dir = Path(output_dir) / "logs"
@@ -122,9 +117,6 @@ def setup_logging(output_dir: str):
     
     return log_file
 
-# ═══════════════════════════════════════════════════════════════════════════
-# THERMAL MONITOR (de v3.1.0)
-# ═══════════════════════════════════════════════════════════════════════════
 
 class ThermalMonitor:
     MAX_CPU_TEMP = 85
@@ -175,9 +167,6 @@ class ThermalMonitor:
         
         return True
 
-# ═══════════════════════════════════════════════════════════════════════════
-# PHI CALCULATIONS (de v3.1.0)
-# ═══════════════════════════════════════════════════════════════════════════
 
 def calculate_phi_binary_improved(eeg_segment, use_gpu=False):
     """Φ* binario mejorado con dinámica temporal"""
@@ -261,6 +250,7 @@ def calculate_phi_binary_improved(eeg_segment, use_gpu=False):
     
     return max(0.0, phi_normalized)
 
+
 def calculate_phi_multilevel(eeg_segment, levels=4):
     """Φ multinivel"""
     n_channels, n_time = eeg_segment.shape
@@ -315,6 +305,7 @@ def calculate_phi_multilevel(eeg_segment, levels=4):
     
     return max(0.0, min_phi if min_phi != float('inf') else 0.0)
 
+
 def calculate_phi_gaussian_copula(eeg_segment):
     """Φ Gaussian copula"""
     n_channels, n_time = eeg_segment.shape
@@ -367,6 +358,7 @@ def calculate_phi_gaussian_copula(eeg_segment):
     
     return max(0.0, min_phi if min_phi != float('inf') else 0.0)
 
+
 def calculate_all_phi_methods(eeg_segment, methods='all'):
     """Calcular múltiples aproximaciones de Φ"""
     results = {}
@@ -408,9 +400,6 @@ def calculate_all_phi_methods(eeg_segment, methods='all'):
     
     return results
 
-# ═══════════════════════════════════════════════════════════════════════════
-# DATACLASSES (de v2.0)
-# ═══════════════════════════════════════════════════════════════════════════
 
 @dataclass
 class FalsificationCriteria:
@@ -431,6 +420,7 @@ class FalsificationCriteria:
         }
         return comparisons[self.comparison](value, self.threshold)
 
+
 @dataclass
 class EclipseConfig:
     project_name: str
@@ -448,6 +438,7 @@ class EclipseConfig:
         if self.timestamp is None:
             self.timestamp = datetime.now().isoformat()
 
+
 @dataclass
 class CodeViolation:
     severity: str
@@ -459,6 +450,7 @@ class CodeViolation:
     recommendation: str
     confidence: float
 
+
 @dataclass
 class AuditResult:
     timestamp: str
@@ -469,9 +461,6 @@ class AuditResult:
     summary: str
     detailed_report: str
 
-# ═══════════════════════════════════════════════════════════════════════════
-# ECLIPSE INTEGRITY SCORE (EIS)
-# ═══════════════════════════════════════════════════════════════════════════
 
 class EclipseIntegrityScore:
     """Eclipse Integrity Score (EIS) - NOVEL"""
@@ -681,31 +670,7 @@ class EclipseIntegrityScore:
             return "POOR"
         else:
             return "VERY POOR"
-    
-    def generate_eis_report(self, output_path: Optional[str] = None) -> str:
-        if not self.scores:
-            self.compute_eis()
-        
-        lines = []
-        lines.append("=" * 80)
-        lines.append("ECLIPSE INTEGRITY SCORE (EIS) v3.2.0")
-        lines.append("=" * 80)
-        lines.append(f"Project: {self.framework.config.project_name}")
-        lines.append(f"EIS: {self.scores['eis']:.4f}")
-        lines.append(f"Interpretation: {self.scores['interpretation']}")
-        lines.append("=" * 80)
-        
-        report = "\n".join(lines)
-        
-        if output_path:
-            with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(report)
-        
-        return report
 
-# ═══════════════════════════════════════════════════════════════════════════
-# STATISTICAL TEST DATA SNOOPING (STDS)
-# ═══════════════════════════════════════════════════════════════════════════
 
 class StatisticalTestDataSnooping:
     """Statistical Test for Data Snooping (STDS) - NOVEL"""
@@ -755,9 +720,6 @@ class StatisticalTestDataSnooping:
         
         return self.test_results
 
-# ═══════════════════════════════════════════════════════════════════════════
-# NUEVO v3.2.0: CODE ANALYZER (de v2.0)
-# ═══════════════════════════════════════════════════════════════════════════
 
 class CodeAnalyzer:
     """Static code analysis to detect suspicious patterns"""
@@ -845,9 +807,6 @@ class CodeAnalyzer:
         
         return findings
 
-# ═══════════════════════════════════════════════════════════════════════════
-# NUEVO v3.2.0: LLM AUDITOR (de v2.0)
-# ═══════════════════════════════════════════════════════════════════════════
 
 class LLMAuditor:
     """LLM-Powered Protocol Auditor - NOVEL"""
@@ -984,9 +943,6 @@ class LLMAuditor:
             f.write(audit_result.detailed_report)
         print(f"✅ Audit report saved: {output_path}")
 
-# ═══════════════════════════════════════════════════════════════════════════
-# VALIDATOR
-# ═══════════════════════════════════════════════════════════════════════════
 
 class EclipseValidator:
     @staticmethod
@@ -1027,9 +983,6 @@ class EclipseValidator:
         
         return metrics
 
-# ═══════════════════════════════════════════════════════════════════════════
-# NUEVO v3.2.0: ENHANCED REPORTER (de v2.0)
-# ═══════════════════════════════════════════════════════════════════════════
 
 class EclipseReporter:
     @staticmethod
@@ -1136,9 +1089,6 @@ class EclipseReporter:
         
         return text
 
-# ═══════════════════════════════════════════════════════════════════════════
-# DATA LOADING (de v3.1.0)
-# ═══════════════════════════════════════════════════════════════════════════
 
 def load_sleepedf_subject_multichannel_v3(psg_path, hypno_path, n_channels=8, 
                                           phi_methods='all', thermal_monitor=None):
@@ -1217,6 +1167,7 @@ def load_sleepedf_subject_multichannel_v3(psg_path, hypno_path, n_channels=8,
     
     return windows
 
+
 def buscar_archivos_edf_pares(carpeta_base):
     """Buscar pares PSG-Hypnogram"""
     pares_encontrados = []
@@ -1250,6 +1201,7 @@ def buscar_archivos_edf_pares(carpeta_base):
     
     return pares_encontrados
 
+
 def save_progress(output_dir: Path, subject_data: List, checkpoint_name: str):
     """Guardar checkpoint"""
     checkpoint_file = output_dir / f"{checkpoint_name}.pkl"
@@ -1259,6 +1211,7 @@ def save_progress(output_dir: Path, subject_data: List, checkpoint_name: str):
             pickle.dump(subject_data, f)
     except Exception as e:
         logging.error(f"Error checkpoint: {e}")
+
 
 def load_progress(output_dir: Path, checkpoint_name: str):
     """Cargar checkpoint"""
@@ -1271,6 +1224,7 @@ def load_progress(output_dir: Path, checkpoint_name: str):
         except Exception as e:
             logging.error(f"Error: {e}")
     return None
+
 
 def optimize_threshold_mcc(train_df: pd.DataFrame, phi_column: str, n_thresholds=200):
     """Optimizar threshold con MCC"""
@@ -1295,6 +1249,7 @@ def optimize_threshold_mcc(train_df: pd.DataFrame, phi_column: str, n_thresholds
     
     return {'phi_threshold': best_threshold, 'best_mcc_train': best_mcc, 'phi_column': phi_column}
 
+
 def analyze_phi_correlation(df: pd.DataFrame, phi_column: str):
     """Análisis de correlación"""
     conscious = df[df['consciousness'] == 1][phi_column]
@@ -1311,6 +1266,7 @@ def analyze_phi_correlation(df: pd.DataFrame, phi_column: str):
     print(f"   Spearman: {spearman_r:.4f}")
     
     return {'pearson_r': float(pearson_r), 'spearman_rho': float(spearman_r)}
+
 
 def comparative_analysis(df: pd.DataFrame):
     """Análisis comparativo"""
@@ -1330,9 +1286,6 @@ def comparative_analysis(df: pd.DataFrame):
     
     return results
 
-# ═══════════════════════════════════════════════════════════════════════════
-# ECLIPSE FRAMEWORK v3.2.0
-# ═══════════════════════════════════════════════════════════════════════════
 
 class EclipseFramework:
     """ECLIPSE v3.2.0 Framework - Integración completa v2.0 + v3.1.0"""
@@ -1370,7 +1323,32 @@ class EclipseFramework:
     
     def stage1_irreversible_split(self, data_identifiers: List[Any], force: bool = False) -> Tuple[List[Any], List[Any]]:
         if self.split_file.exists() and not force:
-            with open(self.split_file, 'w') as f:
+            with open(self.split_file, 'r') as f:
+                split_data = json.load(f)
+            self._split_completed = True
+            return split_data['development_ids'], split_data['holdout_ids']
+        
+        print("\nSTAGE 1: SPLIT")
+        np.random.seed(self.config.sacred_seed)
+        shuffled_ids = np.array(data_identifiers).copy()
+        np.random.shuffle(shuffled_ids)
+        
+        n_development = int(len(data_identifiers) * self.config.development_ratio)
+        development_ids = shuffled_ids[:n_development].tolist()
+        holdout_ids = shuffled_ids[n_development:].tolist()
+        
+        split_data = {
+            'project_name': self.config.project_name,
+            'split_date': datetime.now().isoformat(),
+            'sacred_seed': self.config.sacred_seed,
+            'development_ids': development_ids,
+            'holdout_ids': holdout_ids,
+            'integrity_verification': {
+                'split_hash': hashlib.sha256(f"{self.config.sacred_seed}_{sorted(data_identifiers)}".encode()).hexdigest()
+            }
+        }
+        
+        with open(self.split_file, 'w') as f:
             json.dump(split_data, f, indent=2)
         
         print(f"✅ {len(development_ids)} dev / {len(holdout_ids)} holdout")
@@ -1545,7 +1523,6 @@ class EclipseFramework:
             'all_valid': True
         }
         
-        # Check split file
         if self.split_file.exists():
             with open(self.split_file, 'r') as f:
                 split_data = json.load(f)
@@ -1568,7 +1545,6 @@ class EclipseFramework:
             if not split_valid:
                 verification['all_valid'] = False
         
-        # Check criteria file
         if self.criteria_file.exists():
             with open(self.criteria_file, 'r') as f:
                 criteria_data = json.load(f)
@@ -1590,7 +1566,6 @@ class EclipseFramework:
             if not criteria_valid:
                 verification['all_valid'] = False
         
-        # Check results file
         if self.results_file.exists():
             with open(self.results_file, 'r') as f:
                 results_data = json.load(f)
@@ -1693,9 +1668,6 @@ class EclipseFramework:
         
         return final_assessment
 
-# ═══════════════════════════════════════════════════════════════════════════
-# MAIN - v3.2.0
-# ═══════════════════════════════════════════════════════════════════════════
 
 def main():
     print("=" * 80)
@@ -1837,7 +1809,6 @@ def main():
     
     eclipse = EclipseFramework(config)
     
-    # STAGE 1: Split
     unique_subjects = df_natural['subject_id'].unique().tolist()
     dev_subjects, holdout_subjects = eclipse.stage1_irreversible_split(unique_subjects)
     
@@ -1848,7 +1819,6 @@ def main():
     print(f"   Dev: {len(dev_data)} ventanas")
     print(f"   Holdout: {len(holdout_data)} ventanas")
     
-    # STAGE 2: Criteria
     criteria = [
         FalsificationCriteria("balanced_accuracy", 0.60, ">=", "Bal.Acc >= 0.60", True),
         FalsificationCriteria("f1_score", 0.50, ">=", "F1 >= 0.50", True),
@@ -1857,7 +1827,6 @@ def main():
     
     eclipse.stage2_register_criteria(criteria)
     
-    # STAGE 3: Development
     phi_col = f"phi_{best_method}"
     
     def train_fn(train_data, **kwargs):
@@ -1883,7 +1852,6 @@ def main():
         validation_function=val_fn
     )
     
-    # STAGE 4: Validation
     print("\n🔧 Entrenando modelo final...")
     final_model = train_fn(dev_data)
     print(f"   Threshold: {final_model['phi_threshold']:.4f}")
@@ -1899,7 +1867,6 @@ def main():
         print("Validación cancelada")
         return
     
-    # STAGE 5: Assessment con métricas v3.2.0
     final_assessment = eclipse.stage5_final_assessment(
         development_results=dev_results,
         validation_results=val_results,
@@ -1907,10 +1874,8 @@ def main():
         compute_integrity=True
     )
     
-    # NUEVO v3.2.0: Verificación de integridad
     eclipse.verify_integrity()
     
-    # Resumen final
     print("\n" + "=" * 80)
     print("✅ PROCESAMIENTO COMPLETADO v3.2.0")
     print("=" * 80)
@@ -1924,7 +1889,6 @@ def main():
     
     print(f"\n{'✅' if final_assessment['verdict'] == 'VALIDATED' else '❌'} VEREDICTO: {final_assessment['verdict']}")
     
-    # Novel metrics v3.2.0
     if 'integrity_metrics' in final_assessment:
         integrity = final_assessment['integrity_metrics']
         
@@ -1963,29 +1927,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\n❌ Error: {e}")
         import traceback
-        logging.error(traceback.format_exc())file, 'r') as f:
-                split_data = json.load(f)
-            self._split_completed = True
-            return split_data['development_ids'], split_data['holdout_ids']
-        
-        print("\nSTAGE 1: SPLIT")
-        np.random.seed(self.config.sacred_seed)
-        shuffled_ids = np.array(data_identifiers).copy()
-        np.random.shuffle(shuffled_ids)
-        
-        n_development = int(len(data_identifiers) * self.config.development_ratio)
-        development_ids = shuffled_ids[:n_development].tolist()
-        holdout_ids = shuffled_ids[n_development:].tolist()
-        
-        split_data = {
-            'project_name': self.config.project_name,
-            'split_date': datetime.now().isoformat(),
-            'sacred_seed': self.config.sacred_seed,
-            'development_ids': development_ids,
-            'holdout_ids': holdout_ids,
-            'integrity_verification': {
-                'split_hash': hashlib.sha256(f"{self.config.sacred_seed}_{sorted(data_identifiers)}".encode()).hexdigest()
-            }
-        }
-        
-        with open(self.split_
+        logging.error(traceback.format_exc())
