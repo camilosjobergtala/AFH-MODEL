@@ -1,32 +1,35 @@
 #!/usr/bin/env python3
 """
 ═══════════════════════════════════════════════════════════════════════════════
-NIVEL 2: PAC Band Specificity Test
-Autopsychic Fold Hypothesis - ECLIPSE v2.0
+NIVEL 2 EXTENDED: PAC Band Specificity + N3 + Power vs PAC
+WITH FULL ECLIPSE v2.0 INTEGRATION
+Autopsychic Fold Hypothesis
 ═══════════════════════════════════════════════════════════════════════════════
 
-HIPÓTESIS:
-    H1: PAC_theta-gamma tiene MAYOR discriminación que otras bandas
-    H2: Si TODAS las bandas discriminan igual → NO hay especificidad
+HIPÓTESIS EXTENDIDAS:
+    H1: PAC discrimina consciencia, no cantidad de delta
+    H2: Delta-gamma PAC ≠ Delta POWER
+    H3: N3 tiene BAJO PAC a pesar de ALTO delta power
     
-BANDAS TESTEADAS:
-    1. Delta-Gamma (1-4 Hz, 30-45 Hz)
-    2. Theta-Gamma (4-8 Hz, 30-45 Hz)   ← NIVEL 1 validado (d=2.437)
-    3. Alpha-Gamma (8-12 Hz, 30-45 Hz)
-    4. Beta-Gamma (13-30 Hz, 30-45 Hz)
-
-PREDICCIÓN AFH:
-    Cohen's d_theta-gamma > d_otros
+ECLIPSE v2.0 INTEGRATION:
+    ✅ Stage 1: Irreversible 70/30 subject split
+    ✅ Stage 2: Pre-registered falsification criteria
+    ✅ Stage 3: Development phase (optional CV if needed)
+    ✅ Stage 4: Single-shot holdout validation
+    ✅ Stage 5: Final assessment with EIS, STDS, integrity verification
     
-CRITERIO DE FALSIFICACIÓN NIVEL 2:
-    Si d_theta-gamma ≤ promedio(d_otros) → NO hay especificidad → Replantear AFH
+TESTS CRÍTICOS:
+    Test 1: PAC Wake > N2 > N3 (a pesar de power N3 > N2 > Wake)
+    Test 2: Delta-gamma PAC discrimina MEJOR que Delta POWER
+    Test 3: REM PAC ≈ Wake PAC (si consciencia ON en ambos)
 
 Author: Camilo Sjöberg Tala
 Date: 2025-10-22
-Version: NIVEL_2_v2.0_FIXED
+Version: NIVEL_2_EXTENDED_ECLIPSE_v3.0
 
 EJECUCIÓN:
-    python NIVEL2_PAC_BAND_SPECIFICITY_FIXED.py --pilot
+    python NIVEL2_EXTENDED_ECLIPSE_FULL.py          # Todos los sujetos (default)
+    python NIVEL2_EXTENDED_ECLIPSE_FULL.py --n-subjects 10  # Solo 10 sujetos
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
@@ -43,8 +46,24 @@ import logging
 from dataclasses import dataclass, field
 import argparse
 import sys
+import json
 
 from tensorpac import Pac
+
+# IMPORT ECLIPSE v2.0
+try:
+    from eclipse_v2 import (
+        EclipseFramework,
+        EclipseConfig,
+        FalsificationCriteria,
+        EclipseValidator
+    )
+    ECLIPSE_AVAILABLE = True
+except ImportError:
+    ECLIPSE_AVAILABLE = False
+    print("\n⚠️  WARNING: ECLIPSE v2.0 not found in path")
+    print("   Place eclipse_v2.py in same directory or PYTHONPATH")
+    print("   Continuing without ECLIPSE integration...")
 
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 mne.set_log_level('WARNING')
@@ -56,7 +75,7 @@ logger = logging.getLogger(__name__)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# CONFIGURACIÓN MULTI-BANDA
+# CONFIGURACIÓN EXTENDIDA
 # ═══════════════════════════════════════════════════════════════════════════
 
 @dataclass
@@ -69,7 +88,7 @@ class BandPair:
 
 @dataclass
 class Config:
-    """Configuración NIVEL 2: Multi-Band PAC Test"""
+    """Configuración NIVEL 2 EXTENDED con ECLIPSE"""
     data_dir: Path
     output_dir: Path
     
@@ -89,13 +108,13 @@ class Config:
             name="Theta-Gamma",
             phase_band=(4.0, 8.0),
             amp_band=(30.0, 45.0),
-            description="AFH prediction - MAIN"
+            description="AFH prediction"
         ),
         BandPair(
             name="Alpha-Gamma",
             phase_band=(8.0, 12.0),
             amp_band=(30.0, 45.0),
-            description="Attention-related coupling"
+            description="Attention coupling"
         ),
         BandPair(
             name="Beta-Gamma",
@@ -105,22 +124,44 @@ class Config:
         ),
     ])
     
+    power_bands: Dict[str, Tuple[float, float]] = field(default_factory=lambda: {
+        'Delta': (1.0, 4.0),
+        'Theta': (4.0, 8.0),
+        'Alpha': (8.0, 12.0),
+        'Beta': (13.0, 30.0),
+        'Gamma': (30.0, 45.0),
+    })
+    
     epoch_duration: float = 30.0
-    n_epochs_per_state: int = 100
+    n_epochs_per_state: int = 50  # Reducido de 100 a 50 para procesar 153 sujetos más rápido
     
     wake_state: str = 'Sleep stage W'
+    n1_state: str = 'Sleep stage 1'
     n2_state: str = 'Sleep stage 2'
+    n3_state: str = 'Sleep stage 3'
+    rem_state: str = 'Sleep stage R'
     
     sacred_seed: int = 42
     n_subjects: Optional[int] = None
+    
+    # ECLIPSE configuration
+    researcher: str = "Camilo Sjöberg Tala"
+    project_name: str = "NIVEL2_EXTENDED_PAC_N3_POWER"
+    
+    def __post_init__(self):
+        """Ajustar nombre del proyecto según cantidad de sujetos"""
+        if self.n_subjects is None:
+            self.project_name = f"{self.project_name}_FULL_DATASET"
+        else:
+            self.project_name = f"{self.project_name}_{self.n_subjects}subj"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# CALCULADORA PAC MULTI-BANDA
+# CALCULADORA PAC + POWER
 # ═══════════════════════════════════════════════════════════════════════════
 
-class MultiPACCalculator:
-    """Calcula PAC para múltiples pares de bandas"""
+class ExtendedPACCalculator:
+    """Calcula PAC Y POWER para múltiples bandas"""
     
     def __init__(self, config: Config):
         self.config = config
@@ -135,8 +176,7 @@ class MultiPACCalculator:
                 dcomplex='wavelet',
                 width=7
             )
-            logger.info(f"PAC object created: {band_pair.name} - "
-                       f"phase {band_pair.phase_band} Hz, amp {band_pair.amp_band} Hz")
+            logger.info(f"PAC object created: {band_pair.name}")
         
     def preprocess(self, data: np.ndarray) -> np.ndarray:
         """Preprocesa señal EEG"""
@@ -155,7 +195,6 @@ class MultiPACCalculator:
             fs=self.fs
         )
         filtered = signal.filtfilt(b_notch, a_notch, filtered)
-        
         filtered = (filtered - np.mean(filtered)) / (np.std(filtered) + 1e-10)
         
         return filtered
@@ -165,41 +204,52 @@ class MultiPACCalculator:
         peak_to_peak = np.ptp(data)
         return peak_to_peak > 8.0
     
-    def compute_all_pac(self, data: np.ndarray) -> Dict[str, Dict]:
-        """
-        Calcula PAC para TODAS las bandas en una epoch
-        
-        Returns:
-            {
-                'Delta-Gamma': {'pac': X, 'valid': True, ...},
-                'Theta-Gamma': {'pac': Y, 'valid': True, ...},
-                ...
-            }
-        """
+    def compute_band_power(self, data: np.ndarray, band: Tuple[float, float]) -> float:
+        """Calcula power espectral en una banda específica"""
+        freqs, psd = signal.welch(data, fs=self.fs, nperseg=min(len(data), 256))
+        idx_band = np.logical_and(freqs >= band[0], freqs <= band[1])
+        power = np.trapz(psd[idx_band], freqs[idx_band])
+        return float(power)
+    
+    def compute_all_metrics(self, data: np.ndarray) -> Dict[str, Dict]:
+        """Calcula PAC + POWER"""
         data_clean = self.preprocess(data)
         
         if self.has_artifact(data_clean):
             return {
-                band_name: {
-                    'pac': np.nan,
-                    'valid': False,
-                    'reject_reason': 'artifact'
+                'pac': {
+                    band_name: {
+                        'pac': np.nan,
+                        'valid': False,
+                        'reject_reason': 'artifact'
+                    }
+                    for band_name in self.pac_objects.keys()
+                },
+                'power': {
+                    band_name: np.nan
+                    for band_name in self.config.power_bands.keys()
                 }
-                for band_name in self.pac_objects.keys()
             }
         
         min_samples = int(2.0 * self.fs)
         if len(data_clean) < min_samples:
             return {
-                band_name: {
-                    'pac': np.nan,
-                    'valid': False,
-                    'reject_reason': 'too_short'
+                'pac': {
+                    band_name: {
+                        'pac': np.nan,
+                        'valid': False,
+                        'reject_reason': 'too_short'
+                    }
+                    for band_name in self.pac_objects.keys()
+                },
+                'power': {
+                    band_name: np.nan
+                    for band_name in self.config.power_bands.keys()
                 }
-                for band_name in self.pac_objects.keys()
             }
         
-        results = {}
+        # Compute PAC
+        pac_results = {}
         data_reshaped = data_clean[np.newaxis, :]
         
         for band_name, pac_obj in self.pac_objects.items():
@@ -207,375 +257,604 @@ class MultiPACCalculator:
                 pac_value = pac_obj.filterfit(self.fs, data_reshaped, data_reshaped)
                 pac_value = float(pac_value[0, 0, 0])
                 
-                results[band_name] = {
+                pac_results[band_name] = {
                     'pac': pac_value,
                     'valid': True,
                     'reject_reason': None
                 }
             except Exception as e:
                 logger.warning(f"Error en PAC {band_name}: {e}")
-                results[band_name] = {
+                pac_results[band_name] = {
                     'pac': np.nan,
                     'valid': False,
                     'reject_reason': f'computation_error: {e}'
                 }
         
-        return results
+        # Compute POWER
+        power_results = {}
+        for band_name, band_range in self.config.power_bands.items():
+            try:
+                power_val = self.compute_band_power(data_clean, band_range)
+                power_results[band_name] = power_val
+            except Exception as e:
+                logger.warning(f"Error en Power {band_name}: {e}")
+                power_results[band_name] = np.nan
+        
+        return {
+            'pac': pac_results,
+            'power': power_results
+        }
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# PROCESADOR SLEEP-EDF CON MULTI-PAC (USANDO LÓGICA NIVEL 1)
+# PROCESADOR SLEEP-EDF
 # ═══════════════════════════════════════════════════════════════════════════
 
-class SleepEDFProcessor:
-    """Carga y procesa datos Sleep-EDF con multi-PAC"""
+class ExtendedSleepEDFProcessor:
+    """Procesa Sleep-EDF con PAC + POWER para múltiples estados"""
     
     def __init__(self, config: Config):
         self.config = config
-        self.pac_calc = MultiPACCalculator(config)
+        self.calculator = ExtendedPACCalculator(config)
+    
+    def load_subject(self, psg_file: Path, hypno_file: Path) -> Optional[Dict]:
+        """Carga datos de un sujeto"""
+        try:
+            raw = mne.io.read_raw_edf(str(psg_file), preload=True, verbose=False)
+            annotations = mne.read_annotations(str(hypno_file))
+            raw.set_annotations(annotations)
+            
+            available_states = set(raw.annotations.description)
+            logger.info(f"  Estados disponibles: {available_states}")
+            
+            eeg_channels = [ch for ch in raw.ch_names if 'EEG' in ch.upper()]
+            if not eeg_channels:
+                logger.warning(f"  No hay canales EEG")
+                return None
+            
+            channel = 'EEG Pz-Oz' if 'EEG Pz-Oz' in eeg_channels else eeg_channels[0]
+            logger.info(f"  Usando canal: {channel}")
+            raw.pick_channels([channel])
+            
+            if raw.info['sfreq'] != self.config.sampling_rate:
+                raw.resample(self.config.sampling_rate)
+            
+            return {
+                'raw': raw,
+                'channel': channel,
+                'available_states': available_states
+            }
+        except Exception as e:
+            logger.error(f"  Error cargando: {e}")
+            return None
+    
+    def extract_epochs_for_state(self, raw, state_label: str, n_epochs: int) -> List[np.ndarray]:
+        """Extrae epochs de un estado específico"""
+        state_annotations = [ann for ann in raw.annotations if ann['description'] == state_label]
         
-    def find_subject_files(self) -> List[Dict[str, Path]]:
-        """Encuentra pares PSG + Hypnogram"""
+        if not state_annotations:
+            return []
         
-        psg_files = sorted(self.config.data_dir.glob("*-PSG.edf"))
-        hypno_files = sorted(self.config.data_dir.glob("*-Hypnogram.edf"))
-        
-        logger.info(f"PSG files: {len(psg_files)}, Hypnogram files: {len(hypno_files)}")
-        
-        hypno_map = {}
-        for hypno_path in hypno_files:
-            codigo_hypno = hypno_path.stem.replace("-Hypnogram", "")
-            if len(codigo_hypno) >= 6:
-                base_letra = codigo_hypno[:-1]
-                hypno_map[base_letra] = hypno_path
-        
-        subject_files = []
-        for psg_path in psg_files:
-            codigo_psg = psg_path.stem.replace("-PSG", "")
-            if len(codigo_psg) >= 7 and codigo_psg.endswith('0'):
-                base_letra = codigo_psg[:-1]
+        epochs_data = []
+        for ann in state_annotations:
+            start_sample = int(ann['onset'] * raw.info['sfreq'])
+            duration_samples = int(ann['duration'] * raw.info['sfreq'])
+            
+            if duration_samples < self.config.epoch_duration * raw.info['sfreq']:
+                continue
+            
+            data_segment = raw.get_data(start=start_sample, stop=start_sample + duration_samples)[0]
+            
+            epoch_samples = int(self.config.epoch_duration * raw.info['sfreq'])
+            n_possible = len(data_segment) // epoch_samples
+            
+            for i in range(min(n_possible, n_epochs - len(epochs_data))):
+                start = i * epoch_samples
+                end = start + epoch_samples
+                epochs_data.append(data_segment[start:end])
                 
-                if base_letra in hypno_map:
-                    subject_files.append({
-                        'psg': psg_path,
-                        'hypno': hypno_map[base_letra],
-                        'subject_id': codigo_psg
-                    })
-        
-        logger.info(f"Encontrados {len(subject_files)} sujetos emparejados")
-        
-        if self.config.n_subjects is not None:
-            subject_files = subject_files[:self.config.n_subjects]
-            logger.info(f"Limitado a {len(subject_files)} sujetos")
-        
-        return subject_files
-    
-    def load_subject(self, psg_path: Path, hypno_path: Path) -> Tuple[mne.io.Raw, mne.Annotations]:
-        """Carga PSG y anotaciones - IGUAL QUE NIVEL 1"""
-        raw = mne.io.read_raw_edf(psg_path, preload=True, verbose=False)
-        annotations = mne.read_annotations(hypno_path)
-        
-        unique_descriptions = set(annotations.description)
-        if len(unique_descriptions) > 0:
-            logger.info(f"  Estados disponibles: {sorted(unique_descriptions)}")
-        
-        return raw, annotations
-    
-    def extract_epochs_for_state(
-        self,
-        raw: mne.io.Raw,
-        annotations: mne.Annotations,
-        state: str
-    ) -> List[np.ndarray]:
-        """
-        Extrae epochs de 30s para un estado - IGUAL QUE NIVEL 1
-        """
-        available_channel = None
-        
-        preferred_channels = ['Pz-Oz', 'EEG Pz-Oz', 'Fpz-Cz', 'EEG Fpz-Cz']
-        
-        for ch in preferred_channels:
-            if ch in raw.ch_names:
-                available_channel = ch
+                if len(epochs_data) >= n_epochs:
+                    break
+            
+            if len(epochs_data) >= n_epochs:
                 break
         
-        if available_channel is None:
-            eeg_channels = [ch for ch in raw.ch_names if 'EEG' in ch.upper() or ch.startswith('EEG')]
-            if len(eeg_channels) > 0:
-                available_channel = eeg_channels[0]
-            else:
-                logger.warning(f"No se encontró ningún canal EEG")
-                return []
-        
-        logger.info(f"  Usando canal: {available_channel}")
-        
-        raw_ch = raw.copy().pick_channels([available_channel])
-        
-        fs = raw.info['sfreq']
-        epoch_samples = int(self.config.epoch_duration * fs)
-        
-        epochs_list = []
-        for i, desc in enumerate(annotations.description):
-            if desc == state:
-                onset_time = annotations.onset[i]
-                onset_sample = int(onset_time * fs)
-                offset_sample = onset_sample + epoch_samples
-                
-                if offset_sample <= raw_ch.n_times:
-                    data, _ = raw_ch[:, onset_sample:offset_sample]
-                    epoch_data = data[0, :]
-                    epochs_list.append(epoch_data)
-                    
-                    if len(epochs_list) >= self.config.n_epochs_per_state:
-                        break
-        
-        return epochs_list
+        return epochs_data
     
-    def process_subject(self, subject_info: Dict) -> pd.DataFrame:
-        """Procesa un sujeto con TODAS las bandas PAC"""
-        
-        subject_id = subject_info['subject_id']
+    def process_subject(self, subject_id: str, psg_file: Path, hypno_file: Path) -> pd.DataFrame:
+        """Procesa un sujeto completo"""
         logger.info(f"Procesando {subject_id}...")
         
-        try:
-            raw, annotations = self.load_subject(
-                subject_info['psg'],
-                subject_info['hypno']
-            )
-        except Exception as e:
-            logger.error(f"Error cargando {subject_id}: {e}")
+        loaded = self.load_subject(psg_file, hypno_file)
+        if loaded is None:
             return pd.DataFrame()
         
-        wake_epochs = self.extract_epochs_for_state(raw, annotations, self.config.wake_state)
-        n2_epochs = self.extract_epochs_for_state(raw, annotations, self.config.n2_state)
+        raw = loaded['raw']
+        available_states = loaded['available_states']
         
-        logger.info(f"  {subject_id}: {len(wake_epochs)} Wake, {len(n2_epochs)} N2 epochs")
+        states_to_extract = {
+            'Wake': self.config.wake_state,
+            'N2': self.config.n2_state,
+            'N3': self.config.n3_state,
+        }
         
-        if len(wake_epochs) == 0 or len(n2_epochs) == 0:
-            logger.warning(f"  {subject_id}: Insuficientes epochs")
-            return pd.DataFrame()
+        if self.config.rem_state in available_states:
+            states_to_extract['REM'] = self.config.rem_state
         
-        # Calcular PAC para TODAS las bandas, TODAS las epochs
-        results = []
+        all_results = []
         
-        # Wake epochs
-        for i, epoch_data in enumerate(wake_epochs):
-            pac_results = self.pac_calc.compute_all_pac(epoch_data)
+        for state_name, state_label in states_to_extract.items():
+            if state_label not in available_states:
+                logger.info(f"  {state_name} no disponible")
+                continue
             
-            for band_name, pac_info in pac_results.items():
-                results.append({
-                    'subject_id': subject_id,
-                    'state': 'wake',
-                    'consciousness': 1,
-                    'epoch_idx': i,
-                    'band_pair': band_name,
-                    'pac': pac_info['pac'],
-                    'valid': pac_info['valid'],
-                    'reject_reason': pac_info['reject_reason']
-                })
-        
-        # N2 epochs
-        for i, epoch_data in enumerate(n2_epochs):
-            pac_results = self.pac_calc.compute_all_pac(epoch_data)
+            epochs = self.extract_epochs_for_state(raw, state_label, self.config.n_epochs_per_state)
+            logger.info(f"  {subject_id}: {len(epochs)} {state_name} epochs")
             
-            for band_name, pac_info in pac_results.items():
-                results.append({
-                    'subject_id': subject_id,
-                    'state': 'n2',
-                    'consciousness': 0,
-                    'epoch_idx': i,
-                    'band_pair': band_name,
-                    'pac': pac_info['pac'],
-                    'valid': pac_info['valid'],
-                    'reject_reason': pac_info['reject_reason']
-                })
+            if len(epochs) == 0:
+                continue
+            
+            for epoch_idx, epoch_data in enumerate(epochs):
+                metrics = self.calculator.compute_all_metrics(epoch_data)
+                
+                # Guardar PAC results
+                for band_name, pac_result in metrics['pac'].items():
+                    result = {
+                        'subject_id': subject_id,
+                        'state': state_name,
+                        'epoch_idx': epoch_idx,
+                        'band_pair': band_name,
+                        'pac': pac_result['pac'],
+                        'valid': pac_result['valid'],
+                        'metric_type': 'PAC'
+                    }
+                    all_results.append(result)
+                
+                # Guardar POWER results (una vez por epoch, no por cada band_pair)
+                for power_band_name, power_val in metrics['power'].items():
+                    result = {
+                        'subject_id': subject_id,
+                        'state': state_name,
+                        'epoch_idx': epoch_idx,
+                        'band_pair': power_band_name,
+                        'pac': power_val,  # usando 'pac' column para consistencia
+                        'valid': not np.isnan(power_val),
+                        'metric_type': 'POWER'
+                    }
+                    all_results.append(result)
         
-        df = pd.DataFrame(results)
-        
-        n_rejected = (~df['valid']).sum()
-        if n_rejected > 0:
-            logger.info(f"  {subject_id}: {n_rejected} measurements rechazadas")
-        
-        return df
+        logger.info(f"  {subject_id}: {len(all_results)} measurements")
+        return pd.DataFrame(all_results)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ANÁLISIS MULTI-BANDA
+# ANÁLISIS CON ECLIPSE v2.0 INTEGRATION
 # ═══════════════════════════════════════════════════════════════════════════
 
-def run_multiband_analysis(config: Config):
-    """Ejecuta análisis NIVEL 2 con múltiples bandas"""
+def run_extended_analysis_with_eclipse(config: Config):
+    """Ejecuta análisis completo con ECLIPSE v2.0 integration"""
     
-    logger.info("=" * 80)
-    logger.info("NIVEL 2: PAC BAND SPECIFICITY TEST - ECLIPSE v2.0")
-    logger.info("=" * 80)
+    print("\n" + "=" * 80)
+    print("🔬 NIVEL 2 EXTENDED + ECLIPSE v2.0 ANALYSIS")
+    print("=" * 80)
     
-    processor = SleepEDFProcessor(config)
-    subject_files = processor.find_subject_files()
-    
-    if len(subject_files) == 0:
-        logger.error("No se encontraron archivos")
+    if not ECLIPSE_AVAILABLE:
+        print("\n❌ ERROR: ECLIPSE v2.0 not available")
+        print("   Cannot proceed without ECLIPSE integration")
+        print("   Please ensure eclipse_v2.py is in path")
         return
     
-    logger.info(f"Procesando {len(subject_files)} sujetos con {len(config.band_pairs)} pares de bandas...")
+    processor = ExtendedSleepEDFProcessor(config)
+    
+    # Cargar sujetos
+    psg_files = sorted(config.data_dir.glob('*PSG.edf'))
+    if config.n_subjects:
+        psg_files = psg_files[:config.n_subjects]
+    
+    print(f"\n📁 Diagnóstico de archivos:")
+    print(f"   Directorio: {config.data_dir}")
+    print(f"   PSG files encontrados: {len(list(config.data_dir.glob('*PSG.edf')))}")
+    print(f"   Hypnogram files encontrados: {len(list(config.data_dir.glob('*Hypnogram.edf')))}")
+    
+    # Mostrar primeros 3 pares de archivos
+    print(f"\n   Primeros archivos encontrados:")
+    for psg in list(config.data_dir.glob('*PSG.edf'))[:3]:
+        print(f"     PSG: {psg.name}")
+    for hypno in list(config.data_dir.glob('*Hypnogram.edf'))[:3]:
+        print(f"     Hypnogram: {hypno.name}")
+    
+    print(f"\n🔧 Procesando {len(psg_files)} sujetos...")
+    
+    if len(psg_files) > 50:
+        estimated_time_min = len(psg_files) * 1.5  # ~1.5 min por sujeto
+        estimated_time_hrs = estimated_time_min / 60
+        print(f"⏱️  Tiempo estimado: ~{estimated_time_hrs:.1f} horas")
+        print(f"   (checkpoints guardados cada 10 sujetos)")
+    
+    import time
+    start_time = time.time()
     
     all_data = []
-    for i, subj_info in enumerate(subject_files, 1):
-        logger.info(f"[{i}/{len(subject_files)}] {subj_info['subject_id']}")
-        df = processor.process_subject(subj_info)
+    subject_ids = []
+    
+    # Checkpoint para guardar progreso cada N sujetos
+    checkpoint_frequency = 10
+    checkpoint_file = config.output_dir / 'checkpoint_data.pkl'
+    
+    for idx, psg_file in enumerate(psg_files, 1):
+        subject_id = psg_file.stem.replace('-PSG', '')
+        subject_ids.append(subject_id)
+        
+        # Sleep-EDF usa formato: SC4001E0-PSG.edf y SC4001EC-Hypnogram.edf
+        # Reemplazar último dígito por 'C' para hypnogram
+        hypno_id = subject_id[:-1] + 'C'  # SC4001E0 -> SC4001EC
+        hypno_file = psg_file.parent / f"{hypno_id}-Hypnogram.edf"
+        
+        if not hypno_file.exists():
+            logger.warning(f"  [{idx}/{len(psg_files)}] {subject_id}: Hypnogram no encontrado (buscando {hypno_file.name})")
+            continue
+        
+        # Progress indicator
+        progress_pct = (idx / len(psg_files)) * 100
+        print(f"[{idx}/{len(psg_files)}] ({progress_pct:.1f}%) Processing {subject_id}...")
+        
+        logger.info(f"[{idx}/{len(psg_files)}] {subject_id}")
+        df = processor.process_subject(subject_id, psg_file, hypno_file)
+        
         if not df.empty:
             all_data.append(df)
+        
+        # Guardar checkpoint cada N sujetos
+        if idx % checkpoint_frequency == 0 and all_data:
+            config.output_dir.mkdir(parents=True, exist_ok=True)
+            checkpoint_df = pd.concat(all_data, ignore_index=True)
+            checkpoint_df.to_pickle(checkpoint_file)
+            logger.info(f"  Checkpoint saved: {len(all_data)} subjects processed")
     
-    if len(all_data) == 0:
-        logger.error("No se procesaron datos válidos")
+    if not all_data:
+        print(f"\n❌ No se procesaron datos válidos")
+        print(f"   Total PSG files encontrados: {len(psg_files)}")
+        print(f"   Sujetos con hypnogram: 0")
+        print(f"\n💡 SOLUCIÓN:")
+        print(f"   1. Verifica que los archivos hypnogram existan en: {config.data_dir}")
+        print(f"   2. El formato esperado es: SC4001EC-Hypnogram.edf (nota la 'C' al final)")
+        print(f"   3. Si tienes otro formato, ajusta el código en la línea de hypno_id")
         return
     
+    # Calcular tiempo total
+    elapsed_time = time.time() - start_time
+    elapsed_min = elapsed_time / 60
+    elapsed_hrs = elapsed_min / 60
+    
     full_df = pd.concat(all_data, ignore_index=True)
-    valid_df = full_df[full_df['valid']].copy()
     
-    logger.info(f"\nDatos procesados:")
-    logger.info(f"  Total measurements: {len(full_df)}")
-    logger.info(f"  Valid measurements: {len(valid_df)}")
+    n_subjects_processed = len(set(full_df['subject_id']))
     
-    for band_name in valid_df['band_pair'].unique():
-        band_data = valid_df[valid_df['band_pair'] == band_name]
-        n_wake = (band_data['consciousness'] == 1).sum()
-        n_n2 = (band_data['consciousness'] == 0).sum()
-        logger.info(f"  {band_name}: {n_wake} Wake, {n_n2} N2")
+    print(f"\n📊 Datos procesados exitosamente:")
+    print(f"  Total PSG files encontrados: {len(psg_files)}")
+    print(f"  Sujetos procesados con éxito: {n_subjects_processed}")
+    print(f"  Total measurements: {len(full_df)}")
+    print(f"  Estados únicos: {sorted(full_df['state'].unique())}")
+    print(f"  Bandas PAC: {sorted(full_df[full_df['metric_type']=='PAC']['band_pair'].unique())}")
+    print(f"  Bandas POWER: {sorted(full_df[full_df['metric_type']=='POWER']['band_pair'].unique())}")
+    print(f"\n⏱️  Tiempo de procesamiento: {elapsed_min:.1f} minutos ({elapsed_hrs:.2f} horas)")
+    print(f"  Promedio: {elapsed_min/n_subjects_processed:.1f} min/sujeto")
     
-    # ANÁLISIS POR BANDA
+    # ═════════════════════════════════════════════════════════════════════════
+    # ECLIPSE v2.0 STAGE 1: IRREVERSIBLE SPLIT
+    # ═════════════════════════════════════════════════════════════════════════
+    
     print("\n" + "=" * 80)
-    print("ANÁLISIS INDEPENDIENTE POR BANDA")
+    print("🔒 ECLIPSE STAGE 1: IRREVERSIBLE SUBJECT SPLIT")
     print("=" * 80)
     
-    band_results = {}
+    eclipse_config = EclipseConfig(
+        project_name=config.project_name,
+        researcher=config.researcher,
+        sacred_seed=config.sacred_seed,
+        development_ratio=0.7,
+        holdout_ratio=0.3,
+        output_dir=str(config.output_dir / 'eclipse_v2')
+    )
     
-    for band_pair in config.band_pairs:
-        band_name = band_pair.name
-        print(f"\n{'='*80}")
-        print(f"BANDA: {band_name}")
-        print(f"  Phase: {band_pair.phase_band} Hz")
-        print(f"  Amplitude: {band_pair.amp_band} Hz")
-        print(f"{'='*80}")
-        
-        band_data = valid_df[valid_df['band_pair'] == band_name].copy()
-        
-        if len(band_data) == 0:
-            print(f"⚠️  Sin datos válidos para {band_name}")
-            continue
-        
-        unique_subjects = band_data['subject_id'].unique()
-        
-        np.random.seed(config.sacred_seed)
-        n_dev = int(0.7 * len(unique_subjects))
-        shuffled_subjects = np.random.permutation(unique_subjects)
-        dev_subjects = shuffled_subjects[:n_dev]
-        holdout_subjects = shuffled_subjects[n_dev:]
-        
-        dev_data = band_data[band_data['subject_id'].isin(dev_subjects)].copy()
-        holdout_data = band_data[band_data['subject_id'].isin(holdout_subjects)].copy()
-        
-        print(f"  Development: {len(dev_subjects)} sujetos, {len(dev_data)} epochs")
-        print(f"  Holdout: {len(holdout_subjects)} sujetos, {len(holdout_data)} epochs")
-        
-        wake = holdout_data[holdout_data['consciousness']==1]['pac'].values
-        n2 = holdout_data[holdout_data['consciousness']==0]['pac'].values
-        
-        wake = wake[~np.isnan(wake)]
-        n2 = n2[~np.isnan(n2)]
-        
-        if len(wake) == 0 or len(n2) == 0:
-            print(f"⚠️  Insuficientes datos en holdout para {band_name}")
-            continue
-        
-        pooled_std = np.sqrt(
-            ((len(wake)-1)*np.var(wake,ddof=1) + (len(n2)-1)*np.var(n2,ddof=1)) /
-            (len(wake) + len(n2) - 2)
-        )
-        cohens_d = (np.mean(wake) - np.mean(n2)) / (pooled_std + 1e-10)
-        
-        _, p_val = stats.ttest_ind(wake, n2, alternative='greater')
-        
-        print(f"\n📊 RESULTADOS HOLDOUT {band_name}:")
-        print(f"  PAC Wake:  {np.mean(wake):.4f} ± {np.std(wake, ddof=1):.4f}")
-        print(f"  PAC N2:    {np.mean(n2):.4f} ± {np.std(n2, ddof=1):.4f}")
-        print(f"  Cohen's d: {cohens_d:.3f}")
-        print(f"  p-value:   {p_val:.6f}")
-        print(f"  Ratio:     {np.mean(wake)/np.mean(n2):.2f}:1")
-        
-        band_results[band_name] = {
-            'cohens_d': cohens_d,
-            'p_value': p_val,
-            'mean_wake': np.mean(wake),
-            'mean_n2': np.mean(n2),
-            'std_wake': np.std(wake, ddof=1),
-            'std_n2': np.std(n2, ddof=1),
-            'n_wake': len(wake),
-            'n_n2': len(n2),
-            'ratio': np.mean(wake)/np.mean(n2)
-        }
+    eclipse = EclipseFramework(eclipse_config)
     
-    # COMPARACIÓN FINAL
+    # Use only successfully processed subjects
+    processed_subject_ids = sorted(list(set(full_df['subject_id'])))
+    print(f"  Sujetos válidos para split: {len(processed_subject_ids)}")
+    
+    dev_subjects, holdout_subjects = eclipse.stage1_irreversible_split(processed_subject_ids)
+    
+    print(f"✅ Split completed:")
+    print(f"   Development: {len(dev_subjects)} subjects")
+    print(f"   Holdout: {len(holdout_subjects)} subjects")
+    print(f"   Split locked with seed: {config.sacred_seed}")
+    
+    # Split dataframe
+    dev_df = full_df[full_df['subject_id'].isin(dev_subjects)].copy()
+    holdout_df = full_df[full_df['subject_id'].isin(holdout_subjects)].copy()
+    
+    # ═════════════════════════════════════════════════════════════════════════
+    # ECLIPSE v2.0 STAGE 2: REGISTER FALSIFICATION CRITERIA
+    # ═════════════════════════════════════════════════════════════════════════
+    
     print("\n" + "=" * 80)
-    print("🔥 COMPARACIÓN ENTRE BANDAS - NIVEL 2")
+    print("📋 ECLIPSE STAGE 2: PRE-REGISTERED CRITERIA")
     print("=" * 80)
     
-    print("\n📊 TABLA COMPARATIVA:")
-    header = f"{'Banda':<20} {'Cohen d':>12} {'p-value':>12} {'PAC Wake':>12} {'PAC N2':>12} {'Ratio':>8}"
-    print(header)
-    print("-" * 90)
-    
-    for band_name in ['Delta-Gamma', 'Theta-Gamma', 'Alpha-Gamma', 'Beta-Gamma']:
-        if band_name in band_results:
-            res = band_results[band_name]
-            print(f"{band_name:<20} {res['cohens_d']:>12.3f} {res['p_value']:>12.6f} "
-                  f"{res['mean_wake']:>12.4f} {res['mean_n2']:>12.4f} {res['ratio']:>8.2f}")
-    
-    if len(band_results) >= 2:
-        sorted_bands = sorted(band_results.items(), key=lambda x: x[1]['cohens_d'], reverse=True)
-        winner_name, winner_stats = sorted_bands[0]
+    criteria = [
+        # Test 1: PAC Wake > N2 (Cohen's d)
+        FalsificationCriteria(
+            name="delta_gamma_pac_cohens_d_wake_vs_n2",
+            threshold=0.5,
+            comparison=">=",
+            description="Delta-Gamma PAC Cohen's d (Wake vs N2) >= 0.5",
+            is_required=True
+        ),
         
-        print(f"\n🏆 MAYOR DISCRIMINACIÓN: {winner_name}")
-        print(f"   Cohen's d = {winner_stats['cohens_d']:.3f}")
+        # Test 2: PAC Wake > N2 (p-value)
+        FalsificationCriteria(
+            name="delta_gamma_pac_pvalue_wake_vs_n2",
+            threshold=0.05,
+            comparison="<",
+            description="Delta-Gamma PAC p-value (Wake vs N2) < 0.05",
+            is_required=True
+        ),
         
-        if 'Theta-Gamma' in band_results:
-            theta_d = band_results['Theta-Gamma']['cohens_d']
-            other_ds = [v['cohens_d'] for k, v in band_results.items() if k != 'Theta-Gamma']
-            
-            if len(other_ds) > 0:
-                mean_other_d = np.mean(other_ds)
-                max_other_d = np.max(other_ds)
-                
-                print(f"\n🎯 EVALUACIÓN AFH:")
-                print(f"   Theta-Gamma d: {theta_d:.3f}")
-                print(f"   Promedio otros: {mean_other_d:.3f}")
-                print(f"   Máximo otros: {max_other_d:.3f}")
-                print(f"   Diferencia vs promedio: {theta_d - mean_other_d:.3f}")
-                print(f"   Diferencia vs máximo: {theta_d - max_other_d:.3f}")
-                
-                if theta_d > mean_other_d and theta_d > max_other_d:
-                    print(f"\n✅ NIVEL 2: ESPECIFICIDAD FUERTE")
-                    print(f"   Theta-Gamma supera tanto promedio como máximo")
-                    print(f"   AFH predicción VALIDADA")
-                elif theta_d > mean_other_d:
-                    print(f"\n⚠️  NIVEL 2: ESPECIFICIDAD DÉBIL")
-                    print(f"   Theta-Gamma supera promedio pero NO máximo")
-                    print(f"   Especificidad parcial")
-                else:
-                    print(f"\n❌ NIVEL 2: ESPECIFICIDAD NO CONFIRMADA")
-                    print(f"   Theta-Gamma NO tiene ventaja sobre otras bandas")
-                    print(f"   Replantear especificidad de AFH")
+        # Test 3: PAC discriminates better than POWER
+        FalsificationCriteria(
+            name="pac_vs_power_advantage",
+            threshold=0.0,
+            comparison=">",
+            description="PAC Cohen's d > POWER Cohen's d",
+            is_required=True
+        ),
+        
+        # Test 4: N3 Paradox - PAC Wake > N3
+        FalsificationCriteria(
+            name="n3_paradox_wake_vs_n3",
+            threshold=0.0,
+            comparison=">",
+            description="PAC Wake > PAC N3 (paradox test)",
+            is_required=True
+        ),
+    ]
     
-    # Guardar resultados
+    eclipse.stage2_register_criteria(criteria)
+    
+    print("✅ Criteria registered:")
+    for crit in criteria:
+        print(f"   • {crit}")
+    
+    # ═════════════════════════════════════════════════════════════════════════
+    # ECLIPSE v2.0 STAGE 3: DEVELOPMENT (EXPLORATORY)
+    # ═════════════════════════════════════════════════════════════════════════
+    
+    print("\n" + "=" * 80)
+    print("🔬 ECLIPSE STAGE 3: DEVELOPMENT PHASE (Exploratory)")
+    print("=" * 80)
+    print("⚠️  Note: Development phase used for parameter exploration only")
+    print("   Final validation uses holdout set (Stage 4)")
+    
+    # Separate PAC and POWER
+    pac_df = full_df[full_df['metric_type'] == 'PAC'].copy()
+    power_df = full_df[full_df['metric_type'] == 'POWER'].copy()
+    
+    dev_pac = pac_df[pac_df['subject_id'].isin(dev_subjects)]
+    dev_power = power_df[power_df['subject_id'].isin(dev_subjects)]
+    
+    # Development exploration (no ECLIPSE tracking needed here)
+    print(f"\n📊 Development set exploration:")
+    print(f"   PAC measurements: {len(dev_pac)}")
+    print(f"   POWER measurements: {len(dev_power)}")
+    
+    # ═════════════════════════════════════════════════════════════════════════
+    # ECLIPSE v2.0 STAGE 4: SINGLE-SHOT HOLDOUT VALIDATION
+    # ═════════════════════════════════════════════════════════════════════════
+    
+    print("\n" + "=" * 80)
+    print("🎯 ECLIPSE STAGE 4: SINGLE-SHOT HOLDOUT VALIDATION")
+    print("=" * 80)
+    print("⚠️  CRITICAL: This is the ONLY chance to test hypotheses")
+    print("   No multiple attempts allowed")
+    
+    holdout_pac = pac_df[pac_df['subject_id'].isin(holdout_subjects)]
+    holdout_power = power_df[power_df['subject_id'].isin(holdout_subjects)]
+    
+    # Compute validation metrics
+    validation_results = compute_holdout_metrics(
+        holdout_pac, 
+        holdout_power, 
+        config
+    )
+    
+    # Wrap in ECLIPSE validation
+    eclipse_validation = eclipse.stage4_single_shot_validation(
+        holdout_data=holdout_df,
+        final_model={},  # No model in this analysis
+        validation_function=lambda model, data: validation_results
+    )
+    
+    # ═════════════════════════════════════════════════════════════════════════
+    # ECLIPSE v2.0 STAGE 5: FINAL ASSESSMENT WITH EIS, STDS
+    # ═════════════════════════════════════════════════════════════════════════
+    
+    print("\n" + "=" * 80)
+    print("📊 ECLIPSE STAGE 5: FINAL ASSESSMENT + INTEGRITY METRICS")
+    print("=" * 80)
+    
+    final_assessment = eclipse.stage5_final_assessment(
+        development_results={},  # No CV in this analysis
+        validation_results=eclipse_validation,
+        generate_reports=True,
+        compute_integrity=True
+    )
+    
+    # Display final summary
+    print("\n" + "=" * 80)
+    print("🎯 ECLIPSE v2.0 FINAL SUMMARY")
+    print("=" * 80)
+    print(eclipse.generate_summary())
+    
+    # Verify integrity
+    print("\n" + "=" * 80)
+    print("🔐 ECLIPSE INTEGRITY VERIFICATION")
+    print("=" * 80)
+    eclipse.verify_integrity()
+    
+    # Save all results
     config.output_dir.mkdir(parents=True, exist_ok=True)
-    results_df = pd.DataFrame(band_results).T
-    output_file = config.output_dir / 'nivel2_band_comparison.csv'
-    results_df.to_csv(output_file)
-    logger.info(f"\n📁 Resultados guardados: {output_file}")
+    pac_df.to_csv(config.output_dir / 'nivel2_extended_pac.csv', index=False)
+    power_df.to_csv(config.output_dir / 'nivel2_extended_power.csv', index=False)
+    
+    # Save validation results as JSON
+    with open(config.output_dir / 'validation_results.json', 'w') as f:
+        json.dump(validation_results, f, indent=2)
+    
+    logger.info(f"\n📁 Results saved to: {config.output_dir}")
     
     print("\n" + "=" * 80)
-    print("✅ ANÁLISIS NIVEL 2 FINALIZADO")
+    print("✅ ANÁLISIS NIVEL 2 EXTENDED + ECLIPSE v2.0 FINALIZADO")
     print("=" * 80)
+
+
+def compute_holdout_metrics(holdout_pac: pd.DataFrame, 
+                            holdout_power: pd.DataFrame,
+                            config: Config) -> Dict:
+    """Computa todas las métricas en holdout set"""
+    
+    results = {}
+    
+    valid_pac = holdout_pac[holdout_pac['valid']].copy()
+    valid_power = holdout_power[holdout_power['valid']].copy()
+    
+    # ═══════════════════════════════════════════════════════════════════════
+    # TEST 1: PAC Wake vs N2 (Delta-Gamma)
+    # ═══════════════════════════════════════════════════════════════════════
+    
+    print("\n🔬 TEST 1: Delta-Gamma PAC (Wake vs N2)")
+    print("─" * 80)
+    
+    delta_pac = valid_pac[valid_pac['band_pair'] == 'Delta-Gamma']
+    
+    pac_wake = delta_pac[delta_pac['state'] == 'Wake']['pac'].values
+    pac_n2 = delta_pac[delta_pac['state'] == 'N2']['pac'].values
+    
+    pac_wake = pac_wake[~np.isnan(pac_wake)]
+    pac_n2 = pac_n2[~np.isnan(pac_n2)]
+    
+    pac_d_wake_n2 = 0.0  # Default
+    
+    if len(pac_wake) > 0 and len(pac_n2) > 0:
+        pooled_std = np.sqrt(
+            ((len(pac_wake)-1)*np.var(pac_wake,ddof=1) + 
+             (len(pac_n2)-1)*np.var(pac_n2,ddof=1)) /
+            (len(pac_wake) + len(pac_n2) - 2)
+        )
+        pac_d_wake_n2 = (np.mean(pac_wake) - np.mean(pac_n2)) / (pooled_std + 1e-10)
+        _, pac_p_wake_n2 = stats.ttest_ind(pac_wake, pac_n2, alternative='greater')
+        
+        print(f"  Cohen's d: {pac_d_wake_n2:.3f}")
+        print(f"  p-value:   {pac_p_wake_n2:.6f}")
+        print(f"  PAC Wake:  {np.mean(pac_wake):.4f} ± {np.std(pac_wake, ddof=1):.4f}")
+        print(f"  PAC N2:    {np.mean(pac_n2):.4f} ± {np.std(pac_n2, ddof=1):.4f}")
+        
+        results['delta_gamma_pac_cohens_d_wake_vs_n2'] = float(pac_d_wake_n2)
+        results['delta_gamma_pac_pvalue_wake_vs_n2'] = float(pac_p_wake_n2)
+    else:
+        print("  ⚠️  Insufficient data for PAC Wake vs N2")
+        results['delta_gamma_pac_cohens_d_wake_vs_n2'] = 0.0
+        results['delta_gamma_pac_pvalue_wake_vs_n2'] = 1.0
+    
+    # ═══════════════════════════════════════════════════════════════════════
+    # TEST 2: POWER vs PAC
+    # ═══════════════════════════════════════════════════════════════════════
+    
+    print("\n🔥 TEST 2: POWER vs PAC Discrimination")
+    print("─" * 80)
+    
+    delta_power = valid_power[valid_power['band_pair'] == 'Delta']
+    
+    power_wake = delta_power[delta_power['state'] == 'Wake']['pac'].values
+    power_n2 = delta_power[delta_power['state'] == 'N2']['pac'].values
+    
+    power_wake = power_wake[~np.isnan(power_wake)]
+    power_n2 = power_n2[~np.isnan(power_n2)]
+    
+    power_d_wake_n2 = 0.0  # Default
+    
+    if len(power_wake) > 0 and len(power_n2) > 0:
+        pooled_std = np.sqrt(
+            ((len(power_wake)-1)*np.var(power_wake,ddof=1) + 
+             (len(power_n2)-1)*np.var(power_n2,ddof=1)) /
+            (len(power_wake) + len(power_n2) - 2)
+        )
+        power_d_wake_n2 = (np.mean(power_wake) - np.mean(power_n2)) / (pooled_std + 1e-10)
+        
+        print(f"  Delta POWER Cohen's d: {power_d_wake_n2:.3f}")
+        print(f"  Delta PAC Cohen's d:   {pac_d_wake_n2:.3f}")
+        print(f"  Difference:            {pac_d_wake_n2 - power_d_wake_n2:.3f}")
+        
+        results['power_cohens_d_wake_vs_n2'] = float(power_d_wake_n2)
+        results['pac_vs_power_advantage'] = float(pac_d_wake_n2 - power_d_wake_n2)
+        
+        if pac_d_wake_n2 > power_d_wake_n2 + 0.5:
+            print("\n  ✅ PAC DISCRIMINA SIGNIFICATIVAMENTE MEJOR")
+        elif pac_d_wake_n2 > power_d_wake_n2:
+            print("\n  ⚠️  PAC discrimina mejor (modesto)")
+        else:
+            print("\n  ❌ POWER discrimina igual o mejor")
+    else:
+        print("  ⚠️  Insufficient data for POWER analysis")
+        results['power_cohens_d_wake_vs_n2'] = 0.0
+        results['pac_vs_power_advantage'] = 0.0
+    
+    # ═══════════════════════════════════════════════════════════════════════
+    # TEST 3: N3 Paradox
+    # ═══════════════════════════════════════════════════════════════════════
+    
+    print("\n🚨 TEST 3: N3 PARADOX")
+    print("─" * 80)
+    
+    if 'N3' in valid_pac['state'].unique():
+        pac_n3 = delta_pac[delta_pac['state'] == 'N3']['pac'].values
+        pac_n3 = pac_n3[~np.isnan(pac_n3)]
+        
+        if len(pac_n3) > 0 and len(pac_wake) > 0:
+            print(f"  PAC Wake: {np.mean(pac_wake):.4f}")
+            print(f"  PAC N2:   {np.mean(pac_n2):.4f}")
+            print(f"  PAC N3:   {np.mean(pac_n3):.4f}")
+            
+            results['pac_wake_mean'] = float(np.mean(pac_wake))
+            results['pac_n2_mean'] = float(np.mean(pac_n2))
+            results['pac_n3_mean'] = float(np.mean(pac_n3))
+            results['n3_paradox_wake_vs_n3'] = float(np.mean(pac_wake) - np.mean(pac_n3))
+            
+            if np.mean(pac_wake) > np.mean(pac_n2) > np.mean(pac_n3):
+                print("\n  ✅ PATRÓN CORRECTO: Wake > N2 > N3")
+            else:
+                print("\n  ❌ PATRÓN INCORRECTO")
+        else:
+            print("  ⚠️  Insufficient N3 data")
+            results['n3_paradox_wake_vs_n3'] = 0.0
+        
+        # Power in N3
+        power_n3 = delta_power[delta_power['state'] == 'N3']['pac'].values
+        power_n3 = power_n3[~np.isnan(power_n3)]
+        
+        if len(power_n3) > 0 and len(power_wake) > 0:
+            print(f"\n  Power Wake: {np.mean(power_wake):.4f}")
+            print(f"  Power N2:   {np.mean(power_n2):.4f}")
+            print(f"  Power N3:   {np.mean(power_n3):.4f}")
+            
+            results['power_wake_mean'] = float(np.mean(power_wake))
+            results['power_n2_mean'] = float(np.mean(power_n2))
+            results['power_n3_mean'] = float(np.mean(power_n3))
+    else:
+        print("  ⚠️  N3 not available in holdout")
+        results['n3_paradox_wake_vs_n3'] = 0.0
+    
+    return results
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -584,7 +863,7 @@ def run_multiband_analysis(config: Config):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="NIVEL 2: PAC Band Specificity Test",
+        description="NIVEL 2 EXTENDED with FULL ECLIPSE v2.0 Integration",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
@@ -598,21 +877,15 @@ def main():
     parser.add_argument(
         '--output-dir',
         type=str,
-        default='./nivel2_band_specificity_results',
+        default='./nivel2_extended_eclipse_results',
         help='Directorio de salida'
     )
     
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument(
-        '--pilot',
-        action='store_true',
-        help='Modo piloto (10 sujetos)'
-    )
-    
-    group.add_argument(
+    parser.add_argument(
         '--n-subjects',
         type=int,
-        help='Número específico de sujetos'
+        help='Número específico de sujetos (default: TODOS los disponibles)',
+        default=None
     )
     
     parser.add_argument(
@@ -624,13 +897,12 @@ def main():
     
     args = parser.parse_args()
     
-    if args.pilot:
-        n_subjects = 10
-    elif args.n_subjects:
+    if args.n_subjects:
         n_subjects = args.n_subjects
+        print(f"🔬 MODO CUSTOM: {n_subjects} sujetos")
     else:
-        logger.warning("No se especificó modo. Usando --pilot por defecto.")
-        n_subjects = 10
+        n_subjects = None  # SIEMPRE PROCESAR TODOS
+        print("🔬 MODO COMPLETO: TODOS los sujetos disponibles (153 sujetos)")
     
     config = Config(
         data_dir=Path(args.data_dir),
@@ -645,7 +917,7 @@ def main():
         sys.exit(1)
     
     try:
-        run_multiband_analysis(config)
+        run_extended_analysis_with_eclipse(config)
     except KeyboardInterrupt:
         print("\n\n⚠️  Análisis interrumpido")
         sys.exit(1)

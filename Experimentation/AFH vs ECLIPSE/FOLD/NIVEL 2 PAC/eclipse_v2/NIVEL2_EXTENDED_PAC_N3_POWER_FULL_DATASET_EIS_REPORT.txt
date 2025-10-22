@@ -1,0 +1,26 @@
+================================================================================
+ECLIPSE INTEGRITY SCORE (EIS) REPORT v2.0
+================================================================================
+Project: NIVEL2_EXTENDED_PAC_N3_POWER_FULL_DATASET
+Computed: 2025-10-22T15:13:49.682841
+
+OVERALL EIS: 0.7082 / 1.00
+Interpretation: GOOD - Adequate methodological standards
+
+COMPONENT SCORES:
+--------------------------------------------------------------------------------
+  Pre-registration completeness      : 0.6000
+  Split strength (entropy)           : 0.9159
+  Protocol adherence                 : 0.6000
+  Data leakage score (1-risk)        : 0.5000
+  Transparency & documentation       : 1.0000
+
+INTERPRETATION:
+--------------------------------------------------------------------------------
+  ⚠️  Pre-registration incomplete or weak
+  🚨 HIGH RISK of data leakage detected
+
+================================================================================
+Novel Metric: First quantitative integrity score for consciousness research
+Citation: Sjöberg Tala, C.A. (2025). ECLIPSE v2.0. DOI: 10.5281/zenodo.15541550
+================================================================================
