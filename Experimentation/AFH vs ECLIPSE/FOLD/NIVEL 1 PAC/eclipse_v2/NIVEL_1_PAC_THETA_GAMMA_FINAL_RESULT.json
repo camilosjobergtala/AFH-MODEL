@@ -1,0 +1,146 @@
+{
+  "project_name": "NIVEL_1_PAC_THETA_GAMMA",
+  "researcher": "Camilo Sj\u00f6berg Tala",
+  "assessment_date": "2025-10-22T13:03:02.717351",
+  "assessment_timestamp": "2025-10-22 13:03:02",
+  "configuration": {
+    "project_name": "NIVEL_1_PAC_THETA_GAMMA",
+    "researcher": "Camilo Sj\u00f6berg Tala",
+    "sacred_seed": 42,
+    "development_ratio": 0.7,
+    "holdout_ratio": 0.3,
+    "n_folds_cv": 5,
+    "output_dir": "nivel1_pac_results\\eclipse_v2",
+    "timestamp": "2025-10-22T13:01:21.973935"
+  },
+  "development_summary": {
+    "n_folds": 5,
+    "n_successful": 5,
+    "aggregated_metrics": {
+      "Cohen's d (Wake vs Sleep)": {
+        "mean": 1.0836549872154138,
+        "std": 0.34500479007803925,
+        "min": 0.524631629159623,
+        "max": 1.5666974463060346,
+        "median": 1.1718105248620945,
+        "values": [
+          0.524631629159623,
+          1.1718105248620945,
+          0.9335904404802111,
+          1.5666974463060346,
+          1.221544895269106
+        ]
+      },
+      "p-value (one-tailed t-test)": {
+        "mean": 0.03902843439004357,
+        "std": 0.05324784176695247,
+        "min": 0.0007738445692131305,
+        "max": 0.14335790784329966,
+        "median": 0.02351025773210262,
+        "values": [
+          0.14335790784329966,
+          0.0013040680079145649,
+          0.02351025773210262,
+          0.0007738445692131305,
+          0.02619609379768787
+        ]
+      },
+      "Mean PAC Wake": {
+        "mean": 0.043942597840441674,
+        "std": 0.010324743498510971,
+        "min": 0.02625255187460026,
+        "max": 0.05708896436462785,
+        "median": 0.04306476478272512,
+        "values": [
+          0.02625255187460026,
+          0.050638951455689946,
+          0.04306476478272512,
+          0.05708896436462785,
+          0.04266775672456518
+        ]
+      },
+      "Mean PAC N2": {
+        "mean": 0.019146264239817738,
+        "std": 0.0024723745692898313,
+        "min": 0.014980914605833602,
+        "max": 0.022180909901151222,
+        "median": 0.01982438965146482,
+        "values": [
+          0.01982438965146482,
+          0.014980914605833602,
+          0.022180909901151222,
+          0.018060741712110754,
+          0.02068436532852829
+        ]
+      }
+    }
+  },
+  "validation_summary": {
+    "status": "success",
+    "n_holdout_samples": 81,
+    "metrics": {
+      "Cohen's d (Wake vs Sleep)": 2.4366363555369555,
+      "p-value (one-tailed t-test)": 3.4895579404446866e-12,
+      "Mean PAC Wake": 0.04731063112111817,
+      "Mean PAC N2": 0.014946528741565228,
+      "Std PAC Wake": 0.02443766744578,
+      "Std PAC N2": 0.010052635005149874,
+      "n_wake": 13.0,
+      "n_n2": 68.0
+    }
+  },
+  "criteria_evaluation": [
+    {
+      "criterion": {
+        "name": "Cohen's d (Wake vs Sleep)",
+        "threshold": 0.5,
+        "comparison": ">=",
+        "description": "Medium-to-large effect size (Cohen's d >= 0.5)",
+        "is_required": true
+      },
+      "value": 2.4366363555369555,
+      "passed": true
+    },
+    {
+      "criterion": {
+        "name": "p-value (one-tailed t-test)",
+        "threshold": 0.05,
+        "comparison": "<",
+        "description": "Statistical significance (p < 0.05)",
+        "is_required": true
+      },
+      "value": 3.4895579404446866e-12,
+      "passed": true
+    }
+  ],
+  "verdict": "VALIDATED",
+  "verdict_description": "2/2 required criteria passed",
+  "required_criteria_passed": "2/2",
+  "integrity_metrics": {
+    "eis": {
+      "eis": 0.8060065438769108,
+      "components": {
+        "preregistration_score": 0.6,
+        "split_strength": 0.9050327193845542,
+        "protocol_adherence": 1.0,
+        "leakage_risk": 0.5,
+        "leakage_score": 0.5,
+        "transparency_score": 1.0
+      },
+      "weights": {
+        "preregistration": 0.25,
+        "split_strength": 0.2,
+        "protocol_adherence": 0.25,
+        "leakage_risk": 0.15,
+        "transparency": 0.15
+      },
+      "timestamp": "2025-10-22T13:03:02.728155",
+      "interpretation": "VERY GOOD - High methodological quality"
+    },
+    "stds": {
+      "status": "error",
+      "message": "Could not load results file: [Errno 2] No such file or directory: 'nivel1_pac_results\\\\eclipse_v2\\\\NIVEL_1_PAC_THETA_GAMMA_FINAL_RESULT.json'"
+    }
+  },
+  "final_hash": "60dfe5da0a66eb2f4b55e3f1b586775cdbb38897708427a0ecc467cd70847e96"
+}
