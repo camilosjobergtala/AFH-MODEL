@@ -1,0 +1,144 @@
+{
+  "project_name": "DeltaTFold_SleepEDF_RealData",
+  "researcher": "Sleep Analysis",
+  "assessment_date": "2025-10-21T16:42:13.529398",
+  "assessment_timestamp": "2025-10-21 16:42:13",
+  "configuration": {
+    "project_name": "DeltaTFold_SleepEDF_RealData",
+    "researcher": "Sleep Analysis",
+    "sacred_seed": 42,
+    "development_ratio": 0.7,
+    "holdout_ratio": 0.3,
+    "n_folds_cv": 5,
+    "output_dir": "sleep_fold_results\\eclipse_v2",
+    "timestamp": "2025-10-21T16:42:01.217463"
+  },
+  "development_summary": {
+    "n_folds": 5,
+    "n_successful": 5,
+    "aggregated_metrics": {
+      "Cohen's d (Wake vs Sleep)": {
+        "mean": 0.2572909857535952,
+        "std": 0.17275843808939534,
+        "min": 0.0725869734007847,
+        "max": 0.5085938279889958,
+        "median": 0.2223505852267795,
+        "values": [
+          0.3999495297465402,
+          0.5085938279889958,
+          0.08297401240487595,
+          0.2223505852267795,
+          0.0725869734007847
+        ]
+      },
+      "p-value (one-tailed t-test)": {
+        "mean": 0.1496610300275001,
+        "std": 0.14580716390958498,
+        "min": 0.0012736248105269473,
+        "max": 0.33691589383459136,
+        "median": 0.09114856698451733,
+        "values": [
+          0.008488883741126803,
+          0.0012736248105269473,
+          0.3104781807667381,
+          0.09114856698451733,
+          0.33691589383459136
+        ]
+      },
+      "Mean difference (ms)": {
+        "mean": 14.08774727719459,
+        "std": 9.240163768582859,
+        "min": 3.199141153383829,
+        "max": 27.60836776881024,
+        "median": 15.786923845325534,
+        "values": [
+          19.447688404112082,
+          27.60836776881024,
+          4.396615214341253,
+          15.786923845325534,
+          3.199141153383829
+        ]
+      }
+    }
+  },
+  "validation_summary": {
+    "status": "success",
+    "n_holdout_samples": 349,
+    "metrics": {
+      "Cohen's d (Wake vs Sleep)": 0.21944525387751102,
+      "p-value (one-tailed t-test)": 0.02102335012090533,
+      "Mean difference (ms)": 11.913953054419828,
+      "n_wake": 191.0,
+      "n_sleep": 158.0,
+      "mean_wake_s": 0.050892859313419095,
+      "mean_sleep_s": 0.03897890625899927,
+      "std_wake_s": 0.06459954577544631,
+      "std_sleep_s": 0.0382671105648854
+    }
+  },
+  "criteria_evaluation": [
+    {
+      "criterion": {
+        "name": "Cohen's d (Wake vs Sleep)",
+        "threshold": 0.3,
+        "comparison": ">=",
+        "description": "Tama\u00f1o del efecto >= 0.3 (efecto mediano)",
+        "is_required": true
+      },
+      "value": 0.21944525387751102,
+      "passed": false
+    },
+    {
+      "criterion": {
+        "name": "p-value (one-tailed t-test)",
+        "threshold": 0.05,
+        "comparison": "<=",
+        "description": "p < 0.05 para H1: vigilia > sue\u00f1o",
+        "is_required": true
+      },
+      "value": 0.02102335012090533,
+      "passed": true
+    },
+    {
+      "criterion": {
+        "name": "Mean difference (ms)",
+        "threshold": 10.0,
+        "comparison": ">=",
+        "description": "Diferencia media >= 10 ms",
+        "is_required": false
+      },
+      "value": 11.913953054419828,
+      "passed": true
+    }
+  ],
+  "verdict": "FALSIFIED",
+  "verdict_description": "1/2 required criteria passed",
+  "required_criteria_passed": "1/2",
+  "integrity_metrics": {
+    "eis": {
+      "eis": 0.8081123015254605,
+      "components": {
+        "preregistration_score": 0.6,
+        "split_strength": 0.9155615076273027,
+        "protocol_adherence": 1.0,
+        "leakage_risk": 0.5,
+        "leakage_score": 0.5,
+        "transparency_score": 1.0
+      },
+      "weights": {
+        "preregistration": 0.25,
+        "split_strength": 0.2,
+        "protocol_adherence": 0.25,
+        "leakage_risk": 0.15,
+        "transparency": 0.15
+      },
+      "timestamp": "2025-10-21T16:42:13.538239",
+      "interpretation": "VERY GOOD - High methodological quality"
+    },
+    "stds": {
+      "status": "error",
+      "message": "Could not load results file: [Errno 2] No such file or directory: 'sleep_fold_results\\\\eclipse_v2\\\\DeltaTFold_SleepEDF_RealData_FINAL_RESULT.json'"
+    }
+  },
+  "final_hash": "e203b978d5928b6ac851423d09db23cdc3b85e9458efe5c574a3844ecb768522"
+}
