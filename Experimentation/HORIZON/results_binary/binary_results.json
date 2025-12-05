@@ -1,0 +1,177 @@
+{
+  "top_10": {
+    "top_k": 10,
+    "selected_features": [
+      "cross_coherence_sigma",
+      "EEG_Pz_Oz_sef95",
+      "cross_cross_correlation",
+      "EEG_Pz_Oz_delta_rel",
+      "cross_coherence_alpha",
+      "EEG_Pz_Oz_zero_crossing_rate",
+      "cross_coherence_theta",
+      "EEG_Pz_Oz_sample_entropy",
+      "EEG_Pz_Oz_beta_rel",
+      "EEG_Pz_Oz_sigma_rel"
+    ],
+    "lr_f1_mean": 0.933551290773279,
+    "lr_f1_std": 0.018234939266322088,
+    "lr_auc_mean": 0.997069646796642,
+    "rf_f1_mean": 0.9603188856978402,
+    "rf_f1_std": 0.0028009377723682122,
+    "rf_auc_mean": 0.997541990646327,
+    "rf_precision_mean": 0.9658871771630391,
+    "rf_recall_mean": 0.9558940627099535,
+    "confusion_matrix": [
+      [
+        183497,
+        245
+      ],
+      [
+        401,
+        7793
+      ]
+    ],
+    "wake_accuracy": 0.9986666086142526,
+    "n3_accuracy": 0.9510617525018306
+  },
+  "top_20": {
+    "top_k": 20,
+    "selected_features": [
+      "cross_coherence_sigma",
+      "EEG_Pz_Oz_sef95",
+      "cross_cross_correlation",
+      "EEG_Pz_Oz_delta_rel",
+      "cross_coherence_alpha",
+      "EEG_Pz_Oz_zero_crossing_rate",
+      "cross_coherence_theta",
+      "EEG_Pz_Oz_sample_entropy",
+      "EEG_Pz_Oz_beta_rel",
+      "EEG_Pz_Oz_sigma_rel"
+    ],
+    "lr_f1_mean": 0.9637761443945267,
+    "lr_f1_std": 0.010489563498541764,
+    "lr_auc_mean": 0.9986899424617894,
+    "rf_f1_mean": 0.9718494846446942,
+    "rf_f1_std": 0.010247069101622625,
+    "rf_auc_mean": 0.9991773363311168,
+    "rf_precision_mean": 0.9819377415136031,
+    "rf_recall_mean": 0.9626994236643146,
+    "confusion_matrix": [
+      [
+        183620,
+        122
+      ],
+      [
+        349,
+        7845
+      ]
+    ],
+    "wake_accuracy": 0.999336025514036,
+    "n3_accuracy": 0.9574078594093239
+  },
+  "top_30": {
+    "top_k": 30,
+    "selected_features": [
+      "cross_coherence_sigma",
+      "EEG_Pz_Oz_sef95",
+      "cross_cross_correlation",
+      "EEG_Pz_Oz_delta_rel",
+      "cross_coherence_alpha",
+      "EEG_Pz_Oz_zero_crossing_rate",
+      "cross_coherence_theta",
+      "EEG_Pz_Oz_sample_entropy",
+      "EEG_Pz_Oz_beta_rel",
+      "EEG_Pz_Oz_sigma_rel"
+    ],
+    "lr_f1_mean": 0.9645887422976939,
+    "lr_f1_std": 0.015597845162895488,
+    "lr_auc_mean": 0.9989292222327647,
+    "rf_f1_mean": 0.973411191470311,
+    "rf_f1_std": 0.009941100066023818,
+    "rf_auc_mean": 0.9988736039651294,
+    "rf_precision_mean": 0.9860615965074985,
+    "rf_recall_mean": 0.9616314491859438,
+    "confusion_matrix": [
+      [
+        183647,
+        95
+      ],
+      [
+        359,
+        7835
+      ]
+    ],
+    "wake_accuracy": 0.9994829706871592,
+    "n3_accuracy": 0.956187454234806
+  },
+  "top_50": {
+    "top_k": 50,
+    "selected_features": [
+      "cross_coherence_sigma",
+      "EEG_Pz_Oz_sef95",
+      "cross_cross_correlation",
+      "EEG_Pz_Oz_delta_rel",
+      "cross_coherence_alpha",
+      "EEG_Pz_Oz_zero_crossing_rate",
+      "cross_coherence_theta",
+      "EEG_Pz_Oz_sample_entropy",
+      "EEG_Pz_Oz_beta_rel",
+      "EEG_Pz_Oz_sigma_rel"
+    ],
+    "lr_f1_mean": 0.9740216569850919,
+    "lr_f1_std": 0.00939764205420452,
+    "lr_auc_mean": 0.9987830931568196,
+    "rf_f1_mean": 0.976918600171215,
+    "rf_f1_std": 0.011141544342526835,
+    "rf_auc_mean": 0.9996065994283884,
+    "rf_precision_mean": 0.9923531610393213,
+    "rf_recall_mean": 0.9623308672707441,
+    "confusion_matrix": [
+      [
+        183689,
+        53
+      ],
+      [
+        352,
+        7842
+      ]
+    ],
+    "wake_accuracy": 0.999711552067573,
+    "n3_accuracy": 0.9570417378569686
+  },
+  "top_77": {
+    "top_k": 77,
+    "selected_features": [
+      "cross_coherence_sigma",
+      "EEG_Pz_Oz_sef95",
+      "cross_cross_correlation",
+      "EEG_Pz_Oz_delta_rel",
+      "cross_coherence_alpha",
+      "EEG_Pz_Oz_zero_crossing_rate",
+      "cross_coherence_theta",
+      "EEG_Pz_Oz_sample_entropy",
+      "EEG_Pz_Oz_beta_rel",
+      "EEG_Pz_Oz_sigma_rel"
+    ],
+    "lr_f1_mean": 0.9754818542753524,
+    "lr_f1_std": 0.00884455060623863,
+    "lr_auc_mean": 0.9994134822865884,
+    "rf_f1_mean": 0.9775028762657287,
+    "rf_f1_std": 0.011732058582998025,
+    "rf_auc_mean": 0.9995215774817308,
+    "rf_precision_mean": 0.9932701683487606,
+    "rf_recall_mean": 0.9625387212023433,
+    "confusion_matrix": [
+      [
+        183693,
+        49
+      ],
+      [
+        350,
+        7844
+      ]
+    ],
+    "wake_accuracy": 0.9997333217228506,
+    "n3_accuracy": 0.9572858188918721
+  }
+}

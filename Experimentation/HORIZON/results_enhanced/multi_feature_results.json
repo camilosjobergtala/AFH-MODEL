@@ -1,0 +1,324 @@
+{
+  "top_10": {
+    "top_k": 10,
+    "selected_features": [
+      "cross_coherence_sigma",
+      "EEG_Pz_Oz_sef95",
+      "EEG_Pz_Oz_zero_crossing_rate",
+      "cross_coherence_alpha",
+      "cross_cross_correlation",
+      "EEG_Pz_Oz_delta_rel",
+      "cross_coherence_theta",
+      "cross_coherence_beta",
+      "EEG_Pz_Oz_beta_rel",
+      "EEG_Fpz_Cz_spindle_ratio"
+    ],
+    "lr_f1_mean": 0.6216764527216335,
+    "lr_f1_std": 0.0247506974237241,
+    "rf_f1_mean": 0.6387753019942644,
+    "rf_f1_std": 0.022687194803490584,
+    "confusion_matrix": [
+      [
+        180605,
+        621,
+        1161,
+        91,
+        1264
+      ],
+      [
+        4496,
+        739,
+        5169,
+        13,
+        3867
+      ],
+      [
+        2582,
+        241,
+        38472,
+        910,
+        3036
+      ],
+      [
+        251,
+        0,
+        2043,
+        5899,
+        1
+      ],
+      [
+        2539,
+        645,
+        3886,
+        3,
+        9599
+      ]
+    ],
+    "per_class_f1": [
+      0.9652472509119089,
+      0.08941318814277072,
+      0.8017338390363856,
+      0.7808074123097286,
+      0.5574494032927786
+    ]
+  },
+  "top_20": {
+    "top_k": 20,
+    "selected_features": [
+      "cross_coherence_sigma",
+      "EEG_Pz_Oz_sef95",
+      "EEG_Pz_Oz_zero_crossing_rate",
+      "cross_coherence_alpha",
+      "cross_cross_correlation",
+      "EEG_Pz_Oz_delta_rel",
+      "cross_coherence_theta",
+      "cross_coherence_beta",
+      "EEG_Pz_Oz_beta_rel",
+      "EEG_Fpz_Cz_spindle_ratio",
+      "EEG_Fpz_Cz_rms",
+      "EEG_Pz_Oz_line_length_norm",
+      "EEG_Pz_Oz_line_length",
+      "EEG_Fpz_Cz_mean_abs_value",
+      "EEG_Fpz_Cz_hjorth_mobility",
+      "EEG_Fpz_Cz_hjorth_complexity",
+      "EEG_Fpz_Cz_line_length_norm",
+      "EEG_Fpz_Cz_line_length",
+      "EEG_Fpz_Cz_zero_crossing_rate",
+      "EEG_Fpz_Cz_sef95"
+    ],
+    "lr_f1_mean": 0.6493948025607474,
+    "lr_f1_std": 0.019923164534984075,
+    "rf_f1_mean": 0.6451704757850605,
+    "rf_f1_std": 0.01730586799276912,
+    "confusion_matrix": [
+      [
+        180565,
+        679,
+        1151,
+        42,
+        1305
+      ],
+      [
+        4477,
+        786,
+        5188,
+        10,
+        3823
+      ],
+      [
+        2339,
+        232,
+        39012,
+        845,
+        2813
+      ],
+      [
+        243,
+        0,
+        1892,
+        6059,
+        0
+      ],
+      [
+        2378,
+        721,
+        4021,
+        9,
+        9543
+      ]
+    ],
+    "per_class_f1": [
+      0.9662496254120467,
+      0.09412046461501616,
+      0.8084969690689602,
+      0.7993930998086946,
+      0.5587890853729945
+    ]
+  },
+  "top_30": {
+    "top_k": 30,
+    "selected_features": [
+      "cross_coherence_sigma",
+      "EEG_Pz_Oz_sef95",
+      "EEG_Pz_Oz_zero_crossing_rate",
+      "cross_coherence_alpha",
+      "cross_cross_correlation",
+      "EEG_Pz_Oz_delta_rel",
+      "cross_coherence_theta",
+      "cross_coherence_beta",
+      "EEG_Pz_Oz_beta_rel",
+      "EEG_Fpz_Cz_spindle_ratio",
+      "EEG_Fpz_Cz_rms",
+      "EEG_Pz_Oz_line_length_norm",
+      "EEG_Pz_Oz_line_length",
+      "EEG_Fpz_Cz_mean_abs_value",
+      "EEG_Fpz_Cz_hjorth_mobility",
+      "EEG_Fpz_Cz_hjorth_complexity",
+      "EEG_Fpz_Cz_line_length_norm",
+      "EEG_Fpz_Cz_line_length",
+      "EEG_Fpz_Cz_zero_crossing_rate",
+      "EEG_Fpz_Cz_sef95",
+      "EEG_Fpz_Cz_iqr",
+      "EEG_Fpz_Cz_delta_theta_ratio",
+      "EEG_Fpz_Cz_theta_rel",
+      "EEG_Pz_Oz_sample_entropy",
+      "EEG_Pz_Oz_sef50",
+      "EEG_Pz_Oz_sigma_rel",
+      "EEG_Pz_Oz_theta_rel",
+      "EEG_Fpz_Cz_delta_beta_ratio",
+      "EEG_Fpz_Cz_slowing_ratio",
+      "cross_envelope_correlation"
+    ],
+    "lr_f1_mean": 0.6682519805843752,
+    "lr_f1_std": 0.021185448784989354,
+    "rf_f1_mean": 0.6467047090847882,
+    "rf_f1_std": 0.01745164849511111,
+    "confusion_matrix": [
+      [
+        180948,
+        514,
+        1051,
+        36,
+        1193
+      ],
+      [
+        4550,
+        642,
+        5236,
+        11,
+        3845
+      ],
+      [
+        2377,
+        219,
+        39215,
+        847,
+        2583
+      ],
+      [
+        248,
+        0,
+        1873,
+        6073,
+        0
+      ],
+      [
+        2346,
+        534,
+        3961,
+        5,
+        9826
+      ]
+    ],
+    "per_class_f1": [
+      0.9670907589568452,
+      0.07929352189217563,
+      0.8120981185996666,
+      0.8008703679282606,
+      0.5759840558046836
+    ]
+  },
+  "top_50": {
+    "top_k": 50,
+    "selected_features": [
+      "cross_coherence_sigma",
+      "EEG_Pz_Oz_sef95",
+      "EEG_Pz_Oz_zero_crossing_rate",
+      "cross_coherence_alpha",
+      "cross_cross_correlation",
+      "EEG_Pz_Oz_delta_rel",
+      "cross_coherence_theta",
+      "cross_coherence_beta",
+      "EEG_Pz_Oz_beta_rel",
+      "EEG_Fpz_Cz_spindle_ratio",
+      "EEG_Fpz_Cz_rms",
+      "EEG_Pz_Oz_line_length_norm",
+      "EEG_Pz_Oz_line_length",
+      "EEG_Fpz_Cz_mean_abs_value",
+      "EEG_Fpz_Cz_hjorth_mobility",
+      "EEG_Fpz_Cz_hjorth_complexity",
+      "EEG_Fpz_Cz_line_length_norm",
+      "EEG_Fpz_Cz_line_length",
+      "EEG_Fpz_Cz_zero_crossing_rate",
+      "EEG_Fpz_Cz_sef95",
+      "EEG_Fpz_Cz_iqr",
+      "EEG_Fpz_Cz_delta_theta_ratio",
+      "EEG_Fpz_Cz_theta_rel",
+      "EEG_Pz_Oz_sample_entropy",
+      "EEG_Pz_Oz_sef50",
+      "EEG_Pz_Oz_sigma_rel",
+      "EEG_Pz_Oz_theta_rel",
+      "EEG_Fpz_Cz_delta_beta_ratio",
+      "EEG_Fpz_Cz_slowing_ratio",
+      "cross_envelope_correlation",
+      "EEG_Fpz_Cz_slow_fast_ratio",
+      "EEG_Fpz_Cz_delta_rel",
+      "EEG_Fpz_Cz_beta_rel",
+      "EEG_Pz_Oz_spectral_entropy",
+      "EEG_Pz_Oz_hjorth_mobility",
+      "cross_coherence_delta",
+      "EEG_Pz_Oz_hjorth_complexity",
+      "EEG_Fpz_Cz_alpha_rel",
+      "EEG_Fpz_Cz_sigma_rel",
+      "EEG_Pz_Oz_iqr",
+      "EEG_Fpz_Cz_sample_entropy",
+      "EEG_Pz_Oz_mean_abs_value",
+      "EEG_Pz_Oz_rms",
+      "EEG_Pz_Oz_alpha_rel",
+      "EEG_Fpz_Cz_spectral_entropy",
+      "EEG_Pz_Oz_spindle_ratio",
+      "EEG_Pz_Oz_delta_theta_ratio",
+      "EEG_Fpz_Cz_sef50",
+      "EEG_Fpz_Cz_skewness",
+      "EEG_Fpz_Cz_alpha_theta_ratio"
+    ],
+    "lr_f1_mean": 0.6906355639940607,
+    "lr_f1_std": 0.0201587231267746,
+    "rf_f1_mean": 0.6570723276548048,
+    "rf_f1_std": 0.017525750010012577,
+    "confusion_matrix": [
+      [
+        181014,
+        587,
+        884,
+        23,
+        1234
+      ],
+      [
+        4420,
+        796,
+        5121,
+        8,
+        3939
+      ],
+      [
+        2125,
+        292,
+        39519,
+        816,
+        2489
+      ],
+      [
+        235,
+        0,
+        1849,
+        6110,
+        0
+      ],
+      [
+        2142,
+        704,
+        3558,
+        2,
+        10266
+      ]
+    ],
+    "per_class_f1": [
+      0.968823425516086,
+      0.09554101902418533,
+      0.8218400366010897,
+      0.8064409687850591,
+      0.5934104046242774
+    ]
+  }
+}
