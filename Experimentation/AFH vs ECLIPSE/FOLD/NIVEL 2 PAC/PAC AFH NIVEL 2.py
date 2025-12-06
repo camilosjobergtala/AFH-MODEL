@@ -1,30 +1,32 @@
 #!/usr/bin/env python3
 """
 ═══════════════════════════════════════════════════════════════════════════════
-NIVEL 2 EXTENDED: PAC Band Specificity + N3 + Power vs PAC
-WITH FULL ECLIPSE v2.0 INTEGRATION
-Autopsychic Fold Hypothesis - VERSIÓN CORREGIDA
+AFH TRANSITION ANALYSIS: PRECEDENCIA H* → PAC
+Test específico de la Hipótesis del Pliegue Autopsíquico
 ═══════════════════════════════════════════════════════════════════════════════
 
-HIPÓTESIS EXTENDIDAS:
-    H1: PAC discrimina consciencia, no cantidad de delta
-    H2: Delta-gamma PAC ≠ Delta POWER
-    H3: N3 tiene BAJO PAC a pesar de ALTO delta power
+PREDICCIÓN AFH (P-∇-3):
+    Durante transiciones Vigilia→N2, H* desciende ANTES que PAC.
     
-CORRECCIONES vs VERSIÓN ANTERIOR:
-    ✅ Threshold Cohen's d ajustado a 1.0 (según RR DELTA PAC)
-    ✅ Threshold PAC vs Power advantage = 0.3 (diferencia sustancial)
-    ✅ Ambos canales: Fpz-Cz + Pz-Oz (según protocolo tesis)
-    ✅ Banda delta corregida a 2-4 Hz (según RR, no 1-4 Hz)
-    ✅ Banda gamma corregida a 30-50 Hz (según RR)
+    Especificación:
+    - Δt(H* → PAC) = 10-30 segundos
+    - Precedencia en ≥70% de transiciones
     
-CRITERIOS DE FALSACIÓN (Tabla 3.5 Tesis):
-    F-∇-1: p > 0.05 → PAC no discrimina
-    F-∇-2: PAC explicado por Power → epifenómeno
+JUSTIFICACIÓN TEÓRICA:
+    Si H* (condición organizacional) HABILITA ∇ (Pliegue/PAC),
+    entonces H* debe preceder temporalmente a PAC.
     
-Author: Camilo Sjöberg Tala
-Date: 2025-12-03
-Version: NIVEL_2_EXTENDED_ECLIPSE_v3.1_CORRECTED
+CRITERIO DE FALSACIÓN (F-∇-3):
+    Si Δt < 5s o precedencia < 50% → Arquitectura H* → ∇ falsificada
+
+ESTE TEST ES ESPECÍFICO DE AFH:
+    - IIT no predice esta secuencia temporal
+    - GNW no predice esta secuencia temporal
+    - Solo AFH hace esta predicción específica
+
+Author: Camilo Sjöberg Tala, M.D.
+Date: 2025-12-05
+Version: 1.0.0
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
@@ -33,58 +35,46 @@ import pandas as pd
 import mne
 from pathlib import Path
 from scipy import signal, stats
+from scipy.signal import hilbert, coherence
+from scipy.ndimage import uniform_filter1d
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, NamedTuple
+from dataclasses import dataclass, field
 import warnings
 import logging
-from dataclasses import dataclass, field
-import argparse
-import sys
 import json
 import time
+from datetime import datetime
+import hashlib
 
-from tensorpac import Pac
-
-# IMPORT ECLIPSE v2.0
+# PAC calculation
 try:
-    from eclipse_v2 import (
-        EclipseFramework,
-        EclipseConfig,
-        FalsificationCriteria,
-        EclipseValidator
-    )
-    ECLIPSE_AVAILABLE = True
+    from tensorpac import Pac
+    TENSORPAC_AVAILABLE = True
 except ImportError:
-    ECLIPSE_AVAILABLE = False
-    print("\n⚠️  WARNING: ECLIPSE v2.0 not found in path")
-    print("   Place eclipse_v2.py in same directory or PYTHONPATH")
-    print("   Continuing without ECLIPSE integration...")
+    TENSORPAC_AVAILABLE = False
+    print("⚠️ tensorpac not available - using manual PAC calculation")
 
 warnings.filterwarnings('ignore', category=RuntimeWarning)
-mne.set_log_level('WARNING')
+mne.set_log_level('ERROR')
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# CONFIGURACIÓN CORREGIDA SEGÚN RR DELTA PAC
+# CONFIGURACIÓN
 # ═══════════════════════════════════════════════════════════════════════════
 
 @dataclass
-class BandPair:
-    """Define un par de bandas para PAC"""
-    name: str
-    phase_band: Tuple[float, float]
-    amp_band: Tuple[float, float]
-    description: str
-
-@dataclass
-class Config:
-    """Configuración NIVEL 2 EXTENDED - CORREGIDA según RR DELTA PAC"""
+class TransitionConfig:
+    """Configuración para análisis de transiciones"""
+    
+    # Rutas
     data_dir: Path
     output_dir: Path
     
@@ -94,106 +84,312 @@ class Config:
     highcut: float = 45.0
     notch_freq: float = 50.0
     
-    # CORREGIDO: Canales según protocolo tesis (ambos)
+    # Canales
     target_channels: List[str] = field(default_factory=lambda: [
-        'EEG Fpz-Cz',  # Anterior
-        'EEG Pz-Oz'    # Posterior
+        'EEG Fpz-Cz',
+        'EEG Pz-Oz'
     ])
     
-    # CORREGIDO: Bandas según RR DELTA PAC (Tabla 3.4)
-    # Delta: 2-4 Hz (no 1-4 Hz)
-    # Gamma: 30-50 Hz (no 30-45 Hz)
-    band_pairs: List[BandPair] = field(default_factory=lambda: [
-        BandPair(
-            name="Delta-Gamma",
-            phase_band=(2.0, 4.0),      # CORREGIDO: 2-4 Hz según RR
-            amp_band=(30.0, 50.0),      # CORREGIDO: 30-50 Hz según RR
-            description="Primary AFH prediction - slow wave coupling"
-        ),
-        BandPair(
-            name="Theta-Gamma",
-            phase_band=(4.0, 8.0),
-            amp_band=(30.0, 50.0),
-            description="Secondary - exceeds predicted window"
-        ),
-        BandPair(
-            name="Alpha-Gamma",
-            phase_band=(8.0, 12.0),
-            amp_band=(30.0, 50.0),
-            description="Attention coupling"
-        ),
-        BandPair(
-            name="Beta-Gamma",
-            phase_band=(13.0, 30.0),
-            amp_band=(30.0, 50.0),
-            description="Fast cortical coupling - control"
-        ),
-    ])
+    # Bandas para PAC (según RR DELTA PAC)
+    delta_band: Tuple[float, float] = (2.0, 4.0)
+    gamma_band: Tuple[float, float] = (30.0, 50.0)
     
-    # Bandas de potencia para comparación PAC vs POWER
-    power_bands: Dict[str, Tuple[float, float]] = field(default_factory=lambda: {
-        'Delta': (2.0, 4.0),    # CORREGIDO: Mismo rango que PAC
-        'Theta': (4.0, 8.0),
-        'Alpha': (8.0, 12.0),
-        'Beta': (13.0, 30.0),
-        'Gamma': (30.0, 50.0),  # CORREGIDO: Mismo rango que PAC
-    })
+    # Bandas para H* components
+    theta_band: Tuple[float, float] = (4.0, 8.0)
+    alpha_band: Tuple[float, float] = (8.0, 12.0)
+    beta_band: Tuple[float, float] = (13.0, 30.0)
     
-    # Parámetros de época
-    epoch_duration: float = 30.0
-    n_epochs_per_state: int = 50
+    # Parámetros de transición
+    transition_window_before: float = 180.0  # 3 minutos antes
+    transition_window_after: float = 180.0   # 3 minutos después
+    sliding_window_size: float = 30.0        # ventana de 30s
+    sliding_window_step: float = 10.0        # paso de 10s
     
     # Estados Sleep-EDF
     wake_state: str = 'Sleep stage W'
     n1_state: str = 'Sleep stage 1'
     n2_state: str = 'Sleep stage 2'
     n3_state: str = 'Sleep stage 3'
-    rem_state: str = 'Sleep stage R'
+    
+    # Criterios de falsación (P-∇-3)
+    min_lag_seconds: float = 5.0      # Mínimo lag para considerar precedencia
+    expected_lag_min: float = 10.0    # Lag esperado mínimo
+    expected_lag_max: float = 30.0    # Lag esperado máximo
+    precedence_threshold: float = 0.70  # ≥70% de transiciones
     
     # ECLIPSE
     sacred_seed: int = 42
     n_subjects: Optional[int] = None
-    researcher: str = "Camilo Sjöberg Tala"
-    project_name: str = "NIVEL2_PAC_AUTOPSYCHIC_FOLD"
     
-    # CORREGIDO: Thresholds según RR DELTA PAC (Tabla 3.5)
-    cohens_d_threshold: float = 1.0      # Según RR: d ≥ 1.0
-    p_value_threshold: float = 0.001     # Según RR: p < 0.001
-    pac_power_advantage_threshold: float = 0.3  # Diferencia sustancial
-    
-    def __post_init__(self):
-        if self.n_subjects is None:
-            self.project_name = f"{self.project_name}_FULL_153subj"
-        else:
-            self.project_name = f"{self.project_name}_{self.n_subjects}subj"
+    # Mínimos para análisis válido
+    min_transitions_per_subject: int = 1
+    min_total_transitions: int = 20
+
+
+class TransitionEvent(NamedTuple):
+    """Representa una transición de estado"""
+    onset: float           # Tiempo de inicio (segundos)
+    from_state: str        # Estado origen
+    to_state: str          # Estado destino
+    subject_id: str        # ID del sujeto
+    duration_before: float # Duración del estado anterior
+    duration_after: float  # Duración del estado siguiente
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# CALCULADORA PAC + POWER (CORREGIDA)
+# CÁLCULO DE H* INDEX
 # ═══════════════════════════════════════════════════════════════════════════
 
-class ExtendedPACCalculator:
-    """Calcula PAC Y POWER para múltiples bandas - CORREGIDO"""
+class HStarCalculator:
+    """
+    Calcula H* Index: Condición organizacional que habilita el Pliegue
     
-    def __init__(self, config: Config):
+    Componentes:
+    1. Coherencia espectral (coordinación entre bandas)
+    2. Complejidad (Lempel-Ziv normalizada)
+    3. Estabilidad temporal (decaimiento de autocorrelación)
+    
+    H* alto = sistema organizado, listo para generar presencia
+    H* bajo = sistema desorganizado, presencia no habilitada
+    """
+    
+    def __init__(self, config: TransitionConfig):
         self.config = config
         self.fs = config.sampling_rate
         
-        self.pac_objects = {}
-        for band_pair in config.band_pairs:
-            self.pac_objects[band_pair.name] = Pac(
-                idpac=(1, 0, 0),  # Modulation Index (Tort 2010)
-                f_pha=list(band_pair.phase_band),
-                f_amp=list(band_pair.amp_band),
-                dcomplex='wavelet',
-                width=7
-            )
-            logger.debug(f"PAC object created: {band_pair.name} "
-                        f"({band_pair.phase_band} → {band_pair.amp_band})")
+    def bandpass_filter(self, data: np.ndarray, 
+                        band: Tuple[float, float]) -> np.ndarray:
+        """Filtro pasabanda Butterworth"""
+        nyq = self.fs / 2
+        low = band[0] / nyq
+        high = min(band[1] / nyq, 0.99)
         
-    def preprocess(self, data: np.ndarray) -> np.ndarray:
-        """Preprocesa señal EEG según protocolo RR"""
-        # Filtro pasabanda según RR: 0.5-45 Hz
+        if low >= high or low <= 0:
+            return data
+            
+        sos = signal.butter(4, [low, high], btype='band', output='sos')
+        return signal.sosfiltfilt(sos, data)
+    
+    def compute_spectral_coherence(self, data: np.ndarray,
+                                   band1: Tuple[float, float],
+                                   band2: Tuple[float, float]) -> float:
+        """
+        Calcula coherencia espectral entre dos bandas de frecuencia
+        Usa la señal filtrada en cada banda y computa coherencia
+        """
+        try:
+            # Filtrar en cada banda
+            signal1 = self.bandpass_filter(data, band1)
+            signal2 = self.bandpass_filter(data, band2)
+            
+            # Extraer envolventes de amplitud
+            env1 = np.abs(hilbert(signal1))
+            env2 = np.abs(hilbert(signal2))
+            
+            # Correlación de Pearson entre envolventes
+            if np.std(env1) < 1e-10 or np.std(env2) < 1e-10:
+                return 0.0
+            
+            corr = np.corrcoef(env1, env2)[0, 1]
+            return float(np.abs(corr))
+            
+        except Exception as e:
+            logger.debug(f"Error en coherencia: {e}")
+            return 0.0
+    
+    def compute_lempel_ziv_complexity(self, data: np.ndarray) -> float:
+        """
+        Calcula complejidad de Lempel-Ziv normalizada
+        
+        Alta complejidad = señal rica en información
+        Baja complejidad = señal simple/repetitiva
+        """
+        try:
+            # Binarizar señal por mediana
+            binary = (data > np.median(data)).astype(int)
+            
+            # Algoritmo LZ76
+            s = ''.join(map(str, binary))
+            n = len(s)
+            
+            if n == 0:
+                return 0.0
+            
+            # Contar complejidad
+            i = 0
+            c = 1
+            l = 1
+            k = 1
+            k_max = 1
+            
+            while True:
+                if s[i + k - 1] != s[l + k - 1]:
+                    if k > k_max:
+                        k_max = k
+                    i += 1
+                    if i == l:
+                        c += 1
+                        l += k_max
+                        if l + 1 > n:
+                            break
+                        i = 0
+                        k = 1
+                        k_max = 1
+                    else:
+                        k = 1
+                else:
+                    k += 1
+                    if l + k > n:
+                        c += 1
+                        break
+            
+            # Normalizar por longitud
+            b = n / np.log2(n) if n > 1 else 1
+            lz_norm = c / b
+            
+            return float(np.clip(lz_norm, 0, 1))
+            
+        except Exception as e:
+            logger.debug(f"Error en LZ: {e}")
+            return 0.5
+    
+    def compute_autocorr_stability(self, data: np.ndarray, 
+                                   max_lag: int = 50) -> float:
+        """
+        Calcula estabilidad temporal via decaimiento de autocorrelación
+        
+        Decaimiento lento = señal estable
+        Decaimiento rápido = señal inestable
+        """
+        try:
+            n = len(data)
+            if n < max_lag * 2:
+                max_lag = n // 4
+            
+            if max_lag < 2:
+                return 0.5
+            
+            # Normalizar
+            data_norm = (data - np.mean(data)) / (np.std(data) + 1e-10)
+            
+            # Calcular autocorrelación
+            autocorr = np.correlate(data_norm, data_norm, mode='full')
+            autocorr = autocorr[len(autocorr)//2:]
+            autocorr = autocorr / autocorr[0]  # Normalizar
+            
+            # Calcular tau (tiempo característico de decaimiento)
+            # Buscar primer cruce por 1/e
+            threshold = 1 / np.e
+            crossings = np.where(autocorr[:max_lag] < threshold)[0]
+            
+            if len(crossings) > 0:
+                tau = crossings[0]
+            else:
+                tau = max_lag
+            
+            # Normalizar: tau alto = alta estabilidad
+            stability = tau / max_lag
+            
+            return float(np.clip(stability, 0, 1))
+            
+        except Exception as e:
+            logger.debug(f"Error en autocorr: {e}")
+            return 0.5
+    
+    def compute_spectral_entropy(self, data: np.ndarray) -> float:
+        """
+        Calcula entropía espectral normalizada
+        
+        Alta entropía = distribución uniforme de potencia
+        Baja entropía = potencia concentrada en pocas frecuencias
+        """
+        try:
+            # PSD via Welch
+            freqs, psd = signal.welch(data, fs=self.fs, nperseg=min(len(data), 256))
+            
+            # Normalizar PSD a distribución de probabilidad
+            psd_norm = psd / (np.sum(psd) + 1e-10)
+            
+            # Entropía de Shannon
+            psd_norm = psd_norm[psd_norm > 0]
+            entropy = -np.sum(psd_norm * np.log2(psd_norm + 1e-10))
+            
+            # Normalizar por entropía máxima
+            max_entropy = np.log2(len(psd_norm))
+            entropy_norm = entropy / max_entropy if max_entropy > 0 else 0
+            
+            return float(np.clip(entropy_norm, 0, 1))
+            
+        except Exception as e:
+            logger.debug(f"Error en spectral entropy: {e}")
+            return 0.5
+    
+    def compute_h_star_index(self, data: np.ndarray) -> Dict:
+        """
+        Calcula H* Index compuesto
+        
+        H* = w1*Coherencia + w2*Complejidad + w3*Estabilidad + w4*Entropía
+        
+        Retorna dict con componentes individuales y score total
+        """
+        # Preprocesar
+        data = self._preprocess(data)
+        
+        if len(data) < self.fs * 2:  # Mínimo 2 segundos
+            return self._empty_result()
+        
+        # Componente 1: Coherencia delta-gamma (coordinación cross-frequency)
+        coherence_dg = self.compute_spectral_coherence(
+            data, 
+            self.config.delta_band, 
+            self.config.gamma_band
+        )
+        
+        # Componente 2: Coherencia theta-alpha (coordinación local)
+        coherence_ta = self.compute_spectral_coherence(
+            data,
+            self.config.theta_band,
+            self.config.alpha_band
+        )
+        
+        # Componente 3: Complejidad LZ
+        complexity = self.compute_lempel_ziv_complexity(data)
+        
+        # Componente 4: Estabilidad temporal
+        stability = self.compute_autocorr_stability(data)
+        
+        # Componente 5: Entropía espectral
+        spectral_entropy = self.compute_spectral_entropy(data)
+        
+        # Combinar componentes
+        # Pesos basados en relevancia teórica para coordinación talamocortical
+        w_coh_dg = 0.25      # Coherencia delta-gamma (crítica para PAC)
+        w_coh_ta = 0.15      # Coherencia theta-alpha
+        w_complexity = 0.20  # Complejidad (organización)
+        w_stability = 0.25   # Estabilidad (condición sostenida)
+        w_entropy = 0.15     # Entropía espectral
+        
+        h_star = (
+            w_coh_dg * coherence_dg +
+            w_coh_ta * coherence_ta +
+            w_complexity * complexity +
+            w_stability * stability +
+            w_entropy * spectral_entropy
+        )
+        
+        return {
+            'h_star': float(h_star),
+            'coherence_delta_gamma': float(coherence_dg),
+            'coherence_theta_alpha': float(coherence_ta),
+            'complexity_lz': float(complexity),
+            'stability': float(stability),
+            'spectral_entropy': float(spectral_entropy),
+            'valid': True
+        }
+    
+    def _preprocess(self, data: np.ndarray) -> np.ndarray:
+        """Preprocesa señal"""
+        # Filtro pasabanda
         sos = signal.butter(
             4,
             [self.config.lowcut, self.config.highcut],
@@ -211,840 +407,847 @@ class ExtendedPACCalculator:
         )
         filtered = signal.filtfilt(b_notch, a_notch, filtered)
         
-        # Z-score normalización
+        # Z-score
         filtered = (filtered - np.mean(filtered)) / (np.std(filtered) + 1e-10)
         
         return filtered
     
-    def has_artifact(self, data: np.ndarray, threshold_uv: float = 100.0) -> bool:
-        """
-        Detecta artefactos según RR: amplitud > 100 µV
-        NOTA: Asume datos ya normalizados (z-score), threshold ajustado
-        """
-        # Para datos z-scored, usamos threshold de 8 std (muy conservador)
-        peak_to_peak = np.ptp(data)
-        return peak_to_peak > 8.0
-    
-    def compute_band_power(self, data: np.ndarray, band: Tuple[float, float]) -> float:
-        """Calcula power espectral en una banda específica (Welch)"""
-        freqs, psd = signal.welch(data, fs=self.fs, nperseg=min(len(data), 256))
-        idx_band = np.logical_and(freqs >= band[0], freqs <= band[1])
-        if not np.any(idx_band):
-            return np.nan
-        power = np.trapz(psd[idx_band], freqs[idx_band])
-        return float(power)
-    
-    def compute_all_metrics(self, data: np.ndarray) -> Dict[str, Dict]:
-        """Calcula PAC + POWER para una época"""
-        data_clean = self.preprocess(data)
-        
-        # Verificar artefactos
-        if self.has_artifact(data_clean):
-            return self._empty_results('artifact')
-        
-        # Verificar longitud mínima
-        min_samples = int(2.0 * self.fs)
-        if len(data_clean) < min_samples:
-            return self._empty_results('too_short')
-        
-        # Compute PAC para cada par de bandas
-        pac_results = {}
-        data_reshaped = data_clean[np.newaxis, :]
-        
-        for band_name, pac_obj in self.pac_objects.items():
-            try:
-                pac_value = pac_obj.filterfit(self.fs, data_reshaped, data_reshaped)
-                pac_value = float(pac_value[0, 0, 0])
-                
-                pac_results[band_name] = {
-                    'value': pac_value,
-                    'valid': True,
-                    'reject_reason': None
-                }
-            except Exception as e:
-                logger.warning(f"Error en PAC {band_name}: {e}")
-                pac_results[band_name] = {
-                    'value': np.nan,
-                    'valid': False,
-                    'reject_reason': f'computation_error: {e}'
-                }
-        
-        # Compute POWER para cada banda
-        power_results = {}
-        for band_name, band_range in self.config.power_bands.items():
-            try:
-                power_val = self.compute_band_power(data_clean, band_range)
-                power_results[band_name] = {
-                    'value': power_val,
-                    'valid': not np.isnan(power_val)
-                }
-            except Exception as e:
-                logger.warning(f"Error en Power {band_name}: {e}")
-                power_results[band_name] = {
-                    'value': np.nan,
-                    'valid': False
-                }
-        
+    def _empty_result(self) -> Dict:
+        """Resultado vacío para datos inválidos"""
         return {
-            'pac': pac_results,
-            'power': power_results
-        }
-    
-    def _empty_results(self, reason: str) -> Dict:
-        """Genera resultados vacíos para época rechazada"""
-        return {
-            'pac': {
-                band_name: {'value': np.nan, 'valid': False, 'reject_reason': reason}
-                for band_name in self.pac_objects.keys()
-            },
-            'power': {
-                band_name: {'value': np.nan, 'valid': False}
-                for band_name in self.config.power_bands.keys()
-            }
+            'h_star': np.nan,
+            'coherence_delta_gamma': np.nan,
+            'coherence_theta_alpha': np.nan,
+            'complexity_lz': np.nan,
+            'stability': np.nan,
+            'spectral_entropy': np.nan,
+            'valid': False
         }
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# PROCESADOR SLEEP-EDF (CORREGIDO: AMBOS CANALES)
+# CÁLCULO DE PAC
 # ═══════════════════════════════════════════════════════════════════════════
 
-class ExtendedSleepEDFProcessor:
-    """Procesa Sleep-EDF con PAC + POWER - CORREGIDO para ambos canales"""
+class PACCalculator:
+    """
+    Calcula Phase-Amplitude Coupling (PAC) delta→gamma
     
-    def __init__(self, config: Config):
+    PAC alto = convergencia temporal activa (Pliegue operando)
+    PAC bajo = sin convergencia (Pliegue inactivo)
+    """
+    
+    def __init__(self, config: TransitionConfig):
         self.config = config
-        self.calculator = ExtendedPACCalculator(config)
+        self.fs = config.sampling_rate
+        
+        if TENSORPAC_AVAILABLE:
+            self.pac_obj = Pac(
+                idpac=(1, 0, 0),  # Modulation Index (Tort 2010)
+                f_pha=list(config.delta_band),
+                f_amp=list(config.gamma_band),
+                dcomplex='wavelet',
+                width=7
+            )
+        else:
+            self.pac_obj = None
+    
+    def bandpass_filter(self, data: np.ndarray, 
+                        band: Tuple[float, float]) -> np.ndarray:
+        """Filtro pasabanda"""
+        nyq = self.fs / 2
+        low = band[0] / nyq
+        high = min(band[1] / nyq, 0.99)
+        
+        if low >= high or low <= 0:
+            return data
+            
+        sos = signal.butter(4, [low, high], btype='band', output='sos')
+        return signal.sosfiltfilt(sos, data)
+    
+    def compute_pac_manual(self, data: np.ndarray) -> float:
+        """
+        Calcula PAC manualmente (Mean Vector Length)
+        Usado si tensorpac no está disponible
+        """
+        try:
+            # Filtrar
+            delta = self.bandpass_filter(data, self.config.delta_band)
+            gamma = self.bandpass_filter(data, self.config.gamma_band)
+            
+            # Extraer fase y amplitud
+            delta_phase = np.angle(hilbert(delta))
+            gamma_amp = np.abs(hilbert(gamma))
+            
+            # Z-score de amplitud
+            gamma_amp = (gamma_amp - np.mean(gamma_amp)) / (np.std(gamma_amp) + 1e-10)
+            
+            # Mean Vector Length
+            n = len(delta_phase)
+            complex_signal = gamma_amp * np.exp(1j * delta_phase)
+            mvl = np.abs(np.mean(complex_signal))
+            
+            return float(mvl)
+            
+        except Exception as e:
+            logger.debug(f"Error en PAC manual: {e}")
+            return np.nan
+    
+    def compute_pac(self, data: np.ndarray) -> Dict:
+        """Calcula PAC delta→gamma"""
+        # Preprocesar
+        data = self._preprocess(data)
+        
+        if len(data) < self.fs * 2:
+            return {'pac': np.nan, 'valid': False}
+        
+        try:
+            if self.pac_obj is not None:
+                # Usar tensorpac
+                data_reshaped = data[np.newaxis, :]
+                pac_value = self.pac_obj.filterfit(
+                    self.fs, 
+                    data_reshaped, 
+                    data_reshaped
+                )
+                pac_value = float(pac_value[0, 0, 0])
+            else:
+                # Usar cálculo manual
+                pac_value = self.compute_pac_manual(data)
+            
+            return {
+                'pac': pac_value,
+                'valid': not np.isnan(pac_value)
+            }
+            
+        except Exception as e:
+            logger.debug(f"Error en PAC: {e}")
+            return {'pac': np.nan, 'valid': False}
+    
+    def _preprocess(self, data: np.ndarray) -> np.ndarray:
+        """Preprocesa señal"""
+        # Filtro pasabanda
+        sos = signal.butter(
+            4,
+            [self.config.lowcut, self.config.highcut],
+            btype='bandpass',
+            fs=self.fs,
+            output='sos'
+        )
+        filtered = signal.sosfiltfilt(sos, data)
+        
+        # Notch 50 Hz
+        b_notch, a_notch = signal.iirnotch(
+            self.config.notch_freq,
+            Q=30,
+            fs=self.fs
+        )
+        filtered = signal.filtfilt(b_notch, a_notch, filtered)
+        
+        # Z-score
+        filtered = (filtered - np.mean(filtered)) / (np.std(filtered) + 1e-10)
+        
+        return filtered
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DETECTOR DE TRANSICIONES
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TransitionDetector:
+    """Detecta transiciones Wake→N2 en anotaciones de sueño"""
+    
+    def __init__(self, config: TransitionConfig):
+        self.config = config
+    
+    def find_transitions(self, annotations: mne.Annotations,
+                        subject_id: str) -> List[TransitionEvent]:
+        """
+        Encuentra transiciones Wake→N2 (directas o vía N1)
+        
+        Transiciones válidas:
+        - Wake → N2 (directa)
+        - Wake → N1 → N2 (vía N1, N1 < 2 min)
+        """
+        transitions = []
+        
+        # Convertir anotaciones a lista ordenada
+        events = []
+        for ann in annotations:
+            events.append({
+                'onset': ann['onset'],
+                'duration': ann['duration'],
+                'description': ann['description']
+            })
+        
+        # Ordenar por tiempo
+        events = sorted(events, key=lambda x: x['onset'])
+        
+        # Buscar transiciones
+        for i in range(len(events) - 1):
+            current = events[i]
+            next_event = events[i + 1]
+            
+            # Caso 1: Wake → N2 directa
+            if (current['description'] == self.config.wake_state and
+                next_event['description'] == self.config.n2_state):
+                
+                transitions.append(TransitionEvent(
+                    onset=next_event['onset'],
+                    from_state='Wake',
+                    to_state='N2',
+                    subject_id=subject_id,
+                    duration_before=current['duration'],
+                    duration_after=next_event['duration']
+                ))
+            
+            # Caso 2: Wake → N1 → N2 (N1 corto)
+            elif (current['description'] == self.config.wake_state and
+                  next_event['description'] == self.config.n1_state and
+                  i + 2 < len(events)):
+                
+                next_next = events[i + 2]
+                
+                if (next_next['description'] == self.config.n2_state and
+                    next_event['duration'] < 120):  # N1 < 2 minutos
+                    
+                    transitions.append(TransitionEvent(
+                        onset=next_next['onset'],
+                        from_state='Wake',
+                        to_state='N2',
+                        subject_id=subject_id,
+                        duration_before=current['duration'] + next_event['duration'],
+                        duration_after=next_next['duration']
+                    ))
+        
+        # Filtrar transiciones con contexto suficiente
+        valid_transitions = []
+        for trans in transitions:
+            # Necesitamos al menos 2 min antes y después
+            if (trans.duration_before >= 60 and 
+                trans.duration_after >= 60):
+                valid_transitions.append(trans)
+        
+        return valid_transitions
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ANALIZADOR DE PRECEDENCIA
+# ═══════════════════════════════════════════════════════════════════════════
+
+class PrecedenceAnalyzer:
+    """
+    Analiza precedencia temporal H* → PAC durante transiciones
+    
+    HIPÓTESIS (P-∇-3):
+    H* desciende ANTES que PAC durante transiciones Wake→N2
+    """
+    
+    def __init__(self, config: TransitionConfig):
+        self.config = config
+        self.h_star_calc = HStarCalculator(config)
+        self.pac_calc = PACCalculator(config)
+    
+    def analyze_single_transition(self, raw: mne.io.Raw,
+                                  transition: TransitionEvent,
+                                  channel: str) -> Dict:
+        """
+        Analiza una transición individual
+        
+        1. Extrae ventana alrededor de la transición
+        2. Calcula H* y PAC en ventanas deslizantes
+        3. Detecta punto de caída de cada métrica
+        4. Calcula lag (H* caída - PAC caída)
+        """
+        fs = raw.info['sfreq']
+        
+        # Definir ventana de análisis
+        window_start = transition.onset - self.config.transition_window_before
+        window_end = transition.onset + self.config.transition_window_after
+        
+        # Ajustar a límites del recording
+        window_start = max(0, window_start)
+        window_end = min(raw.times[-1], window_end)
+        
+        # Extraer datos
+        start_sample = int(window_start * fs)
+        end_sample = int(window_end * fs)
+        
+        try:
+            ch_idx = raw.ch_names.index(channel)
+            data = raw.get_data(picks=[ch_idx], start=start_sample, stop=end_sample)[0]
+        except Exception as e:
+            logger.warning(f"Error extrayendo datos: {e}")
+            return self._empty_transition_result(transition)
+        
+        if len(data) < fs * 60:  # Mínimo 1 minuto
+            return self._empty_transition_result(transition)
+        
+        # Calcular métricas en ventanas deslizantes
+        window_samples = int(self.config.sliding_window_size * fs)
+        step_samples = int(self.config.sliding_window_step * fs)
+        
+        timepoints = []
+        h_star_series = []
+        pac_series = []
+        
+        # Componentes individuales de H*
+        coherence_dg_series = []
+        complexity_series = []
+        stability_series = []
+        
+        n_windows = (len(data) - window_samples) // step_samples + 1
+        
+        for i in range(n_windows):
+            start = i * step_samples
+            end = start + window_samples
+            
+            if end > len(data):
+                break
+            
+            epoch = data[start:end]
+            
+            # Tiempo relativo a la transición
+            t_relative = window_start + (start / fs) - transition.onset
+            timepoints.append(t_relative)
+            
+            # Calcular H*
+            h_star_result = self.h_star_calc.compute_h_star_index(epoch)
+            h_star_series.append(h_star_result['h_star'])
+            coherence_dg_series.append(h_star_result['coherence_delta_gamma'])
+            complexity_series.append(h_star_result['complexity_lz'])
+            stability_series.append(h_star_result['stability'])
+            
+            # Calcular PAC
+            pac_result = self.pac_calc.compute_pac(epoch)
+            pac_series.append(pac_result['pac'])
+        
+        # Convertir a arrays
+        timepoints = np.array(timepoints)
+        h_star_series = np.array(h_star_series)
+        pac_series = np.array(pac_series)
+        
+        # Limpiar NaNs
+        valid_mask = ~(np.isnan(h_star_series) | np.isnan(pac_series))
+        
+        if np.sum(valid_mask) < 5:
+            return self._empty_transition_result(transition)
+        
+        timepoints = timepoints[valid_mask]
+        h_star_series = h_star_series[valid_mask]
+        pac_series = pac_series[valid_mask]
+        
+        # Normalizar series para comparación
+        h_star_norm = (h_star_series - np.nanmean(h_star_series)) / (np.nanstd(h_star_series) + 1e-10)
+        pac_norm = (pac_series - np.nanmean(pac_series)) / (np.nanstd(pac_series) + 1e-10)
+        
+        # Suavizar para detectar tendencia
+        h_star_smooth = uniform_filter1d(h_star_norm, size=3)
+        pac_smooth = uniform_filter1d(pac_norm, size=3)
+        
+        # Detectar punto de caída (cruce por cero desde arriba)
+        h_star_drop_idx = self._find_drop_point(h_star_smooth, timepoints)
+        pac_drop_idx = self._find_drop_point(pac_smooth, timepoints)
+        
+        # Calcular lag
+        if h_star_drop_idx is not None and pac_drop_idx is not None:
+            h_star_drop_time = timepoints[h_star_drop_idx]
+            pac_drop_time = timepoints[pac_drop_idx]
+            lag_seconds = pac_drop_time - h_star_drop_time  # Positivo si H* cae primero
+            h_star_precedes = lag_seconds > self.config.min_lag_seconds
+        else:
+            h_star_drop_time = np.nan
+            pac_drop_time = np.nan
+            lag_seconds = np.nan
+            h_star_precedes = False
+        
+        # Cross-correlation como medida alternativa
+        xcorr_lag = self._compute_xcorr_lag(h_star_smooth, pac_smooth, timepoints)
+        
+        return {
+            'subject_id': transition.subject_id,
+            'channel': channel,
+            'transition_onset': transition.onset,
+            'from_state': transition.from_state,
+            'to_state': transition.to_state,
+            
+            # Series temporales
+            'timepoints': timepoints.tolist(),
+            'h_star_series': h_star_series.tolist(),
+            'pac_series': pac_series.tolist(),
+            
+            # Puntos de caída
+            'h_star_drop_time': float(h_star_drop_time) if not np.isnan(h_star_drop_time) else None,
+            'pac_drop_time': float(pac_drop_time) if not np.isnan(pac_drop_time) else None,
+            
+            # Lag
+            'lag_seconds': float(lag_seconds) if not np.isnan(lag_seconds) else None,
+            'h_star_precedes': h_star_precedes,
+            
+            # Cross-correlation
+            'xcorr_lag_seconds': float(xcorr_lag) if xcorr_lag is not None else None,
+            
+            # Métricas pre/post transición
+            'h_star_pre': float(np.nanmean(h_star_series[timepoints < 0])),
+            'h_star_post': float(np.nanmean(h_star_series[timepoints > 0])),
+            'pac_pre': float(np.nanmean(pac_series[timepoints < 0])),
+            'pac_post': float(np.nanmean(pac_series[timepoints > 0])),
+            
+            'valid': True
+        }
+    
+    def _find_drop_point(self, series: np.ndarray, 
+                         timepoints: np.ndarray) -> Optional[int]:
+        """
+        Encuentra el punto donde la serie cruza por cero desde arriba
+        (indica caída de la métrica)
+        
+        Busca cerca de t=0 (momento de transición)
+        """
+        # Buscar en ventana cercana a t=0
+        search_mask = np.abs(timepoints) < 120  # ±2 minutos
+        
+        if np.sum(search_mask) < 3:
+            return None
+        
+        search_indices = np.where(search_mask)[0]
+        search_series = series[search_mask]
+        
+        # Buscar cruce por cero
+        for i in range(len(search_series) - 1):
+            if search_series[i] > 0 and search_series[i + 1] <= 0:
+                return search_indices[i]
+        
+        # Si no hay cruce, buscar mínimo local
+        min_idx = np.argmin(search_series)
+        return search_indices[min_idx]
+    
+    def _compute_xcorr_lag(self, series1: np.ndarray, 
+                           series2: np.ndarray,
+                           timepoints: np.ndarray) -> Optional[float]:
+        """
+        Calcula lag via cross-correlation
+        
+        Lag positivo = series1 lidera series2
+        """
+        try:
+            if len(series1) < 5:
+                return None
+            
+            # Cross-correlation
+            xcorr = np.correlate(series1, series2, mode='full')
+            lags = np.arange(-len(series1) + 1, len(series1))
+            
+            # Encontrar lag con máxima correlación
+            max_idx = np.argmax(xcorr)
+            lag_samples = lags[max_idx]
+            
+            # Convertir a segundos
+            step_seconds = self.config.sliding_window_step
+            lag_seconds = lag_samples * step_seconds
+            
+            return lag_seconds
+            
+        except Exception as e:
+            logger.debug(f"Error en xcorr: {e}")
+            return None
+    
+    def _empty_transition_result(self, transition: TransitionEvent) -> Dict:
+        """Resultado vacío para transición inválida"""
+        return {
+            'subject_id': transition.subject_id,
+            'transition_onset': transition.onset,
+            'valid': False
+        }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PROCESADOR PRINCIPAL
+# ═══════════════════════════════════════════════════════════════════════════
+
+class AFHTransitionProcessor:
+    """Procesador principal para análisis de transiciones AFH"""
+    
+    def __init__(self, config: TransitionConfig):
+        self.config = config
+        self.detector = TransitionDetector(config)
+        self.analyzer = PrecedenceAnalyzer(config)
     
     def load_subject(self, psg_file: Path, hypno_file: Path) -> Optional[Dict]:
-        """Carga datos de un sujeto con ambos canales"""
+        """Carga datos de un sujeto"""
         try:
             raw = mne.io.read_raw_edf(str(psg_file), preload=True, verbose=False)
             annotations = mne.read_annotations(str(hypno_file))
             raw.set_annotations(annotations)
             
-            available_states = set(raw.annotations.description)
-            
-            # CORREGIDO: Buscar ambos canales target
+            # Buscar canales disponibles
             available_channels = []
             for target in self.config.target_channels:
                 if target in raw.ch_names:
                     available_channels.append(target)
                 else:
-                    # Buscar variantes
                     for ch in raw.ch_names:
-                        if target.lower().replace(' ', '') in ch.lower().replace(' ', ''):
-                            available_channels.append(ch)
-                            break
+                        if 'eeg' in ch.lower() and ('fpz' in ch.lower() or 'pz' in ch.lower()):
+                            if ch not in available_channels:
+                                available_channels.append(ch)
+                                break
             
             if not available_channels:
-                # Fallback: cualquier canal EEG
-                eeg_channels = [ch for ch in raw.ch_names if 'EEG' in ch.upper()]
+                eeg_channels = [ch for ch in raw.ch_names if 'eeg' in ch.lower()]
                 if eeg_channels:
                     available_channels = eeg_channels[:2]
-                else:
-                    logger.warning(f"  No hay canales EEG disponibles")
-                    return None
             
-            logger.info(f"  Canales: {available_channels}")
-            raw.pick_channels(available_channels)
+            if not available_channels:
+                logger.warning(f"  No hay canales EEG disponibles")
+                return None
             
+            # Resamplear si necesario
             if raw.info['sfreq'] != self.config.sampling_rate:
                 raw.resample(self.config.sampling_rate)
             
             return {
                 'raw': raw,
                 'channels': available_channels,
-                'available_states': available_states
+                'annotations': raw.annotations
             }
+            
         except Exception as e:
             logger.error(f"  Error cargando: {e}")
             return None
     
-    def extract_epochs_for_state(self, raw, state_label: str, n_epochs: int) -> List[Dict]:
-        """Extrae epochs de un estado específico para todos los canales"""
-        state_annotations = [ann for ann in raw.annotations if ann['description'] == state_label]
-        
-        if not state_annotations:
-            return []
-        
-        epochs_data = []
-        n_channels = len(raw.ch_names)
-        
-        for ann in state_annotations:
-            start_sample = int(ann['onset'] * raw.info['sfreq'])
-            duration_samples = int(ann['duration'] * raw.info['sfreq'])
-            
-            if duration_samples < self.config.epoch_duration * raw.info['sfreq']:
-                continue
-            
-            data_segment = raw.get_data(start=start_sample, stop=start_sample + duration_samples)
-            
-            epoch_samples = int(self.config.epoch_duration * raw.info['sfreq'])
-            n_possible = data_segment.shape[1] // epoch_samples
-            
-            for i in range(min(n_possible, n_epochs - len(epochs_data))):
-                start = i * epoch_samples
-                end = start + epoch_samples
-                
-                epoch_dict = {
-                    'data': {},
-                    'channels': raw.ch_names
-                }
-                for ch_idx, ch_name in enumerate(raw.ch_names):
-                    epoch_dict['data'][ch_name] = data_segment[ch_idx, start:end]
-                
-                epochs_data.append(epoch_dict)
-                
-                if len(epochs_data) >= n_epochs:
-                    break
-            
-            if len(epochs_data) >= n_epochs:
-                break
-        
-        return epochs_data
-    
-    def process_subject(self, subject_id: str, psg_file: Path, hypno_file: Path) -> pd.DataFrame:
-        """Procesa un sujeto completo con ambos canales"""
+    def process_subject(self, subject_id: str, 
+                       psg_file: Path, 
+                       hypno_file: Path) -> List[Dict]:
+        """Procesa un sujeto completo"""
         logger.info(f"Procesando {subject_id}...")
         
         loaded = self.load_subject(psg_file, hypno_file)
         if loaded is None:
-            return pd.DataFrame()
+            return []
         
         raw = loaded['raw']
         channels = loaded['channels']
-        available_states = loaded['available_states']
+        annotations = loaded['annotations']
         
-        # Estados a extraer
-        states_to_extract = {
-            'Wake': self.config.wake_state,
-            'N2': self.config.n2_state,
-            'N3': self.config.n3_state,
-        }
+        # Detectar transiciones
+        transitions = self.detector.find_transitions(annotations, subject_id)
+        logger.info(f"  {subject_id}: {len(transitions)} transiciones Wake→N2")
         
-        if self.config.rem_state in available_states:
-            states_to_extract['REM'] = self.config.rem_state
+        if len(transitions) < self.config.min_transitions_per_subject:
+            logger.warning(f"  {subject_id}: Insuficientes transiciones")
+            return []
         
+        # Analizar cada transición
+        results = []
+        for trans_idx, transition in enumerate(transitions):
+            for channel in channels:
+                result = self.analyzer.analyze_single_transition(
+                    raw, transition, channel
+                )
+                result['transition_idx'] = trans_idx
+                results.append(result)
+        
+        valid_results = [r for r in results if r.get('valid', False)]
+        logger.info(f"  {subject_id}: {len(valid_results)} análisis válidos")
+        
+        return results
+    
+    def run_full_analysis(self) -> Dict:
+        """Ejecuta análisis completo"""
+        
+        print("\n" + "=" * 80)
+        print("🔬 AFH TRANSITION ANALYSIS")
+        print("   Test de Precedencia H* → PAC (P-∇-3)")
+        print("=" * 80)
+        
+        start_time = time.time()
+        
+        # Buscar archivos
+        psg_files = sorted(self.config.data_dir.glob('*PSG.edf'))
+        
+        if self.config.n_subjects:
+            psg_files = psg_files[:self.config.n_subjects]
+        
+        print(f"\n📁 Dataset: {self.config.data_dir}")
+        print(f"   Archivos PSG: {len(psg_files)}")
+        
+        # Procesar sujetos
         all_results = []
+        subjects_with_transitions = 0
         
-        for state_name, state_label in states_to_extract.items():
-            if state_label not in available_states:
-                logger.debug(f"  {state_name} no disponible")
+        for idx, psg_file in enumerate(psg_files, 1):
+            subject_id = psg_file.stem.replace('-PSG', '')
+            
+            # Sleep-EDF naming
+            hypno_id = subject_id[:-1] + 'C'
+            hypno_file = psg_file.parent / f"{hypno_id}-Hypnogram.edf"
+            
+            if not hypno_file.exists():
+                logger.warning(f"[{idx}/{len(psg_files)}] {subject_id}: Hypnogram no encontrado")
                 continue
             
-            epochs = self.extract_epochs_for_state(raw, state_label, self.config.n_epochs_per_state)
-            logger.info(f"  {subject_id}: {len(epochs)} {state_name} epochs")
+            print(f"[{idx}/{len(psg_files)}] {subject_id}...", end=" ")
             
-            if len(epochs) == 0:
-                continue
+            results = self.process_subject(subject_id, psg_file, hypno_file)
             
-            for epoch_idx, epoch_dict in enumerate(epochs):
-                # CORREGIDO: Procesar cada canal
-                for ch_name in channels:
-                    if ch_name not in epoch_dict['data']:
-                        continue
-                    
-                    epoch_data = epoch_dict['data'][ch_name]
-                    metrics = self.calculator.compute_all_metrics(epoch_data)
-                    
-                    # Guardar PAC results
-                    for band_name, pac_result in metrics['pac'].items():
-                        result = {
-                            'subject_id': subject_id,
-                            'channel': ch_name,
-                            'state': state_name,
-                            'epoch_idx': epoch_idx,
-                            'band_pair': band_name,
-                            'value': pac_result['value'],
-                            'valid': pac_result['valid'],
-                            'metric_type': 'PAC'
-                        }
-                        all_results.append(result)
-                    
-                    # Guardar POWER results
-                    for power_band_name, power_result in metrics['power'].items():
-                        result = {
-                            'subject_id': subject_id,
-                            'channel': ch_name,
-                            'state': state_name,
-                            'epoch_idx': epoch_idx,
-                            'band_pair': power_band_name,
-                            'value': power_result['value'],
-                            'valid': power_result['valid'],
-                            'metric_type': 'POWER'
-                        }
-                        all_results.append(result)
+            valid_results = [r for r in results if r.get('valid', False)]
+            
+            if valid_results:
+                all_results.extend(valid_results)
+                subjects_with_transitions += 1
+                print(f"✓ {len(valid_results)} análisis")
+            else:
+                print("✗ Sin transiciones válidas")
         
-        logger.info(f"  {subject_id}: {len(all_results)} measurements total")
-        return pd.DataFrame(all_results)
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-# FUNCIONES DE ANÁLISIS ESTADÍSTICO
-# ═══════════════════════════════════════════════════════════════════════════
-
-def compute_cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
-    """Calcula Cohen's d para dos grupos"""
-    n1, n2 = len(group1), len(group2)
-    if n1 < 2 or n2 < 2:
-        return 0.0
-    
-    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
-    pooled_std = np.sqrt(((n1-1)*var1 + (n2-1)*var2) / (n1 + n2 - 2))
-    
-    if pooled_std < 1e-10:
-        return 0.0
-    
-    return (np.mean(group1) - np.mean(group2)) / pooled_std
-
-
-def compute_holdout_metrics(holdout_pac: pd.DataFrame, 
-                            holdout_power: pd.DataFrame,
-                            config: Config) -> Dict:
-    """
-    Computa todas las métricas en holdout set
-    CORREGIDO: Thresholds según RR DELTA PAC
-    """
-    
-    results = {
-        'tests': {},
-        'summary': {},
-        'falsification_criteria': {}
-    }
-    
-    valid_pac = holdout_pac[holdout_pac['valid']].copy()
-    valid_power = holdout_power[holdout_power['valid']].copy()
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # TEST 1: PAC Wake vs N2 (Delta-Gamma) - CRITERIO F-∇-1
-    # ═══════════════════════════════════════════════════════════════════════
-    
-    print("\n" + "=" * 80)
-    print("🔬 TEST 1: Delta-Gamma PAC (Wake vs N2) - Criterio F-∇-1")
-    print("=" * 80)
-    
-    delta_pac = valid_pac[valid_pac['band_pair'] == 'Delta-Gamma']
-    
-    # Promediar por sujeto primero (evitar pseudoreplicación)
-    pac_by_subject = delta_pac.groupby(['subject_id', 'state'])['value'].mean().reset_index()
-    
-    pac_wake = pac_by_subject[pac_by_subject['state'] == 'Wake']['value'].values
-    pac_n2 = pac_by_subject[pac_by_subject['state'] == 'N2']['value'].values
-    
-    pac_wake = pac_wake[~np.isnan(pac_wake)]
-    pac_n2 = pac_n2[~np.isnan(pac_n2)]
-    
-    if len(pac_wake) > 1 and len(pac_n2) > 1:
-        pac_d_wake_n2 = compute_cohens_d(pac_wake, pac_n2)
-        _, pac_p_wake_n2 = stats.ttest_ind(pac_wake, pac_n2, alternative='greater')
+        elapsed_time = time.time() - start_time
         
-        print(f"  N sujetos Wake: {len(pac_wake)}")
-        print(f"  N sujetos N2: {len(pac_n2)}")
-        print(f"  PAC Wake: {np.mean(pac_wake):.4f} ± {np.std(pac_wake, ddof=1):.4f}")
-        print(f"  PAC N2:   {np.mean(pac_n2):.4f} ± {np.std(pac_n2, ddof=1):.4f}")
-        print(f"  Cohen's d: {pac_d_wake_n2:.3f} (threshold: {config.cohens_d_threshold})")
-        print(f"  p-value:   {pac_p_wake_n2:.6f} (threshold: {config.p_value_threshold})")
+        print(f"\n📊 Procesamiento completo:")
+        print(f"   Sujetos con transiciones: {subjects_with_transitions}")
+        print(f"   Total análisis: {len(all_results)}")
+        print(f"   Tiempo: {elapsed_time/60:.1f} minutos")
         
-        # Evaluación según RR
-        d_pass = pac_d_wake_n2 >= config.cohens_d_threshold
-        p_pass = pac_p_wake_n2 < config.p_value_threshold
+        if len(all_results) < self.config.min_total_transitions:
+            print(f"\n⚠️  Insuficientes transiciones para análisis estadístico")
+            print(f"   Mínimo requerido: {self.config.min_total_transitions}")
+            return {'error': 'insufficient_transitions'}
         
-        if d_pass and p_pass:
-            print(f"\n  ✅ CRITERIO F-∇-1: PASADO (d={pac_d_wake_n2:.2f} ≥ {config.cohens_d_threshold}, p={pac_p_wake_n2:.4f} < {config.p_value_threshold})")
+        # Analizar resultados
+        return self._analyze_results(all_results)
+    
+    def _analyze_results(self, results: List[Dict]) -> Dict:
+        """Analiza resultados y evalúa criterio P-∇-3"""
+        
+        print("\n" + "=" * 80)
+        print("📊 ANÁLISIS DE PRECEDENCIA H* → PAC")
+        print("=" * 80)
+        
+        # Filtrar resultados válidos
+        valid_results = [r for r in results if r.get('valid', False) and r.get('lag_seconds') is not None]
+        
+        if len(valid_results) == 0:
+            return {'error': 'no_valid_results'}
+        
+        # Extraer métricas
+        lags = [r['lag_seconds'] for r in valid_results]
+        precedes = [r['h_star_precedes'] for r in valid_results]
+        xcorr_lags = [r['xcorr_lag_seconds'] for r in valid_results if r.get('xcorr_lag_seconds') is not None]
+        
+        # Estadísticas
+        n_total = len(valid_results)
+        n_precedes = sum(precedes)
+        precedence_rate = n_precedes / n_total
+        
+        mean_lag = np.mean(lags)
+        std_lag = np.std(lags)
+        median_lag = np.median(lags)
+        
+        mean_lag_when_precedes = np.mean([l for l, p in zip(lags, precedes) if p]) if n_precedes > 0 else np.nan
+        
+        # Cambios pre/post
+        h_star_pre = np.mean([r['h_star_pre'] for r in valid_results])
+        h_star_post = np.mean([r['h_star_post'] for r in valid_results])
+        pac_pre = np.mean([r['pac_pre'] for r in valid_results])
+        pac_post = np.mean([r['pac_post'] for r in valid_results])
+        
+        h_star_change = (h_star_post - h_star_pre) / (h_star_pre + 1e-10)
+        pac_change = (pac_post - pac_pre) / (pac_pre + 1e-10)
+        
+        print(f"\n  📈 ESTADÍSTICAS DE LAG:")
+        print(f"     Total transiciones analizadas: {n_total}")
+        print(f"     H* precede PAC en: {n_precedes}/{n_total} ({precedence_rate*100:.1f}%)")
+        print(f"     Lag medio: {mean_lag:.1f} ± {std_lag:.1f} segundos")
+        print(f"     Lag mediano: {median_lag:.1f} segundos")
+        if not np.isnan(mean_lag_when_precedes):
+            print(f"     Lag medio (cuando H* precede): {mean_lag_when_precedes:.1f} segundos")
+        
+        print(f"\n  📉 CAMBIOS PRE→POST TRANSICIÓN:")
+        print(f"     H*:  {h_star_pre:.4f} → {h_star_post:.4f} ({h_star_change*100:+.1f}%)")
+        print(f"     PAC: {pac_pre:.4f} → {pac_post:.4f} ({pac_change*100:+.1f}%)")
+        
+        # Evaluar criterio P-∇-3
+        print("\n" + "=" * 80)
+        print("📋 EVALUACIÓN CRITERIO P-∇-3")
+        print("=" * 80)
+        
+        # Criterio 1: Tasa de precedencia
+        precedence_pass = precedence_rate >= self.config.precedence_threshold
+        
+        # Criterio 2: Lag en rango esperado
+        lag_in_range = (self.config.expected_lag_min <= mean_lag_when_precedes <= self.config.expected_lag_max) if not np.isnan(mean_lag_when_precedes) else False
+        
+        # Criterio 3: Significancia estadística (t-test de lag > 0)
+        if len(lags) > 2:
+            t_stat, p_value = stats.ttest_1samp(lags, 0, alternative='greater')
+            significant = p_value < 0.05
         else:
-            print(f"\n  ❌ CRITERIO F-∇-1: FALLIDO")
-            if not d_pass:
-                print(f"     Cohen's d = {pac_d_wake_n2:.2f} < {config.cohens_d_threshold}")
-            if not p_pass:
-                print(f"     p-value = {pac_p_wake_n2:.4f} ≥ {config.p_value_threshold}")
+            t_stat, p_value = np.nan, 1.0
+            significant = False
         
-        results['tests']['pac_wake_vs_n2'] = {
-            'cohens_d': float(pac_d_wake_n2),
-            'p_value': float(pac_p_wake_n2),
-            'wake_mean': float(np.mean(pac_wake)),
-            'wake_std': float(np.std(pac_wake, ddof=1)),
-            'n2_mean': float(np.mean(pac_n2)),
-            'n2_std': float(np.std(pac_n2, ddof=1)),
-            'n_wake': len(pac_wake),
-            'n_n2': len(pac_n2),
-            'd_threshold_passed': d_pass,
-            'p_threshold_passed': p_pass
+        print(f"\n  Criterio 1: Tasa de precedencia ≥ {self.config.precedence_threshold*100:.0f}%")
+        print(f"     Observado: {precedence_rate*100:.1f}%")
+        print(f"     Resultado: {'✅ PASADO' if precedence_pass else '❌ FALLIDO'}")
+        
+        print(f"\n  Criterio 2: Lag medio en rango [{self.config.expected_lag_min}, {self.config.expected_lag_max}] s")
+        print(f"     Observado: {mean_lag_when_precedes:.1f} s")
+        print(f"     Resultado: {'✅ PASADO' if lag_in_range else '❌ FALLIDO'}")
+        
+        print(f"\n  Criterio 3: Lag significativamente > 0 (p < 0.05)")
+        print(f"     t = {t_stat:.2f}, p = {p_value:.4f}")
+        print(f"     Resultado: {'✅ PASADO' if significant else '❌ FALLIDO'}")
+        
+        # Veredicto final
+        n_passed = sum([precedence_pass, lag_in_range, significant])
+        
+        print("\n" + "=" * 80)
+        
+        if n_passed >= 2:
+            print("✅ VEREDICTO: PRECEDENCIA H* → PAC CONFIRMADA")
+            print("   Arquitectura AFH (H* habilita ∇) SOPORTADA")
+            verdict = 'SUPPORTED'
+        elif n_passed == 1:
+            print("⚠️  VEREDICTO: EVIDENCIA MIXTA")
+            print("   Precedencia parcialmente observada")
+            verdict = 'MIXED'
+        else:
+            print("❌ VEREDICTO: PRECEDENCIA H* → PAC NO CONFIRMADA")
+            print("   Criterio F-∇-3 CUMPLIDO: Arquitectura H* → ∇ FALSIFICADA")
+            verdict = 'FALSIFIED'
+        
+        print("=" * 80)
+        
+        # Compilar resultados
+        analysis_results = {
+            'n_transitions': n_total,
+            'n_subjects': len(set(r['subject_id'] for r in valid_results)),
+            
+            'precedence': {
+                'rate': float(precedence_rate),
+                'n_precedes': n_precedes,
+                'threshold': self.config.precedence_threshold,
+                'passed': precedence_pass
+            },
+            
+            'lag': {
+                'mean': float(mean_lag),
+                'std': float(std_lag),
+                'median': float(median_lag),
+                'mean_when_precedes': float(mean_lag_when_precedes) if not np.isnan(mean_lag_when_precedes) else None,
+                'expected_range': [self.config.expected_lag_min, self.config.expected_lag_max],
+                'in_range': lag_in_range
+            },
+            
+            'statistical_test': {
+                't_statistic': float(t_stat) if not np.isnan(t_stat) else None,
+                'p_value': float(p_value),
+                'significant': significant
+            },
+            
+            'changes': {
+                'h_star_pre': float(h_star_pre),
+                'h_star_post': float(h_star_post),
+                'h_star_change_pct': float(h_star_change * 100),
+                'pac_pre': float(pac_pre),
+                'pac_post': float(pac_post),
+                'pac_change_pct': float(pac_change * 100)
+            },
+            
+            'criteria_passed': n_passed,
+            'verdict': verdict,
+            
+            'raw_results': valid_results
         }
         
-        results['falsification_criteria']['F_nabla_1_cohens_d'] = float(pac_d_wake_n2)
-        results['falsification_criteria']['F_nabla_1_pvalue'] = float(pac_p_wake_n2)
-    else:
-        print("  ⚠️  Datos insuficientes para Test 1")
-        results['tests']['pac_wake_vs_n2'] = {'error': 'insufficient_data'}
-        results['falsification_criteria']['F_nabla_1_cohens_d'] = 0.0
-        results['falsification_criteria']['F_nabla_1_pvalue'] = 1.0
+        return analysis_results
     
-    # ═══════════════════════════════════════════════════════════════════════
-    # TEST 2: PAC vs POWER - CRITERIO F-∇-2
-    # ═══════════════════════════════════════════════════════════════════════
-    
-    print("\n" + "=" * 80)
-    print("🔥 TEST 2: PAC vs POWER Discrimination - Criterio F-∇-2")
-    print("=" * 80)
-    
-    delta_power = valid_power[valid_power['band_pair'] == 'Delta']
-    
-    # Promediar por sujeto
-    power_by_subject = delta_power.groupby(['subject_id', 'state'])['value'].mean().reset_index()
-    
-    power_wake = power_by_subject[power_by_subject['state'] == 'Wake']['value'].values
-    power_n2 = power_by_subject[power_by_subject['state'] == 'N2']['value'].values
-    
-    power_wake = power_wake[~np.isnan(power_wake)]
-    power_n2 = power_n2[~np.isnan(power_n2)]
-    
-    if len(power_wake) > 1 and len(power_n2) > 1:
-        power_d_wake_n2 = compute_cohens_d(power_wake, power_n2)
+    def save_results(self, results: Dict, output_dir: Path):
+        """Guarda resultados"""
+        output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Calcular ventaja PAC vs Power
-        pac_d = results['falsification_criteria'].get('F_nabla_1_cohens_d', 0.0)
-        pac_advantage = pac_d - power_d_wake_n2
+        # Guardar JSON principal
+        results_file = output_dir / 'transition_analysis_results.json'
         
-        print(f"  Delta POWER Cohen's d (Wake vs N2): {power_d_wake_n2:.3f}")
-        print(f"  Delta-Gamma PAC Cohen's d:          {pac_d:.3f}")
-        print(f"  PAC advantage:                      {pac_advantage:.3f} (threshold: {config.pac_power_advantage_threshold})")
+        # Separar raw_results para archivo aparte
+        raw_results = results.pop('raw_results', [])
         
-        advantage_pass = pac_advantage > config.pac_power_advantage_threshold
+        with open(results_file, 'w') as f:
+            json.dump(results, f, indent=2, default=str)
         
-        if advantage_pass:
-            print(f"\n  ✅ CRITERIO F-∇-2: PASADO - PAC NO es epifenómeno de Power")
-        else:
-            print(f"\n  ❌ CRITERIO F-∇-2: FALLIDO - PAC podría ser epifenómeno de Power")
-        
-        results['tests']['pac_vs_power'] = {
-            'power_cohens_d': float(power_d_wake_n2),
-            'pac_cohens_d': float(pac_d),
-            'pac_advantage': float(pac_advantage),
-            'threshold': config.pac_power_advantage_threshold,
-            'passed': advantage_pass
-        }
-        
-        results['falsification_criteria']['F_nabla_2_pac_advantage'] = float(pac_advantage)
-    else:
-        print("  ⚠️  Datos insuficientes para Test 2")
-        results['tests']['pac_vs_power'] = {'error': 'insufficient_data'}
-        results['falsification_criteria']['F_nabla_2_pac_advantage'] = 0.0
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # TEST 3: N3 PARADOX
-    # ═══════════════════════════════════════════════════════════════════════
-    
-    print("\n" + "=" * 80)
-    print("🚨 TEST 3: N3 PARADOX (Alto Power, Bajo PAC)")
-    print("=" * 80)
-    
-    if 'N3' in valid_pac['state'].unique():
-        # PAC en N3
-        pac_n3_data = pac_by_subject[pac_by_subject['state'] == 'N3']['value'].values
-        pac_n3_data = pac_n3_data[~np.isnan(pac_n3_data)]
-        
-        # Power en N3
-        power_n3_data = power_by_subject[power_by_subject['state'] == 'N3']['value'].values
-        power_n3_data = power_n3_data[~np.isnan(power_n3_data)]
-        
-        if len(pac_n3_data) > 0 and len(pac_wake) > 0:
-            print("\n  📊 PAC por estado (Delta-Gamma):")
-            print(f"     Wake: {np.mean(pac_wake):.4f} ± {np.std(pac_wake, ddof=1):.4f}")
-            print(f"     N2:   {np.mean(pac_n2):.4f} ± {np.std(pac_n2, ddof=1):.4f}")
-            print(f"     N3:   {np.mean(pac_n3_data):.4f} ± {np.std(pac_n3_data, ddof=1):.4f}")
+        # Guardar raw results como CSV
+        if raw_results:
+            df = pd.DataFrame([{
+                'subject_id': r['subject_id'],
+                'channel': r.get('channel', 'unknown'),
+                'transition_onset': r['transition_onset'],
+                'lag_seconds': r.get('lag_seconds'),
+                'h_star_precedes': r.get('h_star_precedes'),
+                'xcorr_lag': r.get('xcorr_lag_seconds'),
+                'h_star_pre': r.get('h_star_pre'),
+                'h_star_post': r.get('h_star_post'),
+                'pac_pre': r.get('pac_pre'),
+                'pac_post': r.get('pac_post')
+            } for r in raw_results])
             
-            # Verificar gradiente PAC: Wake > N2 > N3
-            pac_gradient_correct = (np.mean(pac_wake) > np.mean(pac_n2) > np.mean(pac_n3_data))
-            
-            results['tests']['n3_paradox'] = {
-                'pac_wake': float(np.mean(pac_wake)),
-                'pac_n2': float(np.mean(pac_n2)),
-                'pac_n3': float(np.mean(pac_n3_data)),
-                'pac_gradient_correct': pac_gradient_correct
-            }
-            
-            if len(power_n3_data) > 0 and len(power_wake) > 0:
-                print("\n  📊 POWER por estado (Delta):")
-                print(f"     Wake: {np.mean(power_wake):.6f}")
-                print(f"     N2:   {np.mean(power_n2):.6f}")
-                print(f"     N3:   {np.mean(power_n3_data):.6f}")
-                
-                # Verificar gradiente Power: N3 > N2 > Wake (opuesto a PAC)
-                power_gradient_opposite = (np.mean(power_n3_data) > np.mean(power_n2) > np.mean(power_wake))
-                
-                results['tests']['n3_paradox']['power_wake'] = float(np.mean(power_wake))
-                results['tests']['n3_paradox']['power_n2'] = float(np.mean(power_n2))
-                results['tests']['n3_paradox']['power_n3'] = float(np.mean(power_n3_data))
-                results['tests']['n3_paradox']['power_gradient_opposite'] = power_gradient_opposite
-                
-                # N3 Paradox confirmado si:
-                # PAC: Wake > N2 > N3 (consciencia decrece)
-                # Power: N3 > N2 > Wake (power aumenta)
-                paradox_confirmed = pac_gradient_correct and power_gradient_opposite
-                
-                results['tests']['n3_paradox']['paradox_confirmed'] = paradox_confirmed
-                
-                if paradox_confirmed:
-                    print("\n  ✅ N3 PARADOX CONFIRMADO:")
-                    print("     PAC decrece (Wake > N2 > N3) = pérdida de convergencia temporal")
-                    print("     Power aumenta (N3 > N2 > Wake) = más delta, menos consciencia")
-                    print("     → PAC captura consciencia, no cantidad de delta")
-                elif pac_gradient_correct:
-                    print("\n  ⚠️  Gradiente PAC correcto pero Power no es opuesto")
-                else:
-                    print("\n  ❌ Gradiente PAC incorrecto - predicción AFH no soportada")
-            
-            results['falsification_criteria']['n3_paradox_confirmed'] = results['tests']['n3_paradox'].get('paradox_confirmed', False)
-        else:
-            print("  ⚠️  Datos N3 insuficientes")
-            results['tests']['n3_paradox'] = {'error': 'insufficient_n3_data'}
-    else:
-        print("  ⚠️  Estado N3 no disponible en holdout")
-        results['tests']['n3_paradox'] = {'error': 'n3_not_available'}
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # TEST 4: GRADIENTE DE FRECUENCIA (Nivel 2)
-    # ═══════════════════════════════════════════════════════════════════════
-    
-    print("\n" + "=" * 80)
-    print("📈 TEST 4: Gradiente de Frecuencia (Nivel 2 Validación)")
-    print("=" * 80)
-    
-    band_results = {}
-    for band_pair in config.band_pairs:
-        band_name = band_pair.name
-        band_pac = valid_pac[valid_pac['band_pair'] == band_name]
+            df.to_csv(output_dir / 'transition_details.csv', index=False)
         
-        if len(band_pac) == 0:
-            continue
+        print(f"\n📁 Resultados guardados en: {output_dir}")
+    
+    def generate_figures(self, results: Dict, output_dir: Path):
+        """Genera figuras de resultados"""
+        output_dir.mkdir(parents=True, exist_ok=True)
         
-        band_by_subject = band_pac.groupby(['subject_id', 'state'])['value'].mean().reset_index()
+        raw_results = results.get('raw_results', [])
+        if not raw_results:
+            return
         
-        b_wake = band_by_subject[band_by_subject['state'] == 'Wake']['value'].values
-        b_n2 = band_by_subject[band_by_subject['state'] == 'N2']['value'].values
+        # Figura 1: Distribución de lags
+        fig, axes = plt.subplots(1, 3, figsize=(15, 5))
         
-        b_wake = b_wake[~np.isnan(b_wake)]
-        b_n2 = b_n2[~np.isnan(b_n2)]
+        lags = [r['lag_seconds'] for r in raw_results if r.get('lag_seconds') is not None]
         
-        if len(b_wake) > 1 and len(b_n2) > 1:
-            d = compute_cohens_d(b_wake, b_n2)
-            band_results[band_name] = d
-            print(f"  {band_name}: Cohen's d = {d:.3f}")
-    
-    if band_results:
-        # Ordenar por Cohen's d
-        sorted_bands = sorted(band_results.items(), key=lambda x: x[1], reverse=True)
+        # Histograma de lags
+        ax1 = axes[0]
+        ax1.hist(lags, bins=20, edgecolor='black', alpha=0.7)
+        ax1.axvline(x=0, color='red', linestyle='--', label='H* = PAC')
+        ax1.axvline(x=np.mean(lags), color='green', linestyle='-', label=f'Mean = {np.mean(lags):.1f}s')
+        ax1.set_xlabel('Lag (segundos)')
+        ax1.set_ylabel('Frecuencia')
+        ax1.set_title('Distribución de Lag H* → PAC')
+        ax1.legend()
         
-        print(f"\n  Ranking (mayor discriminación primero):")
-        for i, (band, d) in enumerate(sorted_bands, 1):
-            marker = "✓" if band == "Delta-Gamma" else " "
-            print(f"    {i}. {band}: d = {d:.3f} {marker}")
+        # Scatter pre vs post
+        ax2 = axes[1]
+        h_star_pre = [r['h_star_pre'] for r in raw_results]
+        h_star_post = [r['h_star_post'] for r in raw_results]
+        pac_pre = [r['pac_pre'] for r in raw_results]
+        pac_post = [r['pac_post'] for r in raw_results]
         
-        # Verificar si Delta-Gamma está en top 2
-        top_bands = [b[0] for b in sorted_bands[:2]]
-        delta_in_top = "Delta-Gamma" in top_bands
+        ax2.scatter(h_star_pre, h_star_post, alpha=0.5, label='H*')
+        ax2.scatter(pac_pre, pac_post, alpha=0.5, label='PAC')
+        ax2.plot([0, 1], [0, 1], 'k--', alpha=0.3)
+        ax2.set_xlabel('Pre-transición')
+        ax2.set_ylabel('Post-transición')
+        ax2.set_title('Cambio Pre→Post Transición')
+        ax2.legend()
         
-        results['tests']['frequency_gradient'] = {
-            'band_cohens_d': band_results,
-            'ranking': [b[0] for b in sorted_bands],
-            'delta_gamma_in_top2': delta_in_top
-        }
+        # Tasa de precedencia
+        ax3 = axes[2]
+        precedes = [r['h_star_precedes'] for r in raw_results]
+        n_precedes = sum(precedes)
+        n_total = len(precedes)
         
-        if delta_in_top:
-            print(f"\n  ✅ Delta-Gamma en top 2 - soporta ventana temporal predicha (≤4 Hz)")
-        else:
-            print(f"\n  ⚠️  Delta-Gamma no en top 2 - ventana temporal podría ser más amplia")
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # RESUMEN FINAL
-    # ═══════════════════════════════════════════════════════════════════════
-    
-    print("\n" + "=" * 80)
-    print("📋 RESUMEN DE CRITERIOS DE FALSACIÓN")
-    print("=" * 80)
-    
-    f1_d = results['falsification_criteria'].get('F_nabla_1_cohens_d', 0)
-    f1_p = results['falsification_criteria'].get('F_nabla_1_pvalue', 1)
-    f2_adv = results['falsification_criteria'].get('F_nabla_2_pac_advantage', 0)
-    
-    f1_passed = (f1_d >= config.cohens_d_threshold) and (f1_p < config.p_value_threshold)
-    f2_passed = f2_adv > config.pac_power_advantage_threshold
-    
-    print(f"\n  F-∇-1 (PAC discrimina Wake vs N2):")
-    print(f"    Cohen's d = {f1_d:.3f} {'≥' if f1_d >= config.cohens_d_threshold else '<'} {config.cohens_d_threshold} → {'✅' if f1_d >= config.cohens_d_threshold else '❌'}")
-    print(f"    p-value = {f1_p:.4f} {'<' if f1_p < config.p_value_threshold else '≥'} {config.p_value_threshold} → {'✅' if f1_p < config.p_value_threshold else '❌'}")
-    print(f"    RESULTADO: {'✅ PASADO' if f1_passed else '❌ FALLIDO'}")
-    
-    print(f"\n  F-∇-2 (PAC ≠ epifenómeno de Power):")
-    print(f"    PAC advantage = {f2_adv:.3f} {'>' if f2_adv > config.pac_power_advantage_threshold else '≤'} {config.pac_power_advantage_threshold} → {'✅' if f2_passed else '❌'}")
-    print(f"    RESULTADO: {'✅ PASADO' if f2_passed else '❌ FALLIDO'}")
-    
-    # Veredicto final
-    n_passed = sum([f1_passed, f2_passed])
-    n_failed = 2 - n_passed
-    
-    results['summary'] = {
-        'F_nabla_1_passed': f1_passed,
-        'F_nabla_2_passed': f2_passed,
-        'criteria_passed': n_passed,
-        'criteria_failed': n_failed
-    }
-    
-    print("\n" + "=" * 80)
-    if n_failed >= 2:
-        print("❌ VEREDICTO: PLIEGUE AUTOPSÍQUICO FALSIFICADO")
-        print("   (≥2 criterios de falsación cumplidos)")
-        results['summary']['verdict'] = 'FALSIFIED'
-    elif n_passed == 2:
-        print("✅ VEREDICTO: PLIEGUE AUTOPSÍQUICO SOPORTADO (Niveles 1-2)")
-        print("   (Todos los criterios pasados)")
-        results['summary']['verdict'] = 'SUPPORTED'
-    else:
-        print("⚠️  VEREDICTO: EVIDENCIA MIXTA")
-        print(f"   ({n_passed}/2 criterios pasados)")
-        results['summary']['verdict'] = 'MIXED'
-    print("=" * 80)
-    
-    return results
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-# ANÁLISIS PRINCIPAL CON ECLIPSE v2.0
-# ═══════════════════════════════════════════════════════════════════════════
-
-def run_extended_analysis_with_eclipse(config: Config):
-    """Ejecuta análisis completo con ECLIPSE v2.0 integration"""
-    
-    print("\n" + "=" * 80)
-    print("🔬 NIVEL 2 EXTENDED + ECLIPSE v2.0 ANALYSIS")
-    print("   Autopsychic Fold Hypothesis - Validación PAC δ→γ")
-    print("=" * 80)
-    print(f"\n📋 Parámetros según RR DELTA PAC:")
-    print(f"   Banda delta (fase): {config.band_pairs[0].phase_band} Hz")
-    print(f"   Banda gamma (amplitud): {config.band_pairs[0].amp_band} Hz")
-    print(f"   Threshold Cohen's d: ≥ {config.cohens_d_threshold}")
-    print(f"   Threshold p-value: < {config.p_value_threshold}")
-    print(f"   Canales: {config.target_channels}")
-    
-    if not ECLIPSE_AVAILABLE:
-        print("\n❌ ERROR: ECLIPSE v2.0 not available")
-        return
-    
-    processor = ExtendedSleepEDFProcessor(config)
-    
-    # Cargar sujetos
-    psg_files = sorted(config.data_dir.glob('*PSG.edf'))
-    if config.n_subjects:
-        psg_files = psg_files[:config.n_subjects]
-    
-    print(f"\n📁 Dataset: {config.data_dir}")
-    print(f"   PSG files: {len(list(config.data_dir.glob('*PSG.edf')))}")
-    print(f"   Procesando: {len(psg_files)} sujetos")
-    
-    if len(psg_files) > 50:
-        estimated_time_min = len(psg_files) * 2.0  # ~2 min por sujeto con 2 canales
-        print(f"   ⏱️  Tiempo estimado: ~{estimated_time_min/60:.1f} horas")
-    
-    start_time = time.time()
-    
-    all_data = []
-    subject_ids = []
-    
-    # Checkpoint
-    checkpoint_frequency = 10
-    checkpoint_file = config.output_dir / 'checkpoint_data.pkl'
-    
-    for idx, psg_file in enumerate(psg_files, 1):
-        subject_id = psg_file.stem.replace('-PSG', '')
-        subject_ids.append(subject_id)
+        ax3.bar(['H* precede', 'PAC precede'], [n_precedes, n_total - n_precedes], 
+                color=['green', 'red'], alpha=0.7)
+        ax3.axhline(y=n_total * 0.7, color='blue', linestyle='--', 
+                   label=f'Threshold (70% = {n_total * 0.7:.0f})')
+        ax3.set_ylabel('Número de transiciones')
+        ax3.set_title('Precedencia H* vs PAC')
+        ax3.legend()
         
-        # Sleep-EDF naming: SC4001E0 -> SC4001EC
-        hypno_id = subject_id[:-1] + 'C'
-        hypno_file = psg_file.parent / f"{hypno_id}-Hypnogram.edf"
+        plt.tight_layout()
+        plt.savefig(output_dir / 'transition_analysis_summary.png', dpi=150)
+        plt.close()
         
-        if not hypno_file.exists():
-            logger.warning(f"  [{idx}/{len(psg_files)}] {subject_id}: Hypnogram no encontrado")
-            continue
-        
-        progress_pct = (idx / len(psg_files)) * 100
-        print(f"[{idx}/{len(psg_files)}] ({progress_pct:.1f}%) Processing {subject_id}...")
-        
-        df = processor.process_subject(subject_id, psg_file, hypno_file)
-        
-        if not df.empty:
-            all_data.append(df)
-        
-        # Checkpoint
-        if idx % checkpoint_frequency == 0 and all_data:
-            config.output_dir.mkdir(parents=True, exist_ok=True)
-            checkpoint_df = pd.concat(all_data, ignore_index=True)
-            checkpoint_df.to_pickle(checkpoint_file)
-            logger.info(f"  Checkpoint: {len(all_data)} subjects")
-    
-    if not all_data:
-        print(f"\n❌ No se procesaron datos válidos")
-        return
-    
-    elapsed_time = time.time() - start_time
-    elapsed_min = elapsed_time / 60
-    
-    full_df = pd.concat(all_data, ignore_index=True)
-    n_subjects_processed = len(set(full_df['subject_id']))
-    
-    print(f"\n📊 Procesamiento completo:")
-    print(f"   Sujetos: {n_subjects_processed}")
-    print(f"   Measurements: {len(full_df)}")
-    print(f"   Tiempo: {elapsed_min:.1f} min ({elapsed_min/60:.2f} hrs)")
-    
-    # ═════════════════════════════════════════════════════════════════════════
-    # ECLIPSE STAGE 1: SPLIT
-    # ═════════════════════════════════════════════════════════════════════════
-    
-    print("\n" + "=" * 80)
-    print("🔒 ECLIPSE STAGE 1: IRREVERSIBLE SUBJECT SPLIT")
-    print("=" * 80)
-    
-    eclipse_config = EclipseConfig(
-        project_name=config.project_name,
-        researcher=config.researcher,
-        sacred_seed=config.sacred_seed,
-        development_ratio=0.7,
-        holdout_ratio=0.3,
-        output_dir=str(config.output_dir / 'eclipse_v2')
-    )
-    
-    eclipse = EclipseFramework(eclipse_config)
-    
-    processed_subject_ids = sorted(list(set(full_df['subject_id'])))
-    dev_subjects, holdout_subjects = eclipse.stage1_irreversible_split(processed_subject_ids)
-    
-    print(f"   Development: {len(dev_subjects)} subjects (70%)")
-    print(f"   Holdout: {len(holdout_subjects)} subjects (30%)")
-    
-    dev_df = full_df[full_df['subject_id'].isin(dev_subjects)].copy()
-    holdout_df = full_df[full_df['subject_id'].isin(holdout_subjects)].copy()
-    
-    # ═════════════════════════════════════════════════════════════════════════
-    # ECLIPSE STAGE 2: CRITERIOS PRE-REGISTRADOS
-    # ═════════════════════════════════════════════════════════════════════════
-    
-    print("\n" + "=" * 80)
-    print("📋 ECLIPSE STAGE 2: PRE-REGISTERED CRITERIA (según RR DELTA PAC)")
-    print("=" * 80)
-    
-    criteria = [
-        FalsificationCriteria(
-            name="delta_gamma_pac_cohens_d",
-            threshold=config.cohens_d_threshold,  # 1.0 según RR
-            comparison=">=",
-            description=f"Delta-Gamma PAC Cohen's d ≥ {config.cohens_d_threshold}",
-            is_required=True
-        ),
-        FalsificationCriteria(
-            name="delta_gamma_pac_pvalue",
-            threshold=config.p_value_threshold,  # 0.001 según RR
-            comparison="<",
-            description=f"Delta-Gamma PAC p-value < {config.p_value_threshold}",
-            is_required=True
-        ),
-        FalsificationCriteria(
-            name="pac_vs_power_advantage",
-            threshold=config.pac_power_advantage_threshold,  # 0.3
-            comparison=">",
-            description=f"PAC advantage > {config.pac_power_advantage_threshold} (no epifenómeno)",
-            is_required=True
-        ),
-    ]
-    
-    eclipse.stage2_register_criteria(criteria)
-    
-    # ═════════════════════════════════════════════════════════════════════════
-    # ECLIPSE STAGE 4: SINGLE-SHOT HOLDOUT VALIDATION
-    # ═════════════════════════════════════════════════════════════════════════
-    
-    print("\n" + "=" * 80)
-    print("🎯 ECLIPSE STAGE 4: SINGLE-SHOT HOLDOUT VALIDATION")
-    print("=" * 80)
-    print("⚠️  CRÍTICO: Esta es la ÚNICA oportunidad de testear hipótesis")
-    
-    holdout_pac = holdout_df[holdout_df['metric_type'] == 'PAC']
-    holdout_power = holdout_df[holdout_df['metric_type'] == 'POWER']
-    
-    validation_results = compute_holdout_metrics(holdout_pac, holdout_power, config)
-    
-    # Wrap para ECLIPSE
-    eclipse_validation = eclipse.stage4_single_shot_validation(
-        holdout_data=holdout_df,
-        final_model={},
-        validation_function=lambda model, data: validation_results
-    )
-    
-    # ═════════════════════════════════════════════════════════════════════════
-    # ECLIPSE STAGE 5: FINAL ASSESSMENT
-    # ═════════════════════════════════════════════════════════════════════════
-    
-    print("\n" + "=" * 80)
-    print("📊 ECLIPSE STAGE 5: FINAL ASSESSMENT")
-    print("=" * 80)
-    
-    final_assessment = eclipse.stage5_final_assessment(
-        development_results={},
-        validation_results=eclipse_validation,
-        generate_reports=True,
-        compute_integrity=True
-    )
-    
-    # Guardar resultados
-    config.output_dir.mkdir(parents=True, exist_ok=True)
-    
-    pac_df = full_df[full_df['metric_type'] == 'PAC']
-    power_df = full_df[full_df['metric_type'] == 'POWER']
-    
-    pac_df.to_csv(config.output_dir / 'nivel2_pac_results.csv', index=False)
-    power_df.to_csv(config.output_dir / 'nivel2_power_results.csv', index=False)
-    
-    with open(config.output_dir / 'validation_results.json', 'w') as f:
-        json.dump(validation_results, f, indent=2, default=str)
-    
-    print(f"\n📁 Resultados guardados en: {config.output_dir}")
-    
-    # Resumen final
-    print("\n" + "=" * 80)
-    print("🔬 RESUMEN FINAL - VALIDACIÓN PLIEGUE AUTOPSÍQUICO")
-    print("=" * 80)
-    
-    verdict = validation_results.get('summary', {}).get('verdict', 'UNKNOWN')
-    
-    if verdict == 'SUPPORTED':
-        print("""
-  ✅ RESULTADO: PLIEGUE AUTOPSÍQUICO SOPORTADO (Niveles 1-2)
-  
-  Evidencia:
-  • PAC δ→γ discrimina Wake vs N2 con efecto grande (d ≥ 1.0)
-  • PAC no es epifenómeno de delta power
-  • Gradiente de consciencia capturado: Wake > N2 > N3
-  
-  Siguiente paso: RR DELTA PAC Stage 2 en CAP Sleep Database (N=108)
-        """)
-    elif verdict == 'FALSIFIED':
-        print("""
-  ❌ RESULTADO: PLIEGUE AUTOPSÍQUICO FALSIFICADO
-  
-  Criterios fallidos:
-  • F-∇-1: PAC no discrimina significativamente (d < 1.0 o p ≥ 0.001)
-  • F-∇-2: PAC podría ser epifenómeno de delta power
-  
-  Implicación: Buscar operacionalizaciones alternativas (ΔT, TE, GC, DCM)
-        """)
-    else:
-        print(f"""
-  ⚠️  RESULTADO: EVIDENCIA MIXTA
-  
-  Algunos criterios pasados, otros fallidos.
-  Revisar validation_results.json para detalles.
-        """)
-    
-    print("=" * 80)
+        print(f"📊 Figura guardada: {output_dir / 'transition_analysis_summary.png'}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1052,8 +1255,10 @@ def run_extended_analysis_with_eclipse(config: Config):
 # ═══════════════════════════════════════════════════════════════════════════
 
 def main():
+    import argparse
+    
     parser = argparse.ArgumentParser(
-        description="NIVEL 2 EXTENDED - Autopsychic Fold PAC Validation (CORRECTED)"
+        description="AFH Transition Analysis - Test de Precedencia H* → PAC"
     )
     
     parser.add_argument(
@@ -1066,15 +1271,15 @@ def main():
     parser.add_argument(
         '--output-dir',
         type=str,
-        default='./nivel2_pac_validation_results',
+        default='./afh_transition_results',
         help='Directorio de salida'
     )
     
     parser.add_argument(
         '--n-subjects',
         type=int,
-        help='Número de sujetos (default: TODOS)',
-        default=None
+        default=None,
+        help='Número de sujetos (default: todos)'
     )
     
     parser.add_argument(
@@ -1086,7 +1291,8 @@ def main():
     
     args = parser.parse_args()
     
-    config = Config(
+    # Configuración
+    config = TransitionConfig(
         data_dir=Path(args.data_dir),
         output_dir=Path(args.output_dir),
         sacred_seed=args.seed,
@@ -1095,19 +1301,75 @@ def main():
     
     if not config.data_dir.exists():
         print(f"\n❌ ERROR: Directorio no encontrado: {config.data_dir}")
-        sys.exit(1)
+        return 1
+    
+    # Ejecutar análisis
+    processor = AFHTransitionProcessor(config)
     
     try:
-        run_extended_analysis_with_eclipse(config)
+        results = processor.run_full_analysis()
+        
+        if 'error' not in results:
+            processor.save_results(results, config.output_dir)
+            processor.generate_figures(results, config.output_dir)
+            
+            # Resumen final
+            print("\n" + "=" * 80)
+            print("🔬 RESUMEN FINAL - TEST P-∇-3")
+            print("=" * 80)
+            
+            verdict = results.get('verdict', 'UNKNOWN')
+            
+            if verdict == 'SUPPORTED':
+                print("""
+  ✅ RESULTADO: ARQUITECTURA AFH SOPORTADA
+  
+  Evidencia:
+  • H* desciende ANTES que PAC durante transiciones Wake→N2
+  • Lag observado en rango predicho (10-30 segundos)
+  • Precedencia estadísticamente significativa
+  
+  Implicación:
+  La condición organizacional (H*) efectivamente HABILITA
+  el Pliegue Autopsíquico (PAC), como predice AFH.
+                """)
+            elif verdict == 'FALSIFIED':
+                print("""
+  ❌ RESULTADO: ARQUITECTURA AFH FALSIFICADA
+  
+  Observación:
+  • H* NO precede consistentemente a PAC
+  • O el lag es demasiado pequeño
+  
+  Implicación:
+  La arquitectura H* → ∇ no se sostiene empíricamente.
+  PAC podría ser biomarcador válido pero no como
+  operacionalización del Pliegue habilitado por H*.
+  
+  Siguiente paso:
+  Explorar operacionalizaciones alternativas (ΔT, TE, GC, DCM)
+                """)
+            else:
+                print(f"""
+  ⚠️  RESULTADO: EVIDENCIA MIXTA
+  
+  Algunos criterios pasados, otros fallidos.
+  Revisar resultados detallados.
+                """)
+            
+            print("=" * 80)
+        
     except KeyboardInterrupt:
         print("\n\n⚠️  Análisis interrumpido")
-        sys.exit(1)
+        return 1
     except Exception as e:
         print(f"\n\n❌ ERROR: {e}")
         import traceback
         traceback.print_exc()
-        sys.exit(1)
+        return 1
+    
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())
