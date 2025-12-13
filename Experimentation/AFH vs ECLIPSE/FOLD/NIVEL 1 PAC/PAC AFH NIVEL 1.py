@@ -2,8 +2,10 @@
 """
 ═══════════════════════════════════════════════════════════════════════════════
 NIVEL 1: Phase-Amplitude Coupling (PAC) Theta-Gamma Test
-Autopsychic Fold Hypothesis - ECLIPSE v2.0
+Autopsychic Fold Hypothesis - ECLIPSE v3.0
 ═══════════════════════════════════════════════════════════════════════════════
+
+VERSIÓN: ANÁLISIS COMPLETO (153 sujetos)
 
 HIPÓTESIS:
     H1: PAC_theta-gamma_wake > PAC_theta-gamma_N2
@@ -11,22 +13,18 @@ HIPÓTESIS:
 OPERACIONALIZACIÓN DEL FOLD:
     Fold_intensity = PAC(theta_phase, gamma_amplitude)
     - Theta (4-8 Hz) = procesamiento cortical lento
-    - Gamma (30-50 Hz) = procesamiento sensoriomotor rápido
+    - Gamma (30-45 Hz) = procesamiento sensoriomotor rápido
     - PAC = acoplamiento fase-amplitud (Modulation Index)
 
 CRITERIO DE FALSIFICACIÓN:
     Si Cohen's d < 0.5 O p ≥ 0.05 → FOLD FALSIFICADO → ABANDONAR AFH
 
 Author: Camilo Sjöberg Tala
-Date: 2025-01-XX
-Version: NIVEL_1_v1.0
+Date: 2025-12-09
+Version: NIVEL_1_v2.2_FULL (ECLIPSE v3.0) - Fixed f-string syntax
 
 EJECUCIÓN:
-    # Modo piloto (10 sujetos, ~10 min)
-    python nivel1_pac_test.py --pilot
-    
-    # Análisis completo (50 sujetos, ~1-2 horas)
-    python nivel1_pac_test.py --full --n-subjects 50
+    python PAC_AFH_NIVEL1_FULL_v2.py
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
@@ -35,58 +33,70 @@ import pandas as pd
 import mne
 from pathlib import Path
 from scipy import signal, stats
-import matplotlib.pyplot as plt
-import seaborn as sns
 from typing import Dict, List, Tuple, Optional
 import warnings
 import logging
 from dataclasses import dataclass
-import argparse
 import sys
 
-# Tensorpac para PAC
-# Tensorpac para PAC
-from tensorpac import Pac
-
-# Import ECLIPSE v2.0 framework
-try:
-    from eclipse_v2 import (
-        EclipseFramework, EclipseConfig, FalsificationCriteria
-    )
-except ImportError:
-    print("ERROR: No se encontró eclipse_v2.py")
-    print("Asegúrate de que eclipse_v2.py esté en el mismo directorio")
-    sys.exit(1)
-
+# Suprimir warnings
 warnings.filterwarnings('ignore', category=RuntimeWarning)
-mne.set_log_level('WARNING')
+warnings.filterwarnings('ignore', category=FutureWarning)
+mne.set_log_level('ERROR')
+
+# Configurar logging - menos verboso
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+# Suprimir logging de tensorpac
+logging.getLogger('tensorpac').setLevel(logging.ERROR)
+
+# Tensorpac para PAC
+from tensorpac import Pac
+
+# Import ECLIPSE v3.0 framework
+try:
+    from eclipse_v3 import (
+        EclipseFramework, EclipseConfig, FalsificationCriteria
+    )
+except ImportError:
+    print("ERROR: No se encontró eclipse_v3.py")
+    print("Asegúrate de que eclipse_v3.py esté en el mismo directorio")
+    sys.exit(1)
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # CONFIGURACIÓN
 # ═══════════════════════════════════════════════════════════════════════════
 
+# Keys for metrics (avoid backslash issues in f-strings)
+KEY_COHENS_D = "Cohen's d (Wake vs Sleep)"
+KEY_PVALUE = "p-value (one-tailed t-test)"
+KEY_PAC_WAKE = "Mean PAC Wake"
+KEY_PAC_N2 = "Mean PAC N2"
+KEY_STD_WAKE = "Std PAC Wake"
+KEY_STD_N2 = "Std PAC N2"
+
+
 @dataclass
 class Config:
-    """Configuración NIVEL 1: PAC Test"""
+    """Configuración NIVEL 1: PAC Test - FULL ANALYSIS"""
     # Rutas
-    data_dir: Path
-    output_dir: Path
+    data_dir: Path = Path(r'G:\Mi unidad\NEUROCIENCIA\AFH\EXPERIMENTO\FASE 2\SLEEP-EDF\SLEEPEDF\sleep-cassette')
+    output_dir: Path = Path('./nivel1_pac_results_v3_FULL')
     
     # Procesamiento de señal
     sampling_rate: float = 100.0
     lowcut: float = 0.5
-    highcut: float = 45.0  # Cambió de 80 a 45 Hz (bajo Nyquist de 50 Hz)
+    highcut: float = 45.0
     notch_freq: float = 50.0
     
     # PAC theta-gamma
     theta_band: Tuple[float, float] = (4.0, 8.0)
-    gamma_band: Tuple[float, float] = (30.0, 45.0)  # Cambió de 50 a 45 Hz para estar bajo Nyquist
+    gamma_band: Tuple[float, float] = (30.0, 45.0)
     
     # Epochs
     epoch_duration: float = 30.0
@@ -102,7 +112,7 @@ class Config:
     
     # ECLIPSE
     sacred_seed: int = 42
-    n_subjects: Optional[int] = None
+    n_subjects: Optional[int] = None  # None = TODOS los sujetos
     
     # Canal a usar
     channel_name: str = 'Pz-Oz'
@@ -119,26 +129,20 @@ class PACCalculator:
         self.config = config
         self.fs = config.sampling_rate
         
-        # Crear objeto PAC de tensorpac
-        self.pac = Pac(
-            idpac=(1, 0, 0),
-            f_pha=list(config.theta_band),
-            f_amp=list(config.gamma_band),
-            dcomplex='wavelet',
-            width=7
-        )
+        # Crear objeto PAC de tensorpac (suprimir warning)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.pac = Pac(
+                idpac=(1, 0, 0),
+                f_pha=list(config.theta_band),
+                f_amp=list(config.gamma_band),
+                dcomplex='wavelet',
+                width=7,
+                verbose=False
+            )
         
     def preprocess(self, data: np.ndarray) -> np.ndarray:
-        """
-        Preprocesa señal EEG
-        
-        Args:
-            data: (n_samples,) señal 1D
-            
-        Returns:
-            Señal preprocesada
-        """
-        # Bandpass 0.5-80 Hz
+        """Preprocesa señal EEG"""
         sos = signal.butter(
             4,
             [self.config.lowcut, self.config.highcut],
@@ -148,15 +152,12 @@ class PACCalculator:
         )
         filtered = signal.sosfiltfilt(sos, data)
         
-        # Notch 50 Hz
         b_notch, a_notch = signal.iirnotch(
             self.config.notch_freq,
             Q=30,
             fs=self.fs
         )
         filtered = signal.filtfilt(b_notch, a_notch, filtered)
-        
-        # Z-score
         filtered = (filtered - np.mean(filtered)) / (np.std(filtered) + 1e-10)
         
         return filtered
@@ -167,55 +168,26 @@ class PACCalculator:
         return peak_to_peak > 8.0
     
     def compute_pac(self, data: np.ndarray) -> Dict[str, float]:
-        """
-        Calcula PAC en una epoch
-        
-        Args:
-            data: (n_samples,) señal 1D de 30s
-            
-        Returns:
-            {'pac': Modulation Index, 'valid': bool, 'reject_reason': str}
-        """
-        # Preprocesar
+        """Calcula PAC en una epoch"""
         data_clean = self.preprocess(data)
         
-        # Chequear artefactos
         if self.has_artifact(data_clean):
-            return {
-                'pac': np.nan,
-                'valid': False,
-                'reject_reason': 'artifact'
-            }
+            return {'pac': np.nan, 'valid': False, 'reject_reason': 'artifact'}
         
-        # Chequear longitud mínima
         min_samples = int(2.0 * self.fs)
         if len(data_clean) < min_samples:
-            return {
-                'pac': np.nan,
-                'valid': False,
-                'reject_reason': 'too_short'
-            }
+            return {'pac': np.nan, 'valid': False, 'reject_reason': 'too_short'}
         
-        # Calcular PAC
         data_reshaped = data_clean[np.newaxis, :]
         
         try:
-            pac_value = self.pac.filterfit(self.fs, data_reshaped, data_reshaped)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                pac_value = self.pac.filterfit(self.fs, data_reshaped, data_reshaped)
             pac_value = float(pac_value[0, 0, 0])
-            
-            return {
-                'pac': pac_value,
-                'valid': True,
-                'reject_reason': None
-            }
-            
+            return {'pac': pac_value, 'valid': True, 'reject_reason': None}
         except Exception as e:
-            logger.warning(f"Error en PAC: {e}")
-            return {
-                'pac': np.nan,
-                'valid': False,
-                'reject_reason': f'computation_error: {e}'
-            }
+            return {'pac': np.nan, 'valid': False, 'reject_reason': 'computation_error: {}'.format(e)}
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -230,54 +202,27 @@ class SleepEDFProcessor:
         self.pac_calc = PACCalculator(config)
         
     def find_subject_files(self) -> List[Dict[str, Path]]:
-        """Encuentra pares PSG + Hypnogram usando lógica Sleep-EDF correcta"""
+        """Encuentra pares PSG + Hypnogram"""
+        print("\n[SEARCH] Buscando archivos en: {}".format(self.config.data_dir))
         
-        # DEBUG
-        print(f"\n🔍 DEBUG INFO:")
-        print(f"  Buscando en: {self.config.data_dir}")
-        print(f"  Directorio existe? {self.config.data_dir.exists()}")
-        print(f"  Es directorio? {self.config.data_dir.is_dir()}")
-        
-        if self.config.data_dir.exists():
-            all_files = list(self.config.data_dir.glob("*"))
-            print(f"  Total archivos en carpeta: {len(all_files)}")
-            if len(all_files) > 0:
-                print(f"  Primeros 3 archivos:")
-                for f in all_files[:3]:
-                    print(f"    - {f.name}")
-        
-        # Buscar archivos PSG y Hypnogram
         psg_files = sorted(self.config.data_dir.glob("*-PSG.edf"))
         hypno_files = sorted(self.config.data_dir.glob("*-Hypnogram.edf"))
         
-        print(f"  Archivos PSG encontrados: {len(psg_files)}")
-        print(f"  Archivos Hypnogram encontrados: {len(hypno_files)}")
-        if len(psg_files) > 0:
-            print(f"  Primer PSG: {psg_files[0].name}")
-        if len(hypno_files) > 0:
-            print(f"  Primer Hypnogram: {hypno_files[0].name}")
-        print()
-        # FIN DEBUG
+        print("  Archivos PSG: {}".format(len(psg_files)))
+        print("  Archivos Hypnogram: {}".format(len(hypno_files)))
         
-        # Crear mapa de hypnograms por código base
-        # Ejemplo: SC4512EW-Hypnogram.edf -> base: SC4512E
         hypno_map = {}
         for hypno_path in hypno_files:
             codigo_hypno = hypno_path.stem.replace("-Hypnogram", "")
             if len(codigo_hypno) >= 6:
-                # Quitar último carácter (W, 0, etc)
                 base_letra = codigo_hypno[:-1]
                 hypno_map[base_letra] = hypno_path
         
-        # Emparejar PSG con Hypnogram
-        # Ejemplo: SC4212E0-PSG.edf -> base: SC4212E
         subject_files = []
         for psg_path in psg_files:
             codigo_psg = psg_path.stem.replace("-PSG", "")
             if len(codigo_psg) >= 7 and codigo_psg.endswith('0'):
-                # Quitar el '0' final
                 base_letra = codigo_psg[:-1]
-                
                 if base_letra in hypno_map:
                     subject_files.append({
                         'psg': psg_path,
@@ -285,11 +230,11 @@ class SleepEDFProcessor:
                         'subject_id': codigo_psg
                     })
         
-        logger.info(f"Encontrados {len(subject_files)} sujetos con PSG + Hypnogram emparejados")
+        print("  Sujetos emparejados: {}".format(len(subject_files)))
         
         if self.config.n_subjects is not None:
             subject_files = subject_files[:self.config.n_subjects]
-            logger.info(f"Limitado a {len(subject_files)} sujetos")
+            print("  Limitado a: {} sujetos".format(len(subject_files)))
         
         return subject_files
     
@@ -297,30 +242,11 @@ class SleepEDFProcessor:
         """Carga PSG y anotaciones"""
         raw = mne.io.read_raw_edf(psg_path, preload=True, verbose=False)
         annotations = mne.read_annotations(hypno_path)
-        
-        # DEBUG: Mostrar estados disponibles (solo para el primer sujeto)
-        unique_descriptions = set(annotations.description)
-        if len(unique_descriptions) > 0:
-            logger.info(f"  Estados disponibles: {sorted(unique_descriptions)}")
-        
         return raw, annotations
     
-    def extract_epochs_for_state(
-        self,
-        raw: mne.io.Raw,
-        annotations: mne.Annotations,
-        state: str
-    ) -> List[np.ndarray]:
-        """
-        Extrae epochs de 30s para un estado específico
-        
-        Returns:
-            List de arrays (n_samples,) para el canal EEG disponible
-        """
-        # Buscar canal disponible
+    def extract_epochs_for_state(self, raw: mne.io.Raw, annotations: mne.Annotations, state: str) -> List[np.ndarray]:
+        """Extrae epochs de 30s para un estado específico"""
         available_channel = None
-        
-        # Lista de canales preferidos en orden
         preferred_channels = ['Pz-Oz', 'EEG Pz-Oz', 'Fpz-Cz', 'EEG Fpz-Cz']
         
         for ch in preferred_channels:
@@ -328,21 +254,14 @@ class SleepEDFProcessor:
                 available_channel = ch
                 break
         
-        # Si no encuentra ninguno preferido, usar el primer canal EEG
         if available_channel is None:
-            eeg_channels = [ch for ch in raw.ch_names if 'EEG' in ch.upper() or ch.startswith('EEG')]
+            eeg_channels = [ch for ch in raw.ch_names if 'EEG' in ch.upper()]
             if len(eeg_channels) > 0:
                 available_channel = eeg_channels[0]
             else:
-                logger.warning(f"No se encontró ningún canal EEG. Canales disponibles: {raw.ch_names[:5]}")
                 return []
         
-        logger.info(f"  Usando canal: {available_channel}")
-        
         raw_ch = raw.copy().pick_channels([available_channel])
-        
-        # Buscar epochs del estado deseado directamente en las anotaciones
-        # En Sleep-EDF los estados son: "Sleep stage W", "Sleep stage 1", etc.
         fs = raw.info['sfreq']
         epoch_samples = int(self.config.epoch_duration * fs)
         
@@ -355,8 +274,7 @@ class SleepEDFProcessor:
                 
                 if offset_sample <= raw_ch.n_times:
                     data, _ = raw_ch[:, onset_sample:offset_sample]
-                    epoch_data = data[0, :]
-                    epochs_list.append(epoch_data)
+                    epochs_list.append(data[0, :])
                     
                     if len(epochs_list) >= self.config.n_epochs_per_state:
                         break
@@ -364,36 +282,19 @@ class SleepEDFProcessor:
         return epochs_list
     
     def process_subject(self, subject_info: Dict) -> pd.DataFrame:
-        """
-        Procesa un sujeto completo
-        
-        Returns:
-            DataFrame con PAC por epoch
-        """
+        """Procesa un sujeto completo"""
         subject_id = subject_info['subject_id']
-        logger.info(f"Procesando {subject_id}...")
         
         try:
-            raw, annotations = self.load_subject(
-                subject_info['psg'],
-                subject_info['hypno']
-            )
+            raw, annotations = self.load_subject(subject_info['psg'], subject_info['hypno'])
         except Exception as e:
-            logger.error(f"Error cargando {subject_id}: {e}")
+            logger.error("Error cargando {}: {}".format(subject_id, e))
             return pd.DataFrame()
         
-        wake_epochs = self.extract_epochs_for_state(
-            raw, annotations, self.config.wake_state
-        )
-        
-        n2_epochs = self.extract_epochs_for_state(
-            raw, annotations, self.config.n2_state
-        )
-        
-        logger.info(f"  {subject_id}: {len(wake_epochs)} Wake, {len(n2_epochs)} N2 epochs")
+        wake_epochs = self.extract_epochs_for_state(raw, annotations, self.config.wake_state)
+        n2_epochs = self.extract_epochs_for_state(raw, annotations, self.config.n2_state)
         
         if len(wake_epochs) == 0 or len(n2_epochs) == 0:
-            logger.warning(f"  {subject_id}: Insuficientes epochs, saltando")
             return pd.DataFrame()
         
         results = []
@@ -401,46 +302,38 @@ class SleepEDFProcessor:
         for i, epoch_data in enumerate(wake_epochs):
             pac_result = self.pac_calc.compute_pac(epoch_data)
             results.append({
-                'subject_id': subject_id,
-                'state': 'wake',
-                'consciousness': 1,
-                'epoch_idx': i,
-                'pac': pac_result['pac'],
-                'valid': pac_result['valid'],
-                'reject_reason': pac_result['reject_reason']
+                'subject_id': subject_id, 'state': 'wake', 'consciousness': 1,
+                'epoch_idx': i, 'pac': pac_result['pac'],
+                'valid': pac_result['valid'], 'reject_reason': pac_result['reject_reason']
             })
         
         for i, epoch_data in enumerate(n2_epochs):
             pac_result = self.pac_calc.compute_pac(epoch_data)
             results.append({
-                'subject_id': subject_id,
-                'state': 'n2',
-                'consciousness': 0,
-                'epoch_idx': i,
-                'pac': pac_result['pac'],
-                'valid': pac_result['valid'],
-                'reject_reason': pac_result['reject_reason']
+                'subject_id': subject_id, 'state': 'n2', 'consciousness': 0,
+                'epoch_idx': i, 'pac': pac_result['pac'],
+                'valid': pac_result['valid'], 'reject_reason': pac_result['reject_reason']
             })
         
-        df = pd.DataFrame(results)
-        
-        n_rejected = (~df['valid']).sum()
-        if n_rejected > 0:
-            logger.info(f"  {subject_id}: {n_rejected} epochs rechazadas")
-        
-        return df
+        return pd.DataFrame(results)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ANÁLISIS PRINCIPAL CON ECLIPSE v2.0
+# ANÁLISIS PRINCIPAL CON ECLIPSE v3.0
 # ═══════════════════════════════════════════════════════════════════════════
 
-def run_eclipse_analysis(config: Config):
-    """Ejecuta análisis completo NIVEL 1 con ECLIPSE v2.0"""
+def run_full_analysis():
+    """Ejecuta análisis COMPLETO NIVEL 1 con ECLIPSE v3.0"""
     
-    logger.info("=" * 80)
-    logger.info("NIVEL 1: PAC THETA-GAMMA TEST - ECLIPSE v2.0")
-    logger.info("=" * 80)
+    config = Config()
+    
+    print("=" * 80)
+    print("NIVEL 1: PAC THETA-GAMMA TEST - ANALISIS COMPLETO")
+    print("   ECLIPSE v3.0 - Autopsychic Fold Hypothesis")
+    print("=" * 80)
+    print("\n[OUTPUT] Directorio de salida: {}".format(config.output_dir))
+    print("[SEED] Sacred seed: {}".format(config.sacred_seed))
+    print("[MODE] Modo: ANALISIS COMPLETO (todos los sujetos)")
     
     # ─────────────────────────────────────────────────────────────────────────
     # PROCESAR DATOS
@@ -450,84 +343,102 @@ def run_eclipse_analysis(config: Config):
     subject_files = processor.find_subject_files()
     
     if len(subject_files) == 0:
-        logger.error("No se encontraron archivos Sleep-EDF")
+        print("\n[ERROR] No se encontraron archivos Sleep-EDF")
         return
     
-    logger.info(f"Procesando {len(subject_files)} sujetos...")
+    print("\n[PROCESSING] Procesando {} sujetos...".format(len(subject_files)))
+    print("   (Esto tomara aproximadamente 1-2 horas)")
+    print()
     
     all_data = []
     for i, subj_info in enumerate(subject_files, 1):
-        logger.info(f"[{i}/{len(subject_files)}] {subj_info['subject_id']}")
+        # Progreso cada 10 sujetos
+        if i % 10 == 0 or i == 1:
+            print("   [{}/{}] Procesando {}...".format(i, len(subject_files), subj_info['subject_id']))
+        
         df = processor.process_subject(subj_info)
         if not df.empty:
             all_data.append(df)
     
     if len(all_data) == 0:
-        logger.error("No se procesaron datos válidos")
+        print("\n[ERROR] No se procesaron datos validos")
         return
     
     full_df = pd.concat(all_data, ignore_index=True)
-    
     valid_df = full_df[full_df['valid']].copy()
     
-    logger.info(f"\nDatos procesados:")
-    logger.info(f"  Total epochs: {len(full_df)}")
-    logger.info(f"  Epochs válidas: {len(valid_df)}")
-    logger.info(f"  Rechazadas: {len(full_df) - len(valid_df)}")
-    logger.info(f"  Wake válidas: {(valid_df['consciousness']==1).sum()}")
-    logger.info(f"  N2 válidas: {(valid_df['consciousness']==0).sum()}")
+    n_total = len(full_df)
+    n_valid = len(valid_df)
+    pct_valid = 100 * n_valid / n_total
+    n_wake = (valid_df['consciousness'] == 1).sum()
+    n_n2 = (valid_df['consciousness'] == 0).sum()
+    
+    print("\n[DATA] Datos procesados:")
+    print("  - Sujetos procesados: {}".format(len(all_data)))
+    print("  - Total epochs: {}".format(n_total))
+    print("  - Epochs validas: {} ({:.1f}%)".format(n_valid, pct_valid))
+    print("  - Wake validas: {}".format(n_wake))
+    print("  - N2 validas: {}".format(n_n2))
     
     # ─────────────────────────────────────────────────────────────────────────
-    # ECLIPSE v2.0 STAGE 1: IRREVERSIBLE SPLIT
+    # ECLIPSE v3.0 STAGE 1: IRREVERSIBLE SPLIT (FORCE NEW)
     # ─────────────────────────────────────────────────────────────────────────
     
     print("\n" + "=" * 80)
-    print("ECLIPSE v2.0 STAGE 1: IRREVERSIBLE DATA SPLIT (70/30)")
+    print("ECLIPSE v3.0 STAGE 1: IRREVERSIBLE DATA SPLIT (70/30)")
     print("=" * 80)
     
+    config.output_dir.mkdir(parents=True, exist_ok=True)
+    
     eclipse_config = EclipseConfig(
-        project_name="NIVEL_1_PAC_THETA_GAMMA",
-        researcher="Camilo Sjöberg Tala",
+        project_name="NIVEL_1_PAC_THETA_GAMMA_FULL",
+        researcher="Camilo Sjoberg Tala",
         sacred_seed=config.sacred_seed,
         development_ratio=0.7,
         holdout_ratio=0.3,
         n_folds_cv=5,
-        output_dir=str(config.output_dir / 'eclipse_v2')
+        output_dir=str(config.output_dir / 'eclipse_v3'),
+        non_interactive=False,
+        stds_alpha=0.05,
+        audit_pass_threshold=70.0
     )
     
     eclipse = EclipseFramework(eclipse_config)
     
     unique_subjects = valid_df['subject_id'].unique().tolist()
+    print("\n[SPLIT] Sujetos unicos para split: {}".format(len(unique_subjects)))
     
+    # FORCE=TRUE para crear nuevo split (no usar el del piloto)
     dev_subjects, holdout_subjects = eclipse.stage1_irreversible_split(
-        data_identifiers=unique_subjects
+        data_identifiers=unique_subjects,
+        force=True  # IMPORTANTE: Forzar nuevo split
     )
     
     dev_data = valid_df[valid_df['subject_id'].isin(dev_subjects)].copy()
     holdout_data = valid_df[valid_df['subject_id'].isin(holdout_subjects)].copy()
     
-    logger.info(f"\nSplit completado:")
-    logger.info(f"  Development: {len(dev_subjects)} sujetos, {len(dev_data)} epochs")
-    logger.info(f"  Holdout: {len(holdout_subjects)} sujetos, {len(holdout_data)} epochs")
+    print("\n[OK] Split completado:")
+    print("  - Development: {} sujetos, {} epochs".format(len(dev_subjects), len(dev_data)))
+    print("  - Holdout: {} sujetos, {} epochs".format(len(holdout_subjects), len(holdout_data)))
     
     # ─────────────────────────────────────────────────────────────────────────
-    # ECLIPSE v2.0 STAGE 2: CRITERIA REGISTRATION
+    # ECLIPSE v3.0 STAGE 2: CRITERIA REGISTRATION
     # ─────────────────────────────────────────────────────────────────────────
     
     print("\n" + "=" * 80)
-    print("ECLIPSE v2.0 STAGE 2: PRE-REGISTRATION OF FALSIFICATION CRITERIA")
+    print("ECLIPSE v3.0 STAGE 2: PRE-REGISTRATION OF FALSIFICATION CRITERIA")
     print("=" * 80)
     
     criteria = [
         FalsificationCriteria(
-            name="Cohen's d (Wake vs Sleep)",
+            name=KEY_COHENS_D,
             threshold=0.5,
             comparison=">=",
             description="Medium-to-large effect size (Cohen's d >= 0.5)",
             is_required=True
         ),
         FalsificationCriteria(
-            name="p-value (one-tailed t-test)",
+            name=KEY_PVALUE,
             threshold=0.05,
             comparison="<",
             description="Statistical significance (p < 0.05)",
@@ -535,92 +446,80 @@ def run_eclipse_analysis(config: Config):
         )
     ]
     
-    eclipse.stage2_register_criteria(criteria)
+    eclipse.stage2_register_criteria(criteria, force=True)
     
-    print("\n📋 PRE-REGISTERED ANALYSIS PLAN:")
-    print(f"""
-NIVEL 1: AUTOPSYCHIC FOLD - PAC THETA-GAMMA TEST
+    print("""
+PRE-REGISTERED ANALYSIS PLAN:
 
-HIPÓTESIS:
+NIVEL 1: AUTOPSYCHIC FOLD - PAC THETA-GAMMA TEST (FULL)
+
+HIPOTESIS:
     H1: PAC_theta-gamma_wake > PAC_theta-gamma_N2
     H0: PAC_wake = PAC_N2
 
-OPERACIONALIZACIÓN:
+OPERACIONALIZACION:
     Fold_intensity = PAC(theta_phase, gamma_amplitude)
-    - Theta: {config.theta_band[0]}-{config.theta_band[1]} Hz (fase)
-    - Gamma: {config.gamma_band[0]}-{config.gamma_band[1]} Hz (amplitud)
+    - Theta: {}-{} Hz (fase)
+    - Gamma: {}-{} Hz (amplitud)
     - PAC: Modulation Index (Tort et al. 2010)
-    - Método: Tensorpac con wavelet
 
 DATASET:
-    Sleep-EDF Database
-    - {len(dev_subjects)} sujetos development
-    - {len(holdout_subjects)} sujetos holdout
-    - States: Wake vs N2 sleep
-    - Epochs: {config.epoch_duration}s
+    Sleep-EDF Database (COMPLETO)
+    - {} sujetos development
+    - {} sujetos holdout
+    - {} epochs development
+    - {} epochs holdout
 
-ANÁLISIS ESTADÍSTICO:
-    Independent samples t-test (wake vs N2)
-    Cohen's d con pooled standard deviation
-    One-tailed test (direccional: wake > N2)
-
-CRITERIOS DE FALSIFICACIÓN VINCULANTES:
-""")
-    for crit in criteria:
-        print(f"    • {crit}")
-    
-    print("""
-COMPROMISOS:
-    - No modificar análisis post-hoc
-    - Publicar resultado (positivo o negativo)
-    - Código público en GitHub
-    - Una sola evaluación en holdout
-""")
+CRITERIOS DE FALSIFICACION VINCULANTES:
+    - Cohen's d >= 0.5 [REQUIRED]
+    - p-value < 0.05 [REQUIRED]
+""".format(
+        config.theta_band[0], config.theta_band[1],
+        config.gamma_band[0], config.gamma_band[1],
+        len(dev_subjects), len(holdout_subjects),
+        len(dev_data), len(holdout_data)
+    ))
     
     # ─────────────────────────────────────────────────────────────────────────
-    # ECLIPSE v2.0 STAGE 3: DEVELOPMENT & CROSS-VALIDATION
+    # ECLIPSE v3.0 STAGE 3: DEVELOPMENT & CROSS-VALIDATION
     # ─────────────────────────────────────────────────────────────────────────
     
     print("\n" + "=" * 80)
-    print("ECLIPSE v2.0 STAGE 3: DEVELOPMENT (5-Fold Cross-Validation)")
+    print("ECLIPSE v3.0 STAGE 3: DEVELOPMENT (5-Fold Cross-Validation)")
     print("=" * 80)
     
-    # ─────────────────────────────────────────────────────────────────────────
     def train_fn(dev_indices, **kwargs):
-        """Función de 'entrenamiento' (no hay modelo, solo data)"""
         return dev_data
     
     def val_fn(model, val_indices, **kwargs):
-        """Función de validación (calcula stats en CV fold)"""
         val_df = model.iloc[val_indices]
         
-        wake = val_df[val_df['consciousness']==1]['pac'].values
-        n2 = val_df[val_df['consciousness']==0]['pac'].values
+        wake = val_df[val_df['consciousness'] == 1]['pac'].values
+        n2 = val_df[val_df['consciousness'] == 0]['pac'].values
         
         wake = wake[~np.isnan(wake)]
         n2 = n2[~np.isnan(n2)]
         
         if len(wake) == 0 or len(n2) == 0:
             return {
-                "Cohen's d (Wake vs Sleep)": 0.0,
-                "p-value (one-tailed t-test)": 1.0,
-                "Mean PAC Wake": 0.0,
-                "Mean PAC N2": 0.0
+                KEY_COHENS_D: 0.0,
+                KEY_PVALUE: 1.0,
+                KEY_PAC_WAKE: 0.0,
+                KEY_PAC_N2: 0.0
             }
         
         pooled_std = np.sqrt(
-            ((len(wake)-1)*np.var(wake,ddof=1) + (len(n2)-1)*np.var(n2,ddof=1)) /
+            ((len(wake) - 1) * np.var(wake, ddof=1) + (len(n2) - 1) * np.var(n2, ddof=1)) /
             (len(wake) + len(n2) - 2)
         )
         cohens_d = (np.mean(wake) - np.mean(n2)) / (pooled_std + 1e-10)
-        
         _, p_val = stats.ttest_ind(wake, n2, alternative='greater')
         
         return {
-            "Cohen's d (Wake vs Sleep)": cohens_d,
-            "p-value (one-tailed t-test)": p_val,
-            "Mean PAC Wake": np.mean(wake),
-            "Mean PAC N2": np.mean(n2)
+            KEY_COHENS_D: cohens_d,
+            KEY_PVALUE: p_val,
+            KEY_PAC_WAKE: np.mean(wake),
+            KEY_PAC_N2: np.mean(n2)
         }
     
     dev_results = eclipse.stage3_development(
@@ -629,301 +528,213 @@ COMPROMISOS:
         validation_function=val_fn
     )
     
-    print("\n✅ Desarrollo completado")
-    if 'metrics' in dev_results:
-        metrics_list = dev_results['metrics']
-        avg = pd.DataFrame(metrics_list).mean()
+    print("\n[OK] Desarrollo completado")
+    if 'aggregated_metrics' in dev_results:
+        agg = dev_results['aggregated_metrics']
+        d_mean = agg[KEY_COHENS_D]['mean']
+        d_std = agg[KEY_COHENS_D]['std']
+        p_mean = agg[KEY_PVALUE]['mean']
+        p_std = agg[KEY_PVALUE]['std']
+        pac_wake_mean = agg[KEY_PAC_WAKE]['mean']
+        pac_n2_mean = agg[KEY_PAC_N2]['mean']
         
-        cohens_d_key = "Cohen's d (Wake vs Sleep)"
-        pval_key = "p-value (one-tailed t-test)"
-        mean_wake_key = "Mean PAC Wake"
-        mean_n2_key = "Mean PAC N2"
-        
-        print(f"  • Cohen's d (promedio CV): {avg[cohens_d_key]:.3f}")
-        print(f"  • p-value (promedio CV): {avg[pval_key]:.4f}")
-        print(f"  • PAC Wake (promedio): {avg[mean_wake_key]:.4f}")
-        print(f"  • PAC N2 (promedio): {avg[mean_n2_key]:.4f}")
+        print("  - Cohen's d (CV): {:.3f} +/- {:.3f}".format(d_mean, d_std))
+        print("  - p-value (CV): {:.4f} +/- {:.4f}".format(p_mean, p_std))
+        print("  - PAC Wake: {:.4f}".format(pac_wake_mean))
+        print("  - PAC N2: {:.4f}".format(pac_n2_mean))
     
     # ─────────────────────────────────────────────────────────────────────────
     # ECLIPSE STAGE 4: VALIDACIÓN HOLDOUT (SINGLE-SHOT)
     # ─────────────────────────────────────────────────────────────────────────
     
     print("\n" + "=" * 80)
-    print("ECLIPSE STAGE 4: VALIDACIÓN SINGLE-SHOT EN HOLDOUT")
+    print("ECLIPSE v3.0 STAGE 4: VALIDACION SINGLE-SHOT EN HOLDOUT")
     print("=" * 80)
-    print("⚠️  ÚNICA EVALUACIÓN EN DATOS DE HOLDOUT ⚠️")
+    print(">>> UNICA EVALUACION EN DATOS DE HOLDOUT <<<")
     print("=" * 80)
-    
-    final_model = dev_data
     
     def final_val_fn(model, holdout_df, **kwargs):
-        """Validación final en holdout"""
-        wake = holdout_df[holdout_df['consciousness']==1]['pac'].values
-        n2 = holdout_df[holdout_df['consciousness']==0]['pac'].values
+        wake = holdout_df[holdout_df['consciousness'] == 1]['pac'].values
+        n2 = holdout_df[holdout_df['consciousness'] == 0]['pac'].values
         
         wake = wake[~np.isnan(wake)]
         n2 = n2[~np.isnan(n2)]
         
         if len(wake) == 0 or len(n2) == 0:
-            return {
-                "Cohen's d (Wake vs Sleep)": 0.0,
-                "p-value (one-tailed t-test)": 1.0,
-            }
+            return {KEY_COHENS_D: 0.0, KEY_PVALUE: 1.0}
         
         pooled_std = np.sqrt(
-            ((len(wake)-1)*np.var(wake,ddof=1) + (len(n2)-1)*np.var(n2,ddof=1)) /
+            ((len(wake) - 1) * np.var(wake, ddof=1) + (len(n2) - 1) * np.var(n2, ddof=1)) /
             (len(wake) + len(n2) - 2)
         )
         cohens_d = (np.mean(wake) - np.mean(n2)) / (pooled_std + 1e-10)
-        
         _, p_val = stats.ttest_ind(wake, n2, alternative='greater')
         
         return {
-            "Cohen's d (Wake vs Sleep)": cohens_d,
-            "p-value (one-tailed t-test)": p_val,
-            "Mean PAC Wake": np.mean(wake),
-            "Mean PAC N2": np.mean(n2),
-            "Std PAC Wake": np.std(wake, ddof=1),
-            "Std PAC N2": np.std(n2, ddof=1),
+            KEY_COHENS_D: cohens_d,
+            KEY_PVALUE: p_val,
+            KEY_PAC_WAKE: np.mean(wake),
+            KEY_PAC_N2: np.mean(n2),
+            KEY_STD_WAKE: np.std(wake, ddof=1),
+            KEY_STD_N2: np.std(n2, ddof=1),
             "n_wake": len(wake),
             "n_n2": len(n2)
         }
     
     val_results = eclipse.stage4_single_shot_validation(
         holdout_data=holdout_data,
-        final_model=final_model,
-        validation_function=final_val_fn
+        final_model=dev_data,
+        validation_function=final_val_fn,
+        force=True  # Forzar nueva validacion
     )
     
     if val_results is None:
-        print("\n❌ Validación cancelada por el usuario")
+        print("\n[CANCELLED] Validacion cancelada")
         return
     
-    print("\n🎯 RESULTADOS HOLDOUT:")
-    for k, v in val_results.items():
+    print("\n[HOLDOUT RESULTS]:")
+    metrics = val_results.get('metrics', val_results)
+    for k, v in metrics.items():
         if isinstance(v, float):
-            print(f"  • {k}: {v:.4f}")
+            print("  - {}: {:.4f}".format(k, v))
         else:
-            print(f"  • {k}: {v}")
+            print("  - {}: {}".format(k, v))
     
     # ─────────────────────────────────────────────────────────────────────────
-    # ECLIPSE v2.0 STAGE 5: FINAL ASSESSMENT WITH EIS & STDS
+    # ECLIPSE v3.0 STAGE 5: FINAL ASSESSMENT
     # ─────────────────────────────────────────────────────────────────────────
     
     print("\n" + "=" * 80)
-    print("ECLIPSE v2.0 STAGE 5: FINAL ASSESSMENT")
+    print("ECLIPSE v3.0 STAGE 5: FINAL ASSESSMENT")
     print("=" * 80)
-    print("Computing Eclipse Integrity Score (EIS) & Statistical Test for Data Snooping (STDS)...")
     
     final_assessment = eclipse.stage5_final_assessment(
         development_results=dev_results,
         validation_results=val_results,
         generate_reports=True,
-        compute_integrity=True  # ✨ NEW IN v2.0: EIS + STDS
+        compute_integrity=True
     )
     
-    # Mostrar métricas v2.0
+    # Mostrar métricas v3.0
     if 'integrity_metrics' in final_assessment:
         integrity = final_assessment['integrity_metrics']
         
-        print("\n📊 ECLIPSE v2.0 INTEGRITY METRICS:")
+        print("\n[ECLIPSE v3.0 INTEGRITY METRICS]:")
         
-        # Eclipse Integrity Score (EIS)
         if 'eis' in integrity:
             eis_data = integrity['eis']
-            print(f"\n🔒 Eclipse Integrity Score (EIS): {eis_data.get('eis', 0):.4f}")
-            print("  Components:")
+            eis_value = eis_data.get('eis', 0)
+            eis_interp = eis_data.get('interpretation', 'N/A')
+            print("\n[EIS] Eclipse Integrity Score: {:.4f}".format(eis_value))
+            print("   {}".format(eis_interp))
             components = eis_data.get('components', {})
             if components:
-                print(f"    • Pre-registration: {components.get('preregistration', 0):.3f}")
-                print(f"    • Split strength: {components.get('split_strength', 0):.3f}")
-                print(f"    • Protocol adherence: {components.get('protocol_adherence', 0):.3f}")
-                print(f"    • Leakage risk: {components.get('leakage_risk', 0):.3f}")
-                print(f"    • Transparency: {components.get('transparency', 0):.3f}")
+                print("  Components:")
+                print("    - Pre-registration: {:.3f}".format(components.get('preregistration_score', 0)))
+                print("    - Split strength: {:.3f}".format(components.get('split_strength', 0)))
+                print("    - Protocol adherence: {:.3f}".format(components.get('protocol_adherence', 0)))
+                print("    - Leakage score: {:.3f}".format(components.get('leakage_score', 0)))
+                print("    - Transparency: {:.3f}".format(components.get('transparency_score', 0)))
         
-        # Statistical Test for Data Snooping (STDS)
         if 'stds' in integrity:
             stds_data = integrity['stds']
             if stds_data.get('status') == 'success':
-                p_value = stds_data.get('p_value', 1.0)
-                print(f"\n📈 Statistical Test for Data Snooping (STDS):")
-                print(f"    • p-value: {p_value:.4f}")
-                if p_value < 0.05:
-                    print("    • ⚠️  WARNING: Possible data snooping detected (p < 0.05)")
+                max_z = stds_data.get('max_z_score', 0)
+                mean_z = stds_data.get('mean_z_score', 0)
+                risk_level = stds_data.get('risk_level', 'N/A')
+                
+                print("\n[STDS] Statistical Test for Data Snooping:")
+                print("    - Max z-score: {:+.4f}".format(max_z))
+                print("    - Mean z-score: {:+.4f}".format(mean_z))
+                print("    - Risk Level: {}".format(risk_level))
+                
+                if max_z > 3:
+                    print("    - [WARNING] Very unusual (|z| > 3)")
+                elif max_z > 2:
+                    print("    - [NOTABLE] |z| > 2")
                 else:
-                    print("    • ✅ No evidence of data snooping")
+                    print("    - [OK] Normal range")
     
     # ─────────────────────────────────────────────────────────────────────────
     # VEREDICTO FINAL
     # ─────────────────────────────────────────────────────────────────────────
     
     print("\n" + "=" * 80)
-    print("🔥 VEREDICTO FINAL - NIVEL 1 PAC THETA-GAMMA")
+    print(">>> VEREDICTO FINAL - NIVEL 1 PAC THETA-GAMMA (FULL) <<<")
     print("=" * 80)
     
-    # Extraer métricas desde el diccionario anidado
-    metrics = val_results.get('metrics', val_results)
-    cohens_d = metrics["Cohen's d (Wake vs Sleep)"]
-    p_value = metrics["p-value (one-tailed t-test)"]
+    cohens_d = metrics[KEY_COHENS_D]
+    p_value = metrics[KEY_PVALUE]
     
-    print(f"\n📊 Resultados Holdout:")
-    print(f"  • Cohen's d = {cohens_d:.3f}")
-    print(f"  • p-value = {p_value:.4f}")
-    print(f"  • PAC Wake = {metrics.get('Mean PAC Wake', 0):.4f}")
-    print(f"  • PAC N2 = {metrics.get('Mean PAC N2', 0):.4f}")
+    print("\n[HOLDOUT] Resultados (n={} sujetos):".format(len(holdout_subjects)))
+    print("  - Cohen's d = {:.3f}".format(cohens_d))
+    print("  - p-value = {:.6f}".format(p_value))
+    print("  - PAC Wake = {:.4f} +/- {:.4f}".format(
+        metrics.get(KEY_PAC_WAKE, 0), metrics.get(KEY_STD_WAKE, 0)))
+    print("  - PAC N2 = {:.4f} +/- {:.4f}".format(
+        metrics.get(KEY_PAC_N2, 0), metrics.get(KEY_STD_N2, 0)))
+    print("  - n_wake = {}, n_n2 = {}".format(
+        int(metrics.get('n_wake', 0)), int(metrics.get('n_n2', 0))))
     
-    print(f"\n✅ Criterios Pre-Registrados:")
-    print(f"  • Cohen's d ≥ 0.5: {'✅ SÍ' if cohens_d >= 0.5 else '❌ NO'} (d={cohens_d:.3f})")
-    print(f"  • p < 0.05: {'✅ SÍ' if p_value < 0.05 else '❌ NO'} (p={p_value:.4f})")
+    print("\n[CRITERIA] Pre-Registrados:")
+    d_pass = cohens_d >= 0.5
+    p_pass = p_value < 0.05
+    d_status = "[PASS]" if d_pass else "[FAIL]"
+    p_status = "[PASS]" if p_pass else "[FAIL]"
+    print("  - Cohen's d >= 0.5: {} (d={:.3f})".format(d_status, cohens_d))
+    print("  - p < 0.05: {} (p={:.6f})".format(p_status, p_value))
     
-    # Evaluación de criterios
-    criteria_met = cohens_d >= 0.5 and p_value < 0.05
+    criteria_met = d_pass and p_pass
     
     if criteria_met:
         print("\n" + "=" * 80)
-        print("✅ NIVEL 1: FOLD VALIDADO")
+        print(">>> NIVEL 1: FOLD VALIDADO <<<")
         print("=" * 80)
-        print("\n🎯 CONCLUSIÓN:")
-        print("  • Existe convergencia temporal theta-gamma que discrimina consciencia")
-        print("  • El Autopsychic Fold tiene evidencia preliminar robusta")
-        print("  • Effect size es medium-to-large (Cohen's d >= 0.5)")
-        print("  • Significancia estadística alcanzada (p < 0.05)")
-        print("\n🚀 PRÓXIMO PASO:")
-        print("  → Proceder a NIVEL 2: Especificidad de bandas frecuenciales")
-        print("=" * 80)
+        print("\n[CONCLUSION]:")
+        print("  - Existe convergencia temporal theta-gamma que discrimina consciencia")
+        print("  - El Autopsychic Fold tiene evidencia empirica robusta")
+        print("  - Effect size medium-to-large confirmado")
+        print("  - Significancia estadistica alcanzada")
+        print("\n[NEXT STEP]:")
+        print("  -> Proceder a NIVEL 2: Especificidad de bandas frecuenciales")
     else:
         print("\n" + "=" * 80)
-        print("❌ NIVEL 1: FOLD FALSIFICADO")
+        print(">>> NIVEL 1: FOLD FALSIFICADO <<<")
         print("=" * 80)
-        print("\n💔 CONCLUSIÓN:")
-        print("  • NO existe convergencia temporal medible en theta-gamma")
-        print("  • El Autopsychic Fold NO tiene evidencia empírica")
-        print("  • Criterios de falsificación vinculantes NO cumplidos")
-        print("\n⚖️  DECISIÓN HONESTA:")
-        print("  → ABANDONAR AFH en su forma actual")
-        print("  → Publicar resultado negativo con transparencia total")
-        print("  → Re-evaluar premisas teóricas fundamentales")
-        print("=" * 80)
+        print("\n[CONCLUSION]:")
+        print("  - NO existe convergencia temporal medible en theta-gamma")
+        print("  - El Autopsychic Fold NO tiene evidencia empirica suficiente")
+        print("  - Criterios de falsificacion vinculantes NO cumplidos")
+        print("\n[DECISION]:")
+        print("  -> ABANDONAR AFH en su forma actual")
+        print("  -> Publicar resultado negativo con transparencia total")
     
-    # Resumen ECLIPSE v2.0
     print("\n" + "=" * 80)
-    print("📋 ECLIPSE v2.0 SUMMARY")
+    print("[FILES] Archivos generados en: {}".format(config.output_dir / 'eclipse_v3'))
     print("=" * 80)
-    print(eclipse.generate_summary())
-    
-    print(f"\n📁 Archivos generados:")
-    print(f"  • Carpeta: {config.output_dir / 'eclipse_v2'}")
-    print(f"  • Reporte principal: {eclipse_config.project_name}_REPORT.html")
-    print(f"  • EIS Report: {eclipse_config.project_name}_EIS_REPORT.txt")
-    print(f"  • STDS Report: {eclipse_config.project_name}_STDS_REPORT.txt")
-    print(f"  • Lockfile: lockfile.json (integridad criptográfica)")
     
     # Verificar integridad
-    print("\n🔐 Verificando integridad del pipeline...")
+    print("\n[VERIFY] Verificando integridad...")
     eclipse.verify_integrity()
     
     print("\n" + "=" * 80)
-    print("✅ ANÁLISIS NIVEL 1 FINALIZADO")
+    print("[DONE] ANALISIS NIVEL 1 COMPLETO FINALIZADO")
     print("=" * 80)
-    print("\n🏆 ECLIPSE v2.0 Features Utilizados:")
-    print("  ✅ Eclipse Integrity Score (EIS) - Rigor cuantificado")
-    print("  ✅ Statistical Test for Data Snooping (STDS) - P-hacking detection")
-    print("  ✅ Automated Code Auditor - Protocol compliance")
-    print("  ✅ Irreversible split - No data leakage")
-    print("  ✅ Single-shot validation - No second chances")
-    print("  ✅ Cryptographic integrity - Full reproducibility")
-    print("\n" + "=" * 80)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # MAIN
 # ═══════════════════════════════════════════════════════════════════════════
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="NIVEL 1: PAC Theta-Gamma Test with ECLIPSE v2.0",
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    
-    parser.add_argument(
-        '--data-dir',
-        type=str,
-        default=r'G:\Mi unidad\NEUROCIENCIA\AFH\EXPERIMENTO\FASE 2\SLEEP-EDF\SLEEPEDF\sleep-cassette',
-        help='Ruta al directorio sleep-cassette'
-    )
-    
-    parser.add_argument(
-        '--output-dir',
-        type=str,
-        default='./nivel1_pac_results',
-        help='Directorio de salida'
-    )
-    
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument(
-        '--pilot',
-        action='store_true',
-        help='Modo piloto (10 sujetos, ~10 min)'
-    )
-    
-    group.add_argument(
-        '--full',
-        action='store_true',
-        help='Análisis completo (todos los sujetos)'
-    )
-    
-    group.add_argument(
-        '--n-subjects',
-        type=int,
-        help='Número específico de sujetos'
-    )
-    
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=42,
-        help='Semilla para reproducibilidad'
-    )
-    
-    args = parser.parse_args()
-    
-    if args.pilot:
-        n_subjects = 10
-    elif args.full:
-        n_subjects = None
-    elif args.n_subjects:
-        n_subjects = args.n_subjects
-    else:
-        logger.warning("No se especificó modo. Usando --pilot por defecto.")
-        n_subjects = 10
-    
-    config = Config(
-        data_dir=Path(args.data_dir),
-        output_dir=Path(args.output_dir),
-        sacred_seed=args.seed,
-        n_subjects=n_subjects
-    )
-    
-    if not config.data_dir.exists():
-        print(f"\n❌ ERROR: No se encontró el directorio de datos:")
-        print(f"   {config.data_dir}")
-        print(f"\nDescarga Sleep-EDF y ajusta --data-dir")
-        sys.exit(1)
-    
-    config.output_dir.mkdir(parents=True, exist_ok=True)
-    
+if __name__ == "__main__":
     try:
-        run_eclipse_analysis(config)
+        run_full_analysis()
     except KeyboardInterrupt:
-        print("\n\n⚠️  Análisis interrumpido por el usuario")
+        print("\n\n[INTERRUPTED] Analisis interrumpido por el usuario")
         sys.exit(1)
     except Exception as e:
-        print(f"\n\n❌ ERROR durante el análisis:")
-        print(f"   {e}")
+        print("\n\n[ERROR] Durante el analisis:")
+        print("   {}".format(e))
         import traceback
         traceback.print_exc()
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
