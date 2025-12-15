@@ -1,0 +1,112 @@
+{
+  "timestamp": "2025-12-13T16:20:46.813902",
+  "best_combination": "hjorth_dfa_petrosian",
+  "best_features": [
+    "hjorth_complexity",
+    "dfa",
+    "petrosian_fd"
+  ],
+  "best_pct": 55.577172503242544,
+  "reaches_70": false,
+  "comparison": {
+    "v1_entropy": 59.4,
+    "v2_hjorth_dfa": 64.2,
+    "v3_best": 55.577172503242544
+  },
+  "n_subjects_above_70": 31,
+  "total_subjects": 144,
+  "pct_subjects_above_70": 21.52777777777778,
+  "combination_results": [
+    {
+      "combination": "hjorth_dfa_petrosian",
+      "features": "['hjorth_complexity', 'dfa', 'petrosian_fd']",
+      "n_valid": 1542,
+      "n_hstar_first": 857,
+      "pct_hstar_first": 55.577172503242544,
+      "mean_delta": -10.0,
+      "p_value": 6.5358032042895814e-06
+    },
+    {
+      "combination": "hjorth_dfa",
+      "features": "['hjorth_complexity', 'dfa']",
+      "n_valid": 1541,
+      "n_hstar_first": 856,
+      "pct_hstar_first": 55.54834523036989,
+      "mean_delta": -9.974042829331603,
+      "p_value": 7.295580837838013e-06
+    },
+    {
+      "combination": "hjorth_only",
+      "features": "['hjorth_complexity']",
+      "n_valid": 1536,
+      "n_hstar_first": 850,
+      "pct_hstar_first": 55.338541666666664,
+      "mean_delta": -9.39453125,
+      "p_value": 1.5723814616967423e-05
+    },
+    {
+      "combination": "hjorth_dfa_perm",
+      "features": "['hjorth_complexity', 'dfa', 'perm_entropy']",
+      "n_valid": 1556,
+      "n_hstar_first": 859,
+      "pct_hstar_first": 55.20565552699229,
+      "mean_delta": -9.543701799485861,
+      "p_value": 2.204332923876491e-05
+    },
+    {
+      "combination": "top4_hctsa",
+      "features": "['hjorth_complexity', 'dfa', 'petrosian_fd', 'perm_entropy']",
+      "n_valid": 1557,
+      "n_hstar_first": 859,
+      "pct_hstar_first": 55.17019910083494,
+      "mean_delta": -9.505459216441876,
+      "p_value": 2.472384083527552e-05
+    },
+    {
+      "combination": "all_precede",
+      "features": "['hjorth_complexity', 'dfa', 'petrosian_fd', 'perm_entropy', 'svd_entropy', 'hjorth_mobility']",
+      "n_valid": 1626,
+      "n_hstar_first": 881,
+      "pct_hstar_first": 54.182041820418206,
+      "mean_delta": -10.344403444034441,
+      "p_value": 0.00040454850578031695
+    },
+    {
+      "combination": "dfa_only",
+      "features": "['dfa']",
+      "n_valid": 1622,
+      "n_hstar_first": 860,
+      "pct_hstar_first": 53.0209617755857,
+      "mean_delta": -8.853267570900123,
+      "p_value": 0.007996113729522875
+    }
+  ],
+  "stage_results": [
+    {
+      "stage": "N1",
+      "n": 918,
+      "pct_hstar_first": 54.79302832244009
+    },
+    {
+      "stage": "N2",
+      "n": 553,
+      "pct_hstar_first": 55.69620253164557
+    },
+    {
+      "stage": "N3",
+      "n": 57,
+      "pct_hstar_first": 64.91228070175438
+    },
+    {
+      "stage": "N4",
+      "n": 14,
+      "pct_hstar_first": 64.28571428571429
+    }
+  ],
+  "delta_distribution": {
+    "large_negative": 406,
+    "medium_negative": 451,
+    "small_positive": 419,
+    "large_positive": 266
+  }
+}
