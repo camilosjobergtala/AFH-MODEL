@@ -964,7 +964,12 @@ class AwakeningCascadeAnalyzer:
     def __init__(self, data_path, output_dir):
         self.loader = SleepEDFLoader(data_path)
         self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        # Crear directorio con fallback a os.makedirs (más robusto en Google Drive)
+        try:
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            import os
+            os.makedirs(str(self.output_dir), exist_ok=True)
         
         self.pre_s = WINDOW_CONFIG['pre_seconds']
         self.post_s = WINDOW_CONFIG['post_seconds']
