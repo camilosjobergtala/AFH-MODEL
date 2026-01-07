@@ -1,0 +1,772 @@
+{
+  "experiment": {
+    "name": "AFH Convergence Experiment",
+    "version": "2.5.1 - 32GB RAM Optimized + Subject-bootstrap + within-subject null (FINAL)",
+    "author": "Dr. Sjöberg",
+    "date": "2025-12-31",
+    "random_seed": 42
+  },
+  "results_by_state": {
+    "SLEEP-EDF": {
+      "Wake": {
+        "state": "Wake",
+        "n_epochs_total": 285433,
+        "n_epochs_analyzed": 2000,
+        "pathways": [
+          "spectral",
+          "pac",
+          "temporal",
+          "connectivity"
+        ],
+        "cknna_matrix": [
+          [
+            1.0,
+            0.03428,
+            0.0826,
+            0.015880000000000002
+          ],
+          [
+            0.03428,
+            1.0,
+            0.0567,
+            0.014780000000000001
+          ],
+          [
+            0.0826,
+            0.0567,
+            1.0,
+            0.01668
+          ],
+          [
+            0.015880000000000002,
+            0.014780000000000001,
+            0.01668,
+            1.0
+          ]
+        ],
+        "cknna_mean_offdiag": 0.036820000000000006,
+        "intrinsic_dim": {
+          "spectral": 7.946143547865349,
+          "pac": 7.964308864311779,
+          "temporal": 3.1378571033119544,
+          "connectivity": 4.518819636577539
+        },
+        "pairs": {
+          "spectral__pac": {
+            "cknna": 0.03428,
+            "dcor": 0.1865172075407069,
+            "ii_x_to_y": 1.9616959999999997,
+            "ii_y_to_x": 1.961104,
+            "n": 2000
+          },
+          "spectral__temporal": {
+            "cknna": 0.0826,
+            "dcor": 0.3007683021869891,
+            "ii_x_to_y": 1.903472,
+            "ii_y_to_x": 1.9059872,
+            "n": 2000
+          },
+          "spectral__connectivity": {
+            "cknna": 0.015880000000000002,
+            "dcor": 0.2100502731614946,
+            "ii_x_to_y": 1.9819056000000004,
+            "ii_y_to_x": 1.9827855999999997,
+            "n": 2000
+          },
+          "pac__temporal": {
+            "cknna": 0.0567,
+            "dcor": 0.5309326455630156,
+            "ii_x_to_y": 1.9352368,
+            "ii_y_to_x": 1.9353024,
+            "n": 2000
+          },
+          "pac__connectivity": {
+            "cknna": 0.014780000000000001,
+            "dcor": 0.009693916372736507,
+            "ii_x_to_y": 1.9839775999999998,
+            "ii_y_to_x": 1.9839888,
+            "n": 2000
+          },
+          "temporal__connectivity": {
+            "cknna": 0.01668,
+            "dcor": 0.05838683265813009,
+            "ii_x_to_y": 1.9818512,
+            "ii_y_to_x": 1.9823039999999998,
+            "n": 2000
+          }
+        },
+        "significance_tests": {
+          "spectral__pac": {
+            "observed": 0.03428,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.016303,
+            "null_ci_lower": 0.015079,
+            "null_ci_upper": 0.0176005,
+            "bootstrap_mean": 0.05924817949425917,
+            "bootstrap_ci_lower": 0.05225674060150376,
+            "bootstrap_ci_upper": 0.0677755,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "spectral__temporal": {
+            "observed": 0.0826,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.0223535,
+            "null_ci_lower": 0.020739,
+            "null_ci_upper": 0.023940499999999997,
+            "bootstrap_mean": 0.1060117395326433,
+            "bootstrap_ci_lower": 0.0965125719280649,
+            "bootstrap_ci_upper": 0.11672896741854638,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "pac__temporal": {
+            "observed": 0.0567,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.0181833,
+            "null_ci_lower": 0.016797000000000003,
+            "null_ci_upper": 0.0196815,
+            "bootstrap_mean": 0.08101897221875694,
+            "bootstrap_ci_lower": 0.07167937782237832,
+            "bootstrap_ci_upper": 0.09141377327327328,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "temporal__connectivity": {
+            "observed": 0.01668,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.0133509,
+            "null_ci_lower": 0.0123195,
+            "null_ci_upper": 0.014561000000000001,
+            "bootstrap_mean": 0.040966963865636516,
+            "bootstrap_ci_lower": 0.03387777096936213,
+            "bootstrap_ci_upper": 0.048759500000000004,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          }
+        },
+        "n_unique_subjects_analyzed": 153
+      },
+      "N1": {
+        "state": "N1",
+        "n_epochs_total": 21522,
+        "n_epochs_analyzed": 2000,
+        "pathways": [
+          "spectral",
+          "pac",
+          "temporal",
+          "connectivity"
+        ],
+        "cknna_matrix": [
+          [
+            1.0,
+            0.031239999999999997,
+            0.07358,
+            0.016640000000000002
+          ],
+          [
+            0.031239999999999997,
+            1.0,
+            0.049199999999999994,
+            0.014960000000000001
+          ],
+          [
+            0.07358,
+            0.049199999999999994,
+            1.0,
+            0.014760000000000002
+          ],
+          [
+            0.016640000000000002,
+            0.014960000000000001,
+            0.014760000000000002,
+            1.0
+          ]
+        ],
+        "cknna_mean_offdiag": 0.033396666666666665,
+        "intrinsic_dim": {
+          "spectral": 7.851462037207927,
+          "pac": 8.00209771541091,
+          "temporal": 2.8930293620632077,
+          "connectivity": 5.26803170785148
+        },
+        "pairs": {
+          "spectral__pac": {
+            "cknna": 0.031239999999999997,
+            "dcor": 0.23695658376834489,
+            "ii_x_to_y": 1.9654559999999999,
+            "ii_y_to_x": 1.9633088,
+            "n": 2000
+          },
+          "spectral__temporal": {
+            "cknna": 0.07358,
+            "dcor": 0.31083550882489047,
+            "ii_x_to_y": 1.9107424,
+            "ii_y_to_x": 1.9120816,
+            "n": 2000
+          },
+          "spectral__connectivity": {
+            "cknna": 0.016640000000000002,
+            "dcor": 0.1029962504684115,
+            "ii_x_to_y": 1.9816144,
+            "ii_y_to_x": 1.9815568000000001,
+            "n": 2000
+          },
+          "pac__temporal": {
+            "cknna": 0.049199999999999994,
+            "dcor": 0.5908556892537319,
+            "ii_x_to_y": 1.9444191999999998,
+            "ii_y_to_x": 1.9452448,
+            "n": 2000
+          },
+          "pac__connectivity": {
+            "cknna": 0.014960000000000001,
+            "dcor": 0.01701382802675291,
+            "ii_x_to_y": 1.9843104,
+            "ii_y_to_x": 1.9837791999999996,
+            "n": 2000
+          },
+          "temporal__connectivity": {
+            "cknna": 0.014760000000000002,
+            "dcor": 0.017452968048522397,
+            "ii_x_to_y": 1.9839984,
+            "ii_y_to_x": 1.9834479999999999,
+            "n": 2000
+          }
+        },
+        "significance_tests": {
+          "spectral__pac": {
+            "observed": 0.031239999999999997,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.019977599999999998,
+            "null_ci_lower": 0.018719,
+            "null_ci_upper": 0.021322999999999998,
+            "bootstrap_mean": 0.05733142610865232,
+            "bootstrap_ci_lower": 0.050198038036408855,
+            "bootstrap_ci_upper": 0.06528046795192789,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "spectral__temporal": {
+            "observed": 0.07358,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.030530500000000002,
+            "null_ci_lower": 0.029131499999999998,
+            "null_ci_upper": 0.032142000000000004,
+            "bootstrap_mean": 0.10381550178673976,
+            "bootstrap_ci_lower": 0.09294753121852971,
+            "bootstrap_ci_upper": 0.11462953003003004,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "pac__temporal": {
+            "observed": 0.049199999999999994,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.0242117,
+            "null_ci_lower": 0.022560000000000004,
+            "null_ci_upper": 0.026063000000000003,
+            "bootstrap_mean": 0.07292210057558456,
+            "bootstrap_ci_lower": 0.0659642715148465,
+            "bootstrap_ci_upper": 0.08215761051632796,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "temporal__connectivity": {
+            "observed": 0.014760000000000002,
+            "p_value": 0.24875621890547264,
+            "significant": false,
+            "null_mean": 0.014339900000000001,
+            "null_ci_lower": 0.0133195,
+            "null_ci_upper": 0.015502000000000002,
+            "bootstrap_mean": 0.04068697814505287,
+            "bootstrap_ci_lower": 0.034283230975753844,
+            "bootstrap_ci_upper": 0.047809631631631634,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          }
+        },
+        "n_unique_subjects_analyzed": 153
+      },
+      "N2": {
+        "state": "N2",
+        "n_epochs_total": 69132,
+        "n_epochs_analyzed": 2000,
+        "pathways": [
+          "spectral",
+          "pac",
+          "temporal",
+          "connectivity"
+        ],
+        "cknna_matrix": [
+          [
+            1.0,
+            0.030119999999999997,
+            0.06698,
+            0.016419999999999997
+          ],
+          [
+            0.030119999999999997,
+            1.0,
+            0.0422,
+            0.014020000000000001
+          ],
+          [
+            0.06698,
+            0.0422,
+            1.0,
+            0.015899999999999997
+          ],
+          [
+            0.016419999999999997,
+            0.014020000000000001,
+            0.015899999999999997,
+            1.0
+          ]
+        ],
+        "cknna_mean_offdiag": 0.030939999999999995,
+        "intrinsic_dim": {
+          "spectral": 7.759074630530251,
+          "pac": 8.410521369412784,
+          "temporal": 2.8901332095271655,
+          "connectivity": 4.0118868848179625
+        },
+        "pairs": {
+          "spectral__pac": {
+            "cknna": 0.030119999999999997,
+            "dcor": 0.30875642207263543,
+            "ii_x_to_y": 1.9653664000000002,
+            "ii_y_to_x": 1.9641504,
+            "n": 2000
+          },
+          "spectral__temporal": {
+            "cknna": 0.06698,
+            "dcor": 0.38798216689310927,
+            "ii_x_to_y": 1.918928,
+            "ii_y_to_x": 1.921088,
+            "n": 2000
+          },
+          "spectral__connectivity": {
+            "cknna": 0.016419999999999997,
+            "dcor": 0.04196811212070009,
+            "ii_x_to_y": 1.9824096,
+            "ii_y_to_x": 1.98224,
+            "n": 2000
+          },
+          "pac__temporal": {
+            "cknna": 0.0422,
+            "dcor": 0.6120793907941761,
+            "ii_x_to_y": 1.9514416,
+            "ii_y_to_x": 1.9509808,
+            "n": 2000
+          },
+          "pac__connectivity": {
+            "cknna": 0.014020000000000001,
+            "dcor": 0.0317496549517448,
+            "ii_x_to_y": 1.9851456,
+            "ii_y_to_x": 1.9852112,
+            "n": 2000
+          },
+          "temporal__connectivity": {
+            "cknna": 0.015899999999999997,
+            "dcor": 0.014545779204485772,
+            "ii_x_to_y": 1.9820288000000001,
+            "ii_y_to_x": 1.9827407999999995,
+            "n": 2000
+          }
+        },
+        "significance_tests": {
+          "spectral__pac": {
+            "observed": 0.030119999999999997,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.0221908,
+            "null_ci_lower": 0.020917500000000002,
+            "null_ci_upper": 0.023719999999999998,
+            "bootstrap_mean": 0.057272249325588664,
+            "bootstrap_ci_lower": 0.04786527419354839,
+            "bootstrap_ci_upper": 0.06627145477386935,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "spectral__temporal": {
+            "observed": 0.06698,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.0333045,
+            "null_ci_lower": 0.0316575,
+            "null_ci_upper": 0.0350605,
+            "bootstrap_mean": 0.09753321414154585,
+            "bootstrap_ci_lower": 0.08563175847663068,
+            "bootstrap_ci_upper": 0.10872414488142777,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "pac__temporal": {
+            "observed": 0.0422,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.0276786,
+            "null_ci_lower": 0.025917500000000003,
+            "null_ci_upper": 0.029562000000000005,
+            "bootstrap_mean": 0.0685902330378166,
+            "bootstrap_ci_lower": 0.05923012170621369,
+            "bootstrap_ci_upper": 0.07710776884422112,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "temporal__connectivity": {
+            "observed": 0.015899999999999997,
+            "p_value": 0.19900497512437812,
+            "significant": false,
+            "null_mean": 0.015314600000000001,
+            "null_ci_lower": 0.014098000000000001,
+            "null_ci_upper": 0.0164015,
+            "bootstrap_mean": 0.04095223688326399,
+            "bootstrap_ci_lower": 0.03299000700700701,
+            "bootstrap_ci_upper": 0.049295500000000006,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          }
+        },
+        "n_unique_subjects_analyzed": 153
+      },
+      "N3": {
+        "state": "N3",
+        "n_epochs_total": 13039,
+        "n_epochs_analyzed": 1809,
+        "pathways": [
+          "spectral",
+          "pac",
+          "temporal",
+          "connectivity"
+        ],
+        "cknna_matrix": [
+          [
+            1.0,
+            0.037037037037037035,
+            0.08276395798783859,
+            0.021359867330016585
+          ],
+          [
+            0.037037037037037035,
+            1.0,
+            0.05211719181868436,
+            0.01587617468214483
+          ],
+          [
+            0.08276395798783859,
+            0.05211719181868436,
+            1.0,
+            0.021824212271973467
+          ],
+          [
+            0.021359867330016585,
+            0.01587617468214483,
+            0.021824212271973467,
+            1.0
+          ]
+        ],
+        "cknna_mean_offdiag": 0.038496406854615806,
+        "intrinsic_dim": {
+          "spectral": 8.02190572685715,
+          "pac": 8.573991277464692,
+          "temporal": 2.7948886831205555,
+          "connectivity": 4.384690974862335
+        },
+        "pairs": {
+          "spectral__pac": {
+            "cknna": 0.037037037037037035,
+            "dcor": 0.2681799386766621,
+            "ii_x_to_y": 1.9570821448313986,
+            "ii_y_to_x": 1.955509563294638,
+            "n": 1809
+          },
+          "spectral__temporal": {
+            "cknna": 0.08276395798783859,
+            "dcor": 0.36115378786458613,
+            "ii_x_to_y": 1.896572249861802,
+            "ii_y_to_x": 1.897645992260918,
+            "n": 1809
+          },
+          "spectral__connectivity": {
+            "cknna": 0.021359867330016585,
+            "dcor": 0.01675689050922712,
+            "ii_x_to_y": 1.9767119955776673,
+            "ii_y_to_x": 1.9764395798783858,
+            "n": 1809
+          },
+          "pac__temporal": {
+            "cknna": 0.05211719181868436,
+            "dcor": 0.4579273247991041,
+            "ii_x_to_y": 1.9383208402432281,
+            "ii_y_to_x": 1.9397519071310116,
+            "n": 1809
+          },
+          "pac__connectivity": {
+            "cknna": 0.01587617468214483,
+            "dcor": 0.012392087159493595,
+            "ii_x_to_y": 1.9832694306246546,
+            "ii_y_to_x": 1.9835719181868434,
+            "n": 1809
+          },
+          "temporal__connectivity": {
+            "cknna": 0.021824212271973467,
+            "dcor": 0.020523329164123503,
+            "ii_x_to_y": 1.9752313985627417,
+            "ii_y_to_x": 1.9748864566058597,
+            "n": 1809
+          }
+        },
+        "significance_tests": {
+          "spectral__pac": {
+            "observed": 0.037037037037037035,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.02864179104477612,
+            "null_ci_lower": 0.026909342177998896,
+            "null_ci_upper": 0.030317302377003873,
+            "bootstrap_mean": 0.06514984932273021,
+            "bootstrap_ci_lower": 0.05533527204674929,
+            "bootstrap_ci_upper": 0.07824236635409489,
+            "bootstrap_method": "subject_level",
+            "n_used": 1809
+          },
+          "spectral__temporal": {
+            "observed": 0.08276395798783859,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.056952238805970154,
+            "null_ci_lower": 0.054767274737424,
+            "null_ci_upper": 0.05893090105030404,
+            "bootstrap_mean": 0.1222527260667341,
+            "bootstrap_ci_lower": 0.10622770136042448,
+            "bootstrap_ci_upper": 0.13696927548636745,
+            "bootstrap_method": "subject_level",
+            "n_used": 1809
+          },
+          "pac__temporal": {
+            "observed": 0.05211719181868436,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.03548833609729132,
+            "null_ci_lower": 0.033561636263128795,
+            "null_ci_upper": 0.03728302929795467,
+            "bootstrap_mean": 0.08001116520432829,
+            "bootstrap_ci_lower": 0.06982892406255889,
+            "bootstrap_ci_upper": 0.09109852210844523,
+            "bootstrap_method": "subject_level",
+            "n_used": 1809
+          },
+          "temporal__connectivity": {
+            "observed": 0.021824212271973467,
+            "p_value": 0.11940298507462686,
+            "significant": false,
+            "null_mean": 0.02098441127694859,
+            "null_ci_lower": 0.019609729132117188,
+            "null_ci_upper": 0.02228855721393035,
+            "bootstrap_mean": 0.048377800148401304,
+            "bootstrap_ci_lower": 0.04002724084495555,
+            "bootstrap_ci_upper": 0.05807703479177989,
+            "bootstrap_method": "subject_level",
+            "n_used": 1809
+          }
+        },
+        "n_unique_subjects_analyzed": 135
+      },
+      "REM": {
+        "state": "REM",
+        "n_epochs_total": 25835,
+        "n_epochs_analyzed": 2000,
+        "pathways": [
+          "spectral",
+          "pac",
+          "temporal",
+          "connectivity"
+        ],
+        "cknna_matrix": [
+          [
+            1.0,
+            0.030639999999999997,
+            0.07698000000000002,
+            0.01704
+          ],
+          [
+            0.030639999999999997,
+            1.0,
+            0.047959999999999996,
+            0.0149
+          ],
+          [
+            0.07698000000000002,
+            0.047959999999999996,
+            1.0,
+            0.016380000000000002
+          ],
+          [
+            0.01704,
+            0.0149,
+            0.016380000000000002,
+            1.0
+          ]
+        ],
+        "cknna_mean_offdiag": 0.03398333333333334,
+        "intrinsic_dim": {
+          "spectral": 8.263891240512287,
+          "pac": 9.071895987514525,
+          "temporal": 3.098143952662599,
+          "connectivity": 4.94414246353102
+        },
+        "pairs": {
+          "spectral__pac": {
+            "cknna": 0.030639999999999997,
+            "dcor": 0.19508405759938474,
+            "ii_x_to_y": 1.9651648000000002,
+            "ii_y_to_x": 1.9638175999999998,
+            "n": 2000
+          },
+          "spectral__temporal": {
+            "cknna": 0.07698000000000002,
+            "dcor": 0.22762902665202686,
+            "ii_x_to_y": 1.9058576,
+            "ii_y_to_x": 1.9071615999999998,
+            "n": 2000
+          },
+          "spectral__connectivity": {
+            "cknna": 0.01704,
+            "dcor": 0.019807474200613774,
+            "ii_x_to_y": 1.9815519999999998,
+            "ii_y_to_x": 1.9815552000000003,
+            "n": 2000
+          },
+          "pac__temporal": {
+            "cknna": 0.047959999999999996,
+            "dcor": 0.44414176455569604,
+            "ii_x_to_y": 1.9434656,
+            "ii_y_to_x": 1.9447632000000001,
+            "n": 2000
+          },
+          "pac__connectivity": {
+            "cknna": 0.0149,
+            "dcor": 0.0016591775922308052,
+            "ii_x_to_y": 1.9848928000000003,
+            "ii_y_to_x": 1.9841248,
+            "n": 2000
+          },
+          "temporal__connectivity": {
+            "cknna": 0.016380000000000002,
+            "dcor": 0.02368228140039076,
+            "ii_x_to_y": 1.9825728,
+            "ii_y_to_x": 1.9814528,
+            "n": 2000
+          }
+        },
+        "significance_tests": {
+          "spectral__pac": {
+            "observed": 0.030639999999999997,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.025555399999999995,
+            "null_ci_lower": 0.024258999999999996,
+            "null_ci_upper": 0.0269025,
+            "bootstrap_mean": 0.05766505916771088,
+            "bootstrap_ci_lower": 0.045195966649823144,
+            "bootstrap_ci_upper": 0.06784851109430157,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "spectral__temporal": {
+            "observed": 0.07698000000000002,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.040296000000000005,
+            "null_ci_lower": 0.03869450000000001,
+            "null_ci_upper": 0.041980500000000004,
+            "bootstrap_mean": 0.10948322941252833,
+            "bootstrap_ci_lower": 0.09500393589153672,
+            "bootstrap_ci_upper": 0.12363600000000001,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "pac__temporal": {
+            "observed": 0.047959999999999996,
+            "p_value": 0.004975124378109453,
+            "significant": true,
+            "null_mean": 0.0322153,
+            "null_ci_lower": 0.030538499999999996,
+            "null_ci_upper": 0.033781000000000005,
+            "bootstrap_mean": 0.07446633536815805,
+            "bootstrap_ci_lower": 0.06426900000000002,
+            "bootstrap_ci_upper": 0.084902,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          },
+          "temporal__connectivity": {
+            "observed": 0.016380000000000002,
+            "p_value": 0.46766169154228854,
+            "significant": false,
+            "null_mean": 0.016344,
+            "null_ci_lower": 0.015239,
+            "null_ci_upper": 0.0175805,
+            "bootstrap_mean": 0.04234088353863328,
+            "bootstrap_ci_lower": 0.035317420841683364,
+            "bootstrap_ci_upper": 0.04979090201005026,
+            "bootstrap_method": "subject_level",
+            "n_used": 2000
+          }
+        },
+        "n_unique_subjects_analyzed": 153
+      }
+    }
+  },
+  "state_comparisons": {
+    "SLEEP-EDF__Wake_vs_N3": {
+      "dataset": "SLEEP-EDF",
+      "state_A": "Wake",
+      "state_B": "N3",
+      "convergence_A": 0.036820000000000006,
+      "convergence_B": 0.038496406854615806,
+      "difference": -0.0016764068546158,
+      "A_greater": false,
+      "diff_mean": -0.006211996787065269,
+      "diff_ci_lower": -0.018877505576761686,
+      "diff_ci_upper": 0.004529920423411877,
+      "p_one_sided_A_greater": 0.855,
+      "bootstrap_method": "subject_level"
+    },
+    "SLEEP-EDF__REM_vs_N3": {
+      "dataset": "SLEEP-EDF",
+      "state_A": "REM",
+      "state_B": "N3",
+      "convergence_A": 0.03398333333333334,
+      "convergence_B": 0.038496406854615806,
+      "difference": -0.004513073521282468,
+      "A_greater": false,
+      "diff_mean": -0.006302129854389819,
+      "diff_ci_lower": -0.01813991991341992,
+      "diff_ci_upper": 0.005770075652513399,
+      "p_one_sided_A_greater": 0.845,
+      "bootstrap_method": "subject_level"
+    },
+    "SLEEP-EDF__Wake_vs_N2": {
+      "dataset": "SLEEP-EDF",
+      "state_A": "Wake",
+      "state_B": "N2",
+      "convergence_A": 0.036820000000000006,
+      "convergence_B": 0.030939999999999995,
+      "difference": 0.00588000000000001,
+      "A_greater": true,
+      "diff_mean": 0.0017850294294389237,
+      "diff_ci_lower": -0.009390180021895256,
+      "diff_ci_upper": 0.012131382426988932,
+      "p_one_sided_A_greater": 0.375,
+      "bootstrap_method": "subject_level"
+    }
+  }
+}

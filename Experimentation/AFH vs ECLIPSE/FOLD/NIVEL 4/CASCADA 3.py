@@ -22,7 +22,7 @@ CORRECCIONES APLICADAS (basadas en auditoría):
    - Banda gamma reducida a 30-40 Hz para evitar EMG
 
 3. LEMPEL-ZIV:
-   - Implementación estándar LZ76 validada
+   - Complejidad heurística (binarización por mediana; NO es LZ76 canónico)
 
 4. DFA:
    - Escalas en SEGUNDOS (0.5-10s), no muestras
@@ -40,7 +40,7 @@ CORRECCIONES APLICADAS (basadas en auditoría):
 7. TEMPORAL:
    - t=0 explícitamente documentado como "inicio época W anotada"
    - Incertidumbre de ±15s reportada
-   - Baseline más conservador (t < -180s)
+   - Baseline temprano en ventana (t < -2400s = < -40 min)
 
 8. ONSET DETECTION:
    - Requiere 3 ventanas consecutivas (no 2)
@@ -48,7 +48,7 @@ CORRECCIONES APLICADAS (basadas en auditoría):
    - Criterio de estabilidad post-onset
 
 ================================================================================
-FIX v2.3.1: baseline_end_s cambiado de -240 a -180 para garantizar ≥3 ventanas
+FIX: baseline_end_s = -2400s (baseline temprano: primeros 20 min de la ventana de 60 min)
 ================================================================================
 """
 
@@ -70,7 +70,7 @@ import matplotlib.pyplot as plt
 
 warnings.filterwarnings('ignore')
 
-__version__ = "cascade_v2.4_30min_window"
+__version__ = "cascade_v2.6_60min_stable_transient"
 
 # Manifest de reproducibilidad
 REPRODUCIBILITY_MANIFEST = {
@@ -96,7 +96,7 @@ DEFAULT_PATHS = [
     r"G:/Mi unidad/NEUROCIENCIA/AFH/EXPERIMENTO/FASE 2/SLEEP-EDF/SLEEPEDF/sleep-cassette",
 ]
 
-DEFAULT_OUTPUT = r"G:\Mi unidad\NEUROCIENCIA\AFH\EXPERIMENTO\FASE 2\SLEEP-EDF\awakening_cascade_v2_30min"
+DEFAULT_OUTPUT = r"G:\Mi unidad\NEUROCIENCIA\AFH\EXPERIMENTO\FASE 2\SLEEP-EDF\awakening_cascade_v2_60min_typed"
 
 SACRED_SEED = 2025
 DEVELOPMENT_RATIO = 0.7
@@ -110,19 +110,19 @@ BANDS = {
     'gamma': (30, 40),  # Reducido para evitar EMG
 }
 
-# VENTANA AMPLIADA - 30 MINUTOS ANTES
+# VENTANA MÁXIMA - 60 MINUTOS ANTES PARA VER TODO
 WINDOW_CONFIG = {
-    'pre_seconds': 1800,     # 30 minutos ANTES
-    'post_seconds': 120,     # 2 minutos DESPUÉS
+    'pre_seconds': 3600,     # 60 minutos ANTES (1 hora)
+    'post_seconds': 180,     # 3 minutos DESPUÉS
     'window_size_s': 30,     # Tamaño ventana análisis
     'window_step_s': 30,     # SIN SOLAPAMIENTO para onset robusto
 }
 
-# Detección de onset (más estricto)
-# Baseline en los primeros 10 minutos de la ventana (t < -1200s)
+# Detección de onset
+# Baseline en los primeros 20 minutos de la ventana (t < -2400s = t < -40 min)
 ONSET_CONFIG = {
-    'baseline_end_s': -1200,     # Baseline: t < -20 min (primeros 10 min de ventana)
-    'threshold_sd': 2.0,         # Umbral más estricto
+    'baseline_end_s': -2400,     # Baseline: t < -40 min (primeros 20 min de ventana)
+    'threshold_sd': 2.0,         # Umbral
     'consecutive_windows': 3,    # 3 ventanas consecutivas
     'stability_windows': 2,      # Ventanas post-onset para confirmar dirección
 }
@@ -137,8 +137,12 @@ ARTIFACT_CONFIG = {
 
 TRANSITION_CRITERIA = {
     'min_sleep_epochs_before': 2,
-    'min_wake_epochs_after': 2,
+    'stable_w_epochs': 4,          # estable = ≥4 W seguidas (120s)
+    'transient_w_epochs_max': 2,   # transitorio = ≤2 W seguidas (30-60s)
+    'exclude_gray_w_epochs': [3],  # excluir 3 W seguidas (zona gris)
     'exclude_stages': ['?', 'M'],
+    'allowed_pre_sleep': ['N2', 'N3'],      # Solo N2/N3 antes (estricto)
+    'allowed_return_sleep': ['N1', 'N2', 'N3', 'N4'],  # Sueño para retorno transient
 }
 
 # PAC surrogates
@@ -923,34 +927,102 @@ class SleepEDFLoader:
             return None
     
     def find_transitions(self, stages):
-        """Encuentra transiciones sueño→vigilia."""
+        """
+        Encuentra transiciones N2/N3 -> W y las clasifica como:
+          - 'stable'    : >= 4 épocas W consecutivas (120s+)
+          - 'transient' : <= 2 épocas W consecutivas y luego retorna a sueño
+        Excluye zona gris: 3 épocas W consecutivas.
+        """
         transitions = []
-        sleep_stages = ['N1', 'N2', 'N3', 'N4']
         exclude = set(TRANSITION_CRITERIA['exclude_stages'])
         min_sleep = TRANSITION_CRITERIA['min_sleep_epochs_before']
-        min_wake = TRANSITION_CRITERIA['min_wake_epochs_after']
-        
-        for i in range(min_sleep, len(stages) - min_wake):
-            if stages[i] != 'W' or stages[i-1] not in sleep_stages:
+
+        stable_k = TRANSITION_CRITERIA['stable_w_epochs']            # 4
+        transient_max = TRANSITION_CRITERIA['transient_w_epochs_max'] # 2
+        gray_list = set(TRANSITION_CRITERIA['exclude_gray_w_epochs']) # {3}
+
+        allowed_pre = set(TRANSITION_CRITERIA.get('allowed_pre_sleep', ['N2', 'N3']))
+        allowed_return = set(TRANSITION_CRITERIA.get('allowed_return_sleep', ['N1', 'N2', 'N3', 'N4']))
+
+        n = len(stages)
+
+        def has_excluded(arr):
+            return any(s in exclude for s in arr)
+
+        i = min_sleep
+        while i < n - 1:
+            # Buscamos primer W que venga desde N2/N3
+            if stages[i] != 'W':
+                i += 1
                 continue
-            
-            pre_stages = stages[max(0, i-min_sleep):i]
-            if any(s in exclude or s == 'W' for s in pre_stages):
+
+            # Debe venir desde N2/N3 (estricto)
+            if stages[i-1] not in allowed_pre:
+                i += 1
                 continue
-            if not all(s in sleep_stages for s in pre_stages):
+
+            # Precondición: las min_sleep épocas previas deben ser sueño permitido
+            pre = stages[i-min_sleep:i]
+            if has_excluded(pre) or any(s == 'W' for s in pre):
+                i += 1
                 continue
-            
-            post_stages = stages[i:min(len(stages), i+min_wake)]
-            if not all(s == 'W' for s in post_stages):
+            if not all(s in allowed_pre.union({'N1','N4'}) for s in pre):
+                i += 1
                 continue
-            
-            transitions.append({
-                'epoch_idx': i,
-                'from_stage': stages[i-1],
-                'time_seconds': i * 30,
-                'uncertainty_s': 15,  # ±15s por resolución de época
-            })
-        
+
+            # Contar run de W consecutivas desde i
+            run = 0
+            j = i
+            while j < n and stages[j] == 'W':
+                run += 1
+                j += 1
+
+            # Excluir si hay ? o M en la vecindad inmediata (pre y post cercano)
+            neighborhood = []
+            neighborhood.extend(stages[max(0, i-2):i])     # 2 previas
+            neighborhood.extend(stages[i:min(n, i+2)])     # 2 desde i
+            if has_excluded(neighborhood):
+                i += 1
+                continue
+
+            # Excluir si hay ? o M en el post-run inmediato (j y j+1), crucial para transient
+            post_neighborhood = stages[j:min(n, j+2)]
+            if has_excluded(post_neighborhood):
+                i += 1
+                continue
+
+            # Clasificar
+            label = None
+
+            if run >= stable_k:
+                label = 'stable'
+
+            elif run <= transient_max:
+                # transient: debe retornar a sueño permitido con ≥2 épocas de sueño
+                if j+1 < n and stages[j] in allowed_return and stages[j+1] in allowed_return:
+                    label = 'transient'
+                else:
+                    label = None
+
+            elif run in gray_list:
+                label = None  # zona gris excluida
+
+            # Registrar transición si clasificó
+            if label is not None:
+                transitions.append({
+                    'epoch_idx': i,
+                    'from_stage': stages[i-1],
+                    'time_seconds': i * 30,
+                    'uncertainty_s': 15,
+                    'type': label,
+                    'w_run_epochs': run,
+                })
+
+                # Saltar hasta el final del bloque W para evitar duplicar
+                i = j
+            else:
+                i += 1
+
         return transitions
 
 
@@ -1197,6 +1269,7 @@ class AwakeningCascadeAnalyzer:
         subject_onsets = {}  # subject_id -> list of transition results
         total_artifacts = {'clean': 0, 'rejected': 0, 'by_type': Counter()}
         subject_artifact_stats = {}  # Por sujeto
+        transition_counts = Counter()  # NUEVO: conteo stable vs transient
         
         for i, (subject_id, psg_path, hyp_path) in enumerate(dev_files):
             print(f"\r[{i+1}/{len(dev_files)}] {subject_id}...", end="", flush=True)
@@ -1212,6 +1285,9 @@ class AwakeningCascadeAnalyzer:
             subject_results = []
             
             for trans_idx, trans in enumerate(transitions):
+                # Contar tipo de transición
+                transition_counts[trans.get('type', 'unknown')] += 1
+                
                 window = self.extract_window(data['signal'], data['fs'], trans['time_seconds'])
                 if window is None:
                     continue
@@ -1260,6 +1336,8 @@ class AwakeningCascadeAnalyzer:
                 trans_results = self.analyze_transition(df_norm)
                 trans_results['_meta'] = {
                     'from_stage': trans['from_stage'],
+                    'transition_type': trans.get('type', 'unknown'),
+                    'w_run_epochs': trans.get('w_run_epochs', None),
                     'n_clean_windows': artifact_count['clean'],
                 }
                 
@@ -1271,6 +1349,7 @@ class AwakeningCascadeAnalyzer:
         print(f"\n\n   ✅ Sujetos con datos: {len(subject_onsets)}")
         print(f"   ✅ Ventanas limpias: {total_artifacts['clean']}")
         print(f"   ❌ Ventanas rechazadas (artefactos): {total_artifacts['rejected']}")
+        print(f"   📊 Conteo transiciones: {dict(transition_counts)}")
         
         if not subject_onsets:
             print("❌ No hay datos para analizar")
@@ -1289,7 +1368,19 @@ class AwakeningCascadeAnalyzer:
         subject_level_onsets = []
         
         for subject_id, transitions in subject_onsets.items():
-            subject_row = {'subject_id': subject_id, 'n_transitions': len(transitions)}
+            # Contar tipos de transición por sujeto
+            types = []
+            for t in transitions:
+                m = t.get('_meta', {})
+                types.append(m.get('transition_type', 'unknown'))
+            c = Counter(types)
+            
+            subject_row = {
+                'subject_id': subject_id, 
+                'n_transitions': len(transitions),
+                'n_stable': c.get('stable', 0),
+                'n_transient': c.get('transient', 0),
+            }
             
             for metric in metrics:
                 onsets = [t[metric]['onset_time'] for t in transitions 
@@ -1350,6 +1441,54 @@ class AwakeningCascadeAnalyzer:
         df_sequence = pd.DataFrame(sequence_stats)
         df_sequence = df_sequence.sort_values('median_onset_s')  # Ordenar por MEDIANA
         
+        # 5b. Rankings SEPARADOS por tipo de transición (stable vs transient)
+        print(f"\n{'='*70}")
+        print("CALCULANDO SECUENCIAS POR TIPO DE TRANSICIÓN")
+        print(f"{'='*70}")
+        
+        def compute_sequence_by_type(subject_onsets, trans_type, metrics):
+            """Calcula secuencia temporal solo para un tipo de transición."""
+            type_stats = []
+            
+            for metric in metrics:
+                all_onsets = []
+                for subject_id, transitions in subject_onsets.items():
+                    # Filtrar por tipo
+                    type_onsets = [
+                        t[metric]['onset_time'] 
+                        for t in transitions 
+                        if t.get('_meta', {}).get('transition_type') == trans_type
+                        and metric in t 
+                        and not np.isnan(t[metric]['onset_time'])
+                    ]
+                    if type_onsets:
+                        # Mediana por sujeto (evitar sobre-representación)
+                        all_onsets.append(np.median(type_onsets))
+                
+                if len(all_onsets) >= 5:  # Mínimo 5 sujetos
+                    values = np.array(all_onsets)
+                    type_stats.append({
+                        'metric': metric,
+                        'median_onset_s': np.median(values),
+                        'iqr_s': np.percentile(values, 75) - np.percentile(values, 25),
+                        'q25_s': np.percentile(values, 25),
+                        'q75_s': np.percentile(values, 75),
+                        'mean_onset_s': np.mean(values),
+                        'n_subjects': len(values),
+                        'pct_before_t0': 100 * (values < 0).sum() / len(values),
+                    })
+            
+            if type_stats:
+                df = pd.DataFrame(type_stats)
+                return df.sort_values('median_onset_s')
+            return pd.DataFrame()
+        
+        df_sequence_stable = compute_sequence_by_type(subject_onsets, 'stable', metrics)
+        df_sequence_transient = compute_sequence_by_type(subject_onsets, 'transient', metrics)
+        
+        print(f"   Stable: {len(df_sequence_stable)} métricas con ≥5 sujetos")
+        print(f"   Transient: {len(df_sequence_transient)} métricas con ≥5 sujetos")
+        
         # 6. Mostrar resultados
         print(f"\n   SECUENCIA TEMPORAL (ordenada por mediana de onset):")
         print(f"   {'─'*80}")
@@ -1372,6 +1511,15 @@ class AwakeningCascadeAnalyzer:
         df_sequence.to_csv(self.output_dir / "sequence_ranking.csv", index=False)
         print(f"   ✅ sequence_ranking.csv ({len(df_sequence)} métricas)")
         
+        # Rankings separados por tipo
+        if len(df_sequence_stable) > 0:
+            df_sequence_stable.to_csv(self.output_dir / "sequence_ranking_stable.csv", index=False)
+            print(f"   ✅ sequence_ranking_stable.csv ({len(df_sequence_stable)} métricas)")
+        
+        if len(df_sequence_transient) > 0:
+            df_sequence_transient.to_csv(self.output_dir / "sequence_ranking_transient.csv", index=False)
+            print(f"   ✅ sequence_ranking_transient.csv ({len(df_sequence_transient)} métricas)")
+        
         # Summary JSON
         runtime_versions = get_runtime_versions()
         summary = {
@@ -1392,6 +1540,9 @@ class AwakeningCascadeAnalyzer:
             'data': {
                 'n_subjects': len(subject_onsets),
                 'n_transitions_total': sum(len(t) for t in subject_onsets.values()),
+                'transition_counts_development': dict(transition_counts),
+                'n_subjects_with_stable': int((df_subject['n_stable'] > 0).sum()),
+                'n_subjects_with_transient': int((df_subject['n_transient'] > 0).sum()),
                 'windows_clean': total_artifacts['clean'],
                 'windows_rejected': total_artifacts['rejected'],
                 'rejection_rate': total_artifacts['rejected'] / (total_artifacts['clean'] + total_artifacts['rejected'] + 1e-10),
@@ -1400,6 +1551,8 @@ class AwakeningCascadeAnalyzer:
             'temporal_uncertainty': '±15s (epoch resolution)',
             'sequence_top10': df_sequence.head(10).to_dict('records'),
             'sequence_bottom10': df_sequence.tail(10).to_dict('records'),
+            'sequence_top10_stable': df_sequence_stable.head(10).to_dict('records') if len(df_sequence_stable) > 0 else [],
+            'sequence_top10_transient': df_sequence_transient.head(10).to_dict('records') if len(df_sequence_transient) > 0 else [],
             'notes': [
                 't=0 = inicio de primera época W anotada',
                 'Onset = primer momento con |z| > threshold por k ventanas consecutivas',
@@ -1407,7 +1560,7 @@ class AwakeningCascadeAnalyzer:
                 'PAC reportado como z-score vs surrogates',
                 'Ventanas con HF power no estimable se rechazan (hf_power_nan)',
                 'lz_heuristic es aproximación basada en subcadenas, no LZ76 canónico',
-                'FIX v2.3.1: baseline_end_s cambiado de -240 a -180 para garantizar suficientes ventanas',
+                'Baseline temprano: baseline_end_s = -2400s (primeros 20 min de la ventana de 60 min)',
             ],
         }
         
@@ -1432,12 +1585,12 @@ class AwakeningCascadeAnalyzer:
             },
             'by_subject': {
                 sid: {
-                    'clean': stats['clean'],
-                    'rejected': stats['rejected'],
-                    'rejection_rate': stats['rejected'] / (stats['clean'] + stats['rejected'] + 1e-10),
-                    'by_type': dict(stats['by_type']),
+                    'clean': subj_stats['clean'],
+                    'rejected': subj_stats['rejected'],
+                    'rejection_rate': subj_stats['rejected'] / (subj_stats['clean'] + subj_stats['rejected'] + 1e-10),
+                    'by_type': dict(subj_stats['by_type']),
                 }
-                for sid, stats in subject_artifact_stats.items()
+                for sid, subj_stats in subject_artifact_stats.items()
             }
         }
         with open(self.output_dir / "artifacts_summary.json", 'w') as f:
@@ -1446,6 +1599,12 @@ class AwakeningCascadeAnalyzer:
         
         # 8. Crear visualización
         self.create_cascade_plot(df_sequence)
+        
+        # Plots separados por tipo
+        if len(df_sequence_stable) > 0:
+            self.create_cascade_plot(df_sequence_stable, suffix='_stable', title_extra=' (STABLE)')
+        if len(df_sequence_transient) > 0:
+            self.create_cascade_plot(df_sequence_transient, suffix='_transient', title_extra=' (TRANSIENT)')
         
         # 9. Resumen final
         print(f"\n{'='*70}")
@@ -1468,6 +1627,27 @@ class AwakeningCascadeAnalyzer:
         print(f"      Métricas con onset ANTES de anotación: {len(before_zero)}")
         print(f"      Métricas con onset DESPUÉS de anotación: {len(after_zero)}")
         
+        # Comparación stable vs transient
+        if len(df_sequence_stable) > 0 and len(df_sequence_transient) > 0:
+            print(f"\n   COMPARACIÓN STABLE vs TRANSIENT:")
+            # Métricas en común
+            common_metrics = set(df_sequence_stable['metric']).intersection(set(df_sequence_transient['metric']))
+            if common_metrics:
+                print(f"      Métricas en común: {len(common_metrics)}")
+                # Top 5 diferencias
+                diffs = []
+                for m in common_metrics:
+                    s_row = df_sequence_stable.loc[df_sequence_stable['metric'] == m, 'median_onset_s']
+                    t_row = df_sequence_transient.loc[df_sequence_transient['metric'] == m, 'median_onset_s']
+                    if len(s_row) == 1 and len(t_row) == 1:
+                        stable_onset = float(s_row.iloc[0])
+                        trans_onset = float(t_row.iloc[0])
+                        diffs.append((m, stable_onset, trans_onset, stable_onset - trans_onset))
+                diffs.sort(key=lambda x: abs(x[3]), reverse=True)
+                print(f"      Top diferencias (stable - transient):")
+                for m, s, t, d in diffs[:5]:
+                    print(f"         {m}: {s:+.0f}s vs {t:+.0f}s (Δ={d:+.0f}s)")
+        
         if len(before_zero) > 0:
             first = before_zero.iloc[0]
             print(f"\n   🥇 Primera métrica en cambiar: {first['metric']}")
@@ -1479,10 +1659,12 @@ class AwakeningCascadeAnalyzer:
         return {
             'subject_df': df_subject,
             'sequence_df': df_sequence,
+            'sequence_stable_df': df_sequence_stable,
+            'sequence_transient_df': df_sequence_transient,
             'summary': summary,
         }
     
-    def create_cascade_plot(self, df_sequence):
+    def create_cascade_plot(self, df_sequence, suffix='', title_extra=''):
         """Crea visualización de la cascada."""
         try:
             fig, ax = plt.subplots(figsize=(14, 12))
@@ -1524,7 +1706,7 @@ class AwakeningCascadeAnalyzer:
             ax.axvspan(-15, 15, alpha=0.2, color='gray', label='Incertidumbre anotación (±15s)')
             
             ax.set_xlabel('Tiempo de onset (segundos, relativo a anotación)', fontsize=12)
-            ax.set_title(f'CASCADA DE DESPERTAR {__version__}\n'
+            ax.set_title(f'CASCADA DE DESPERTAR {__version__}{title_extra}\n'
                         'Secuencia temporal de cambios (mediana ± IQR por sujeto)', fontsize=14)
             
             # Leyenda
@@ -1543,10 +1725,11 @@ class AwakeningCascadeAnalyzer:
             ax.grid(axis='x', alpha=0.3)
             
             plt.tight_layout()
-            plt.savefig(self.output_dir / "cascade_plot.png", dpi=150)
+            filename = f"cascade_plot{suffix}.png"
+            plt.savefig(self.output_dir / filename, dpi=150)
             plt.close()
             
-            print(f"   ✅ cascade_plot.png")
+            print(f"   ✅ {filename}")
         except Exception as e:
             print(f"   ⚠️ No se pudo crear gráfico: {e}")
 
