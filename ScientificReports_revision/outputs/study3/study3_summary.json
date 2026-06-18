@@ -1,0 +1,94 @@
+{
+  "config": {
+    "master_seed": 20250805,
+    "n_compliant": 100,
+    "n_violation": 100,
+    "pass_threshold": 70.0
+  },
+  "script_level": {
+    "tp": 100,
+    "fn": 0,
+    "tn": 100,
+    "fp": 0,
+    "recall": 1.0,
+    "specificity": 1.0,
+    "precision": 1.0,
+    "f1": 1.0
+  },
+  "per_category_recall": {
+    "holdout_access": {
+      "n_injected": 15,
+      "n_detected": 15,
+      "recall": 1.0
+    },
+    "conditional_holdout_access": {
+      "n_injected": 15,
+      "n_detected": 15,
+      "recall": 1.0
+    },
+    "threshold_manipulation": {
+      "n_injected": 14,
+      "n_detected": 14,
+      "recall": 1.0
+    },
+    "indirect_holdout_access": {
+      "n_injected": 14,
+      "n_detected": 14,
+      "recall": 1.0
+    },
+    "result_peeking": {
+      "n_injected": 14,
+      "n_detected": 14,
+      "recall": 1.0
+    },
+    "multiple_testing": {
+      "n_injected": 14,
+      "n_detected": 14,
+      "recall": 1.0
+    },
+    "test_tuning": {
+      "n_injected": 14,
+      "n_detected": 14,
+      "recall": 1.0
+    }
+  },
+  "near_miss": {
+    "n": 50,
+    "flagged": 50,
+    "specificity": 0.0,
+    "by_trap": {
+      "cv_fold_named_validation_set": {
+        "n": 10,
+        "cats": {
+          "holdout_access": 10
+        }
+      },
+      "stat_test_object_named_test": {
+        "n": 10,
+        "cats": {
+          "holdout_access": 10
+        }
+      },
+      "print_development_metric": {
+        "n": 10,
+        "cats": {
+          "result_peeking": 10
+        }
+      },
+      "default_then_set_threshold": {
+        "n": 10,
+        "cats": {
+          "threshold_manipulation": 10
+        }
+      },
+      "unrelated_print_then_metric_var": {
+        "n": 10,
+        "cats": {
+          "result_peeking": 10
+        }
+      }
+    }
+  },
+  "false_positive_categories_on_compliant": {},
+  "ms_per_script": 40.498
+}

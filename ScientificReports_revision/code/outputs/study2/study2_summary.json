@@ -1,0 +1,175 @@
+{
+  "config": {
+    "master_seed": 20250805,
+    "mu": 0.7,
+    "flag_threshold_max_z": 2.0,
+    "n_sim": 2000,
+    "alpha": 0.05
+  },
+  "A_fpr_by_K_M": [
+    {
+      "K_folds": 3,
+      "n_metrics": 1,
+      "sigma_fold": 0.05,
+      "fpr": 0.154
+    },
+    {
+      "K_folds": 3,
+      "n_metrics": 3,
+      "sigma_fold": 0.05,
+      "fpr": 0.393
+    },
+    {
+      "K_folds": 3,
+      "n_metrics": 5,
+      "sigma_fold": 0.05,
+      "fpr": 0.5525
+    },
+    {
+      "K_folds": 5,
+      "n_metrics": 1,
+      "sigma_fold": 0.05,
+      "fpr": 0.0855
+    },
+    {
+      "K_folds": 5,
+      "n_metrics": 3,
+      "sigma_fold": 0.05,
+      "fpr": 0.252
+    },
+    {
+      "K_folds": 5,
+      "n_metrics": 5,
+      "sigma_fold": 0.05,
+      "fpr": 0.3755
+    },
+    {
+      "K_folds": 10,
+      "n_metrics": 1,
+      "sigma_fold": 0.05,
+      "fpr": 0.0515
+    },
+    {
+      "K_folds": 10,
+      "n_metrics": 3,
+      "sigma_fold": 0.05,
+      "fpr": 0.1525
+    },
+    {
+      "K_folds": 10,
+      "n_metrics": 5,
+      "sigma_fold": 0.05,
+      "fpr": 0.2495
+    }
+  ],
+  "B_sensitivity_by_noise": [
+    {
+      "sigma_fold": 0.02,
+      "delta_inflation": 0.0,
+      "sensitivity": 0.089
+    },
+    {
+      "sigma_fold": 0.02,
+      "delta_inflation": 0.05,
+      "sensitivity": 0.512
+    },
+    {
+      "sigma_fold": 0.02,
+      "delta_inflation": 0.1,
+      "sensitivity": 0.9255
+    },
+    {
+      "sigma_fold": 0.02,
+      "delta_inflation": 0.15,
+      "sensitivity": 0.999
+    },
+    {
+      "sigma_fold": 0.02,
+      "delta_inflation": 0.2,
+      "sensitivity": 1.0
+    },
+    {
+      "sigma_fold": 0.02,
+      "delta_inflation": 0.3,
+      "sensitivity": 1.0
+    },
+    {
+      "sigma_fold": 0.05,
+      "delta_inflation": 0.0,
+      "sensitivity": 0.111
+    },
+    {
+      "sigma_fold": 0.05,
+      "delta_inflation": 0.05,
+      "sensitivity": 0.22
+    },
+    {
+      "sigma_fold": 0.05,
+      "delta_inflation": 0.1,
+      "sensitivity": 0.4195
+    },
+    {
+      "sigma_fold": 0.05,
+      "delta_inflation": 0.15,
+      "sensitivity": 0.624
+    },
+    {
+      "sigma_fold": 0.05,
+      "delta_inflation": 0.2,
+      "sensitivity": 0.8195
+    },
+    {
+      "sigma_fold": 0.05,
+      "delta_inflation": 0.3,
+      "sensitivity": 0.9795
+    },
+    {
+      "sigma_fold": 0.1,
+      "delta_inflation": 0.0,
+      "sensitivity": 0.079
+    },
+    {
+      "sigma_fold": 0.1,
+      "delta_inflation": 0.05,
+      "sensitivity": 0.139
+    },
+    {
+      "sigma_fold": 0.1,
+      "delta_inflation": 0.1,
+      "sensitivity": 0.221
+    },
+    {
+      "sigma_fold": 0.1,
+      "delta_inflation": 0.15,
+      "sensitivity": 0.311
+    },
+    {
+      "sigma_fold": 0.1,
+      "delta_inflation": 0.2,
+      "sensitivity": 0.413
+    },
+    {
+      "sigma_fold": 0.1,
+      "delta_inflation": 0.3,
+      "sensitivity": 0.646
+    }
+  ],
+  "C_boundary_shift": [
+    {
+      "holdout_sigma_mult": 1.0,
+      "fpr_under_H0": 0.09
+    },
+    {
+      "holdout_sigma_mult": 1.5,
+      "fpr_under_H0": 0.1625
+    },
+    {
+      "holdout_sigma_mult": 2.0,
+      "fpr_under_H0": 0.2305
+    },
+    {
+      "holdout_sigma_mult": 3.0,
+      "fpr_under_H0": 0.291
+    }
+  ]
+}

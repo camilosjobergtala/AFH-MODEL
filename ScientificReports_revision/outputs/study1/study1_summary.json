@@ -1,0 +1,19 @@
+{
+  "study": "Study 1 \u2014 EIS internal coherence & weight stability (COH)",
+  "interpretation": "internal construct check; NOT external validation",
+  "master_seed": 20250805,
+  "corpus_size": 300,
+  "non_redundancy": {
+    "max_abs_offdiag_spearman": 0.40445022440398615,
+    "mean_abs_offdiag_spearman": 0.1411048512796578
+  },
+  "weight_stability": {
+    "min_rank_corr_vs_default": 0.8669367383764057,
+    "mean_rank_corr_vs_default": 0.9325839010522013,
+    "linearity_check_max_diff": 1.1102230246251565e-16
+  },
+  "sanity_monotonicity": {
+    "strictly_increasing": true
+  },
+  "timestamp": "2026-06-13T17:08:42.638327"
+}

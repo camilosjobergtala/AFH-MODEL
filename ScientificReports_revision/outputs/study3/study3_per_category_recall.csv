@@ -1,0 +1,8 @@
+category,n_injected,n_detected,recall
+holdout_access,15,15,1.0
+conditional_holdout_access,15,15,1.0
+threshold_manipulation,14,14,1.0
+indirect_holdout_access,14,14,1.0
+result_peeking,14,14,1.0
+multiple_testing,14,14,1.0
+test_tuning,14,14,1.0
