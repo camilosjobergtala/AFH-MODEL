@@ -1,0 +1,63 @@
+{
+  "analogo_P3": {
+    "id": "Analogo-P3",
+    "name": "Ordenamiento temporal -- ANALOGO exploratorio, no test oficial de Prediccion 3 (Sleep-EDF real, transiciones de etapa vs onset de proxy H*)",
+    "metric_name": "% transiciones con proxy H* precediendo a la transicion anotada",
+    "metric_value": 55.577172503242544,
+    "threshold_desc": "> 50% con p < 0.05 (binomial) para 'confirmada debilmente'; >= 70% para 'fuerte' (umbral practico ya fijado por el propio autor en OPTIMIZATION_SUMMARY.json)",
+    "passed": true,
+    "detail": {
+      "n_transitions_validas": 1542,
+      "n_sujetos": 153,
+      "media_onset_s": 0.959792477302205,
+      "p_value_ttest_onset_vs_0": 0.25718174679245553,
+      "p_value_binomial_vs_azar": 6.535803204289733e-06,
+      "combinacion_de_features": "hjorth_dfa_petrosian",
+      "alcanza_umbral_fuerte_70pct": false,
+      "fuente": "Lab/AFH vs ECLIPSE/FOLD/NIVEL 3 PAC/nivel3b_v3_optimization/raw_results_full.csv",
+      "salvedad": "Analisis exploratorio previo del autor (Lab/, no parte del manuscrito), tematicamente analogo a la logica de Prediccion 3 pero no una operacionalizacion oficial de esa prediccion tal como esta escrita en el paper."
+    }
+  },
+  "contexto_delta_t_fold_no_es_P4": {
+    "que_mide": "Group delay (retardo de fase, banda 2-9Hz) entre canales EEG Fpz-Cz y Pz-Oz. NO es covarianza H*/Nabla -- no corresponde a la Prediccion 4 del paper.",
+    "fuente_resultado": "Lab/AFH vs ECLIPSE/FOLD/NIVEL 0 FOLD/eclipse_v2/DeltaTFold_SleepEDF_RealData_FINAL_RESULT.json",
+    "fuente_criterios": "Lab/AFH vs ECLIPSE/FOLD/NIVEL 0 FOLD/eclipse_v2/DeltaTFold_SleepEDF_RealData_CRITERIA_BINDING.json",
+    "criterios_requeridos": [
+      "Tamaño del efecto >= 0.3 (efecto mediano)",
+      "p < 0.05 para H1: vigilia > sueño"
+    ],
+    "veredicto": "FALSIFICADA bajo su propia pre-registracion (2 requeridos, solo 1 superado en holdout)",
+    "cohens_d_holdout": 0.21944525387751102,
+    "umbral_d_requerido": 0.3,
+    "p_value_holdout": 0.02102335012090533,
+    "n_holdout": 349,
+    "nota": "No es un nuevo analisis: es el resultado ya archivado en el repositorio para esta hipotesis especifica (Delta-t-Fold). Se reporta como contexto relacionado, no como test de ninguna de las 7 predicciones enumeradas en la Seccion 6.1 del paper."
+  },
+  "no_testable_con_sleepedf": [
+    {
+      "id": "P1",
+      "name": "Correlacion fenomenologica gradada",
+      "razon": "Requiere manipulacion graduada (dosis/tACS/DBS) Y reporte en primera persona por ensayo. Sleep-EDF es registro pasivo sin ninguna manipulacion experimental ni reporte."
+    },
+    {
+      "id": "P2",
+      "name": "Disociacion cualitativa N3/anestesia",
+      "razon": "Requiere un brazo de anestesia profunda para contrastar con N3. Sleep-EDF solo contiene sueno natural (W/N1/N2/N3/REM); no existe condicion de anestesia en este dataset."
+    },
+    {
+      "id": "P5",
+      "name": "Covarianza bajo manipulaciones de la retencion",
+      "razon": "Requiere una tarea de reproduccion de duracion/intervalo lleno con reporte de vividez. Sleep-EDF no incluye ninguna tarea conductual ni reporte subjetivo."
+    },
+    {
+      "id": "P6",
+      "name": "Origen reflexivo de la senal lenta (decisiva)",
+      "razon": "Requiere registro intracraneal con cobertura de los ILN (CM/Pf, CL) para rastrear la fuente de la senal lenta. Sleep-EDF es EEG de superficie (Fpz-Cz, Pz-Oz): no resuelve actividad talamica profunda bajo ninguna circunstancia, sin importar cuantos sujetos se sumen."
+    },
+    {
+      "id": "P7",
+      "name": "Diferencial de latencia en los ILN",
+      "razon": "Misma razon que P6: exige registro intracraneal talamico con resolucion temporal fina; el EEG de cuero cabelludo no tiene acceso a esa fuente."
+    }
+  ]
+}
