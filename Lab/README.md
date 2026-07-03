@@ -24,6 +24,7 @@ build artifacts to `.gitignore`.
 | [`HORIZON/`](HORIZON/) | Feature-filtering / classification experiments (Wake vs N3, catch22/HCTSA feature exploration) for a separate Registered Report line. |
 | [`IIT vs ECLIPSE/`](IIT%20vs%20ECLIPSE/) | AFH*/ECLIPSE vs. Integrated Information Theory (IIT) falsification comparison, versions V2 → V3.2 → v4. |
 | [`MODELING FOLD/`](MODELING%20FOLD/) | A single orphan script, see below. |
+| [`afh-predicciones-simulacion/`](afh-predicciones-simulacion/) | **Active, not archival.** Simulates and evaluates the 7 falsifiable predictions (Section 6.1) of the current AFH paper ("Presencia fenomenológica y el tálamo intralaminar") — synthetic data plus a re-analysis of the real Sleep-EDF results already sitting in `AFH vs ECLIPSE/FOLD/`. |
 
 See `AFH vs ECLIPSE/README.md`, `HORIZON/README.md`, and `IIT vs ECLIPSE/README.md` for
 per-folder version details.
