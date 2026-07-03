@@ -45,3 +45,9 @@
   de confusor ruidoso, la tasa de falsos positivos de la correlación parcial *crece* con N en
   vez de diluirse — un proxy de arousal poco fiel es más urgente que sumar ensayos. Corre en
   segundos (`python "simulacion_acoplamiento_fase_temprana_tardia.py"`).
+
+- **`resultados.html`** — página autocontenida con los resultados reales (no ilustrativos) de
+  correr `AFH_modelo_N_nodos.py` y `simulacion_acoplamiento_fase_temprana_tardia.py`: tablas y
+  gráficos de la validación de β\_c≈1.0, la discriminación Tipo B/Tipo A, y el análisis de
+  poder del acoplamiento ensayo-a-ensayo, con enlace al instrumento interactivo. Publicada
+  también como Artifact en `https://claude.ai/code/artifact/cbecc267-6ce8-4e39-bc56-84a36487604d`.
