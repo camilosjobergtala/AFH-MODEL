@@ -16,3 +16,20 @@
   vía información de transferencia condicional, y traduce las cinco condiciones de
   universalidad y las siete predicciones del marco AFH a hipótesis estadísticas precisas.
   Incluye una tabla de correspondencia explícita entre esta formalización y `0.4.py`.
+
+- **`AFH_modelo_N_nodos.py`** — generalización de `0.4.py` a poblaciones (m nodos ILN, n
+  corteza) con retardo aferente `tau_f` explícito (ausente en `0.4.py`), matrices de
+  acoplamiento normalizadas para que el umbral crítico sea exactamente β=1 en cualquier
+  dimensión, un estimador **directo** de β\_c por bisección sobre la tasa de crecimiento
+  exponencial (no un umbral de amplitud — ver la nota metodológica en el propio archivo sobre
+  por qué esa primera aproximación estaba sesgada), y el volumen configuracional V (razón de
+  participación) sobre la población cortical. Confirma numéricamente β\_c≈1.0 (error 1-5.5 %)
+  para múltiples m, n, τ\_f, τ\_s — validación directa de la derivación analítica de la Sección
+  5/8 del `.md`. Corre en segundos (`python "AFH_modelo_N_nodos.py"`).
+
+- **`pliegue_interactivo.html`** — instrumento interactivo autocontenido (abrir directo en un
+  navegador, sin servidor): corre en vivo una réplica en JavaScript del modelo canónico
+  (m=1 hub, n=3 corteza, pesos normalizados para β\_c=1), con sliders para β y τ, selector
+  Tipo B/Tipo A/Ninguno, botón de lesión ILN, y lectura en vivo de ∇ bruto, ∇ parcial
+  (aproximación a Granger específico), H\* y V. Publicado también como Artifact en
+  `https://claude.ai/code/artifact/44512c2d-e21e-46c8-a6db-478e2d477f77`.
