@@ -33,3 +33,15 @@
   Tipo B/Tipo A/Ninguno, botón de lesión ILN, y lectura en vivo de ∇ bruto, ∇ parcial
   (aproximación a Granger específico), H\* y V. Publicado también como Artifact en
   `https://claude.ai/code/artifact/44512c2d-e21e-46c8-a6db-478e2d477f77`.
+
+- **`simulacion_acoplamiento_fase_temprana_tardia.py`** — traduce la Predicción 6 del formato
+  "señal continua con un único retardo fijo" (el de `0.4.py`/`AFH_modelo_N_nodos.py`) al
+  formato de un registro intracraneal organizado por ensayos, con una fase temprana
+  tálamo→corteza y una fase tardía corteza→tálamo por ensayo. Simula el análisis de
+  acoplamiento ensayo-a-ensayo entre ambas fases bajo Tipo B (retorno reflexivo) vs. Tipo A
+  (vía independiente, sólo comparten arousal/enganche), muestra por qué la correlación cruda
+  no discrimina y hay que usar correlación parcial controlando un proxy del confusor, y corre
+  un análisis de poder (N de ensayos × fuerza de acoplamiento). Hallazgo central: con un proxy
+  de confusor ruidoso, la tasa de falsos positivos de la correlación parcial *crece* con N en
+  vez de diluirse — un proxy de arousal poco fiel es más urgente que sumar ensayos. Corre en
+  segundos (`python "simulacion_acoplamiento_fase_temprana_tardia.py"`).
