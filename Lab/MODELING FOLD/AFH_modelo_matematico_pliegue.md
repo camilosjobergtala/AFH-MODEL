@@ -356,6 +356,92 @@ derivada aquí).
 
 ---
 
+## 9.1 De correlación de magnitud a identificabilidad de contenido: la prueba de rastreo de fuente
+
+La Predicción 6 tal como se formaliza en §3–4 opera sobre una cantidad **escalar**: la
+fuerza (magnitud) de la señal lenta en un retardo $\tau$. Eso es necesario pero no agota lo
+que el manuscrito llama "rastreo de fuente": que la señal retardada "derive... del mismo
+procesamiento cortical desencadenado por la entrada rápida" es una afirmación sobre el
+**contenido específico** de cada instancia de convergencia, no sólo sobre si dos números
+resumen (fuerza temprana, fuerza tardía) covarían. Ambas nociones son lógicamente
+independientes:
+
+- Dos ensayos pueden tener magnitudes correlacionadas sin que el patrón específico de la
+  fase tardía porte ninguna huella del patrón específico de la fase temprana de *ese*
+  ensayo — si la correlación de magnitud viene sólo de una ganancia global compartida
+  (p. ej. arousal modulando la fuerza de ambas fases por igual).
+- El contenido puede ser rastreable —la fase tardía *sí* deriva del procesamiento de la
+  fase temprana específica— incluso si las magnitudes resumen no correlacionan, si la
+  variación entre ensayos está sobre todo en **qué patrón** ocurrió, no en **cuán fuerte**
+  fue.
+
+Un análisis que sólo pruebe magnitud puede reportar "sin evidencia de Tipo B" cuando el
+acoplamiento reflexivo genuino está presente pero codificado en el patrón, no en la fuerza
+— un falso negativo estructural, no una falla del sistema. Esta sección formaliza la
+prueba más exigente.
+
+**Generalización vectorial.** Sea $e_i \in \mathbb{R}^d$ el contenido de la fase temprana
+del ensayo $i$ (una featurización multivariada — espectral, de forma de onda, o cualquier
+representación de la actividad talamocortical rápida de ese ensayo) y $l_i \in
+\mathbb{R}^d$ el contenido de la fase tardía, en el mismo espacio de representación (o uno
+relacionado por una transformación conocida). Como en §3, $z_i$ es el confusor latente
+(arousal) y $\hat z_i$ su proxy observable y ruidoso.
+
+$$
+\textbf{Tipo A (heterogénea):}\quad l_i = \mu_L + B z_i \mathbf{1} + \eta_i, \qquad \eta_i \perp e_i
+$$
+
+$$
+\textbf{Tipo B (reflexiva):}\quad l_i = \mu_L + B z_i \mathbf{1} + \Phi(e_i) + \eta_i, \qquad \Phi:\mathbb{R}^d\to\mathbb{R}^d \text{ fija, independiente del ensayo}
+$$
+
+Bajo Tipo A, ningún mapeo ajustado de $e$ a $l$ puede identificar de qué ensayo proviene
+$l_i$ mejor que el azar, una vez descontado $z$ — porque $\eta_i$ es, por construcción,
+independiente de la identidad de $e_i$. Bajo Tipo B, $\Phi(e_i)$ es una huella específica
+del ensayo que sobrevive a controlar por $z$.
+
+**La prueba: identificabilidad por emparejamiento, estratificada por confusor.**
+
+1. Descontar el confusor de ambos contenidos por regresión lineal contra el proxy $\hat
+   z$: $\tilde e_i := e_i - \widehat{\mathbb{E}}[e_i \mid \hat z_i]$, análogamente
+   $\tilde l_i$.
+2. Ajustar $\hat\Phi$ (regresión ridge $\tilde l \sim \tilde e$) sólo sobre ensayos de
+   entrenamiento.
+3. Sobre ensayos de prueba, calcular $\hat l_i := \hat\Phi(\tilde e_i)$ y, **dentro de cada
+   estrato de $\hat z$** (para no comparar ensayos con niveles de confusor distintos),
+   buscar cuál $\tilde l_j$ del mismo estrato está más cerca de $\hat l_i$. Estadístico:
+   *exactitud top-1* — proporción de ensayos donde el más cercano es el propio $\tilde
+   l_i$.
+4. Nulo por permutación **dentro de cada estrato** (nunca global — permutar entre estratos
+   subestima la tasa de acierto esperada bajo Tipo A, porque ensayos de estratos distintos
+   ya son disímiles por el confusor solo, y eso vuelve la prueba anticonservadora; el
+   mismo tipo de sesgo que el proxy ruidoso introduce en la Sec. de falsos positivos de
+   `simulacion_acoplamiento_fase_temprana_tardia.py`).
+
+**Relación con ∇.** Esta exactitud top-1 estratificada es la generalización
+multivariada, a nivel de contenido, de $\nabla(t;\tau)$ (§4): mismo principio
+—información sobre el presente que proviene específicamente de la propia trayectoria
+pasada, más allá de lo que factores compartidos ya explican— aplicado a un vector de
+contenido en vez de a un escalar de magnitud, y controlando por un confusor medido en vez
+de por el propio pasado autorregresivo.
+
+**Validación numérica (`test_rastreo_de_fuente.py`).** Con $N=400$ ensayos, $d=10$, y un
+diseño donde el contenido temprano varía casi enteramente en dirección (patrón) y casi
+nada en norma (fuerza): la prueba de magnitud da $r_{\text{parcial}}\approx 0.03$–$0.04$
+($p>0.4$) en **ambos** modelos generativos — ciega, tal como se predice arriba. La prueba
+de identificabilidad, sobre los mismos datos, da exactitud top-1 al nivel del azar bajo
+Tipo A ($0.030$ vs. nulo $0.025$, $p=0.37$) y muy por encima del azar bajo Tipo B ($0.130$
+vs. nulo $0.026$, $p<0.001$). Esto confirma que las dos pruebas no son redundantes: un
+resultado nulo en la prueba de magnitud no permite concluir ausencia de Tipo B si no se
+corrió también la de identificabilidad.
+
+**Predicción 6, versión fuerte.** Un análisis real debería reportar ambas pruebas. La
+posición constitutiva se fortalece si la identificabilidad estratificada es
+significativa incluso cuando la magnitud no lo es (exactamente el patrón encontrado en la
+validación numérica); se debilita si ninguna de las dos lo es.
+
+---
+
 ## 10. Condiciones de falsación (§6.4), como regla de decisión
 
 Sea $\text{Falla}(k)\in\{0,1\}$ el indicador de que la condición $k$ de §6.4 del
@@ -425,6 +511,9 @@ causal o correlacional (exactamente el umbral que el manuscrito fija por adelant
 | $\widehat\nabla(\tau)$, estimador lineal | `granger_en_tau()` → `F`, `ΔR²` | ninguno directo; `HCTSA*.py`/`hctsa discovery.py` buscan proxies (Hjorth, DFA) |
 | $\beta_c$ (umbral H\*) | cruce empírico en `barrer_beta_nabla()`/`granger_barrido_beta()`, $\beta\in[0,2.6]$ | "H\* v2" (`NIVEL 4/3.py`): proxy exploratorio `theta_beta_ratio`, sin derivación analítica |
 | $V(t)$ (razón de participación) | no implementado | complejidad de Lempel-Ziv en `CASCADA*.py` (estimador alternativo, señal simbólica) |
+| Realización N-nodos, $\beta_c$ estimado directamente | `AFH_modelo_N_nodos.py`: bisección sobre tasa de crecimiento (§5/8), confirma $\beta_c\approx1.0$ | — |
+| $\widehat\nabla$ ensayo-a-ensayo (magnitud) | `simulacion_acoplamiento_fase_temprana_tardia.py`: correlación parcial controlando proxy de arousal | — |
+| Identificabilidad de contenido (§9.1) | `test_rastreo_de_fuente.py`: exactitud top-1 estratificada, nulo por permutación intra-estrato | — |
 
 Esta tabla es la ruta concreta para extender el código existente: `0.4.py` ya calcula
 $\widehat\nabla$ vía Granger específico y compara Tipo B/A; le falta el retardo aferente

@@ -51,3 +51,14 @@
   gráficos de la validación de β\_c≈1.0, la discriminación Tipo B/Tipo A, y el análisis de
   poder del acoplamiento ensayo-a-ensayo, con enlace al instrumento interactivo. Publicada
   también como Artifact en `https://claude.ai/code/artifact/cbecc267-6ce8-4e39-bc56-84a36487604d`.
+
+- **`test_rastreo_de_fuente.py`** — va más allá de la magnitud: prueba si el *contenido*
+  específico de la fase tardía (no sólo su fuerza resumen) es rastreable hasta el contenido
+  específico de la fase temprana de ese mismo ensayo. Implementa la prueba de
+  identificabilidad por emparejamiento estratificada por confusor que formaliza la Sec. 9.1
+  de `AFH_modelo_matematico_pliegue.md`. Construye a propósito un escenario donde la prueba
+  de magnitud del script anterior es ciega (la variación entre ensayos está en el patrón, no
+  en la fuerza) para mostrar que ambas pruebas no son redundantes: con los mismos datos, la
+  de magnitud da p>0.4 en los dos modelos generativos, mientras la de identificabilidad
+  distingue Tipo A (p=0.37, al nivel del azar) de Tipo B (p<0.001) con claridad. Corre en
+  segundos (`python "test_rastreo_de_fuente.py"`).
