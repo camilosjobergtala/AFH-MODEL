@@ -435,10 +435,72 @@ vs. nulo $0.026$, $p<0.001$). Esto confirma que las dos pruebas no son redundant
 resultado nulo en la prueba de magnitud no permite concluir ausencia de Tipo B si no se
 corrió también la de identificabilidad.
 
-**Predicción 6, versión fuerte.** Un análisis real debería reportar ambas pruebas. La
-posición constitutiva se fortalece si la identificabilidad estratificada es
-significativa incluso cuando la magnitud no lo es (exactamente el patrón encontrado en la
-validación numérica); se debilita si ninguna de las dos lo es.
+**El problema del estímulo compartido — más serio que el del arousal.** El modelo de
+Tipo A de arriba asume $\eta_i \perp e_i$: el ruido del contenido tardío es independiente
+de la *identidad específica* del contenido temprano. Eso es cierto si $e_i$ varía de
+ensayo a ensayo sin ninguna estructura compartida con $l_i$ más allá de $z$. Pero si el
+paradigma presenta **estímulos que varían entre ensayos** (no un estímulo único o
+idéntico repetido), esa independencia falla incluso bajo Tipo A puro: el estímulo es una
+causa común de $e_i$ y de $l_i$ por *dos vías anatómicamente separadas* —la vía rápida que
+genera $e$, y cualquier procesamiento cortical descendente de $l$ que no tenga nada que
+ver con un retorno reflexivo—, y ambas vías codifican de qué estímulo se trató. Un mapeo
+$\hat\Phi$ ajustado sobre datos así puede lograr exactitud top-1 muy por encima del azar
+**identificando el estímulo, no rastreando linaje causal** — un falso positivo de Tipo B
+bajo Tipo A puro. Estratificar por arousal (como en el procedimiento de arriba) no
+resuelve esto: el confusor relevante aquí es la identidad del estímulo, no el arousal, y
+son necesidades de control distintas.
+
+La corrección: si el paradigma varía el estímulo, condicionar la prueba **también** por
+identidad de estímulo — (i) incluir la categoría de estímulo (codificada como variables
+indicadoras) junto con $\hat z$ en la regresión que descuenta el confusor, y (ii)
+restringir el pool de emparejamiento del paso 3 a ensayos de la **misma** categoría de
+estímulo, no sólo del mismo estrato de arousal (más robusto que sólo la regresión si el
+efecto del estímulo no es puramente aditivo). El precio: la varianza discriminante que
+queda tras condicionar por estímulo es sólo la fluctuación idiosincrática ensayo-a-ensayo
+—no la identidad del estímulo—, que tiene menor relación señal/ruido. El problema de
+poder de la Sec. 8 de `DISENO_EXPERIMENTAL_prediccion6.md` no se evita condicionando por
+estímulo; se hereda agravado.
+
+**Validación numérica del problema y su corrección (`test_rastreo_de_fuente.py`, Bloque
+5).** Con estímulo compartido entre $e$ y $l$ por vías separadas (5 categorías, $N=600$):
+la prueba "ingenua" (sólo arousal) da exactitud top-1 significativamente por encima del
+azar bajo **Tipo A puro** ($0.087$ vs. nulo $0.017$, $p<0.0001$) — el falso positivo
+predicho arriba, confirmado. La prueba condicionada por estímulo lo corrige: bajo Tipo A,
+$0.030$ vs. nulo $0.017$ ($p=0.037$, un residuo marginal); descontando el confusor
+verdadero en vez de su proxy ruidoso (control "oráculo"), ese residuo desaparece por
+completo ($p=0.98$) — confirmando que el residuo marginal es el mismo problema de proxy
+imperfecto de siempre (§ falsos positivos en `simulacion_acoplamiento_fase_temprana_tardia.py`),
+no una falla de la lógica de condicionar por estímulo. Bajo Tipo B, la versión
+condicionada sigue detectando el efecto con claridad ($p<0.0001$), con exactitud top-1
+menor que en el escenario sin estímulo compartido — el costo de poder anticipado arriba.
+
+**La pregunta que decide el diseño, antes de tocar datos.** ¿El paradigma real repite un
+estímulo único/idéntico, o lo varía entre ensayos?
+- Si se **repite**: el procedimiento original de esta sección (sin condicionar por
+  estímulo) es válido tal como está — no hay causa común vía estímulo que remover.
+- Si **varía**: es obligatorio condicionar también por identidad de estímulo, como se
+  describe arriba, y reportar el costo de poder que eso implica.
+
+**El techo que ninguna de las dos versiones rompe.** Incluso la versión condicionada por
+estímulo sigue siendo una inferencia causal observacional, apoyada en el supuesto de
+*no-causa-común-no-medida*: que ningún otro estado específico del ensayo —adaptación,
+atención encubierta, estado de red pre-estímulo— module en paralelo el contenido temprano
+y el tardío. El arousal es una de esas causas posibles; la identidad del estímulo es otra,
+ya corregida arriba; puede haber una tercera no identificada. Ninguna cantidad de
+condicionamiento observacional puede cerrar esa posibilidad por completo — sólo la
+intervención (perturbar el tálamo y observar si el contenido tardío específico cambia en
+consecuencia) rompe ese techo, y eso excede lo que una cohorte puramente observacional
+puede ofrecer. La prueba de identificabilidad, en cualquiera de sus dos versiones, es
+**corroborativa bajo supuestos declarados**, no una prueba concluyente — y esto vale para
+la Predicción 6 en general, no sólo para esta sección (ver §11).
+
+**Predicción 6, versión fuerte.** Un análisis real debería reportar ambas pruebas
+(magnitud e identificabilidad), la versión de identificabilidad correspondiente a si el
+paradigma repite o varía el estímulo, y declarar explícitamente el supuesto de
+no-causa-común-no-medida bajo el cual se interpreta el resultado. La posición
+constitutiva se fortalece si la identificabilidad —en su versión correcta para el
+paradigma usado— es significativa incluso cuando la magnitud no lo es (el patrón
+encontrado en la validación numérica); se debilita si ninguna de las dos lo es.
 
 ---
 
@@ -496,6 +558,14 @@ causal o correlacional (exactamente el umbral que el manuscrito fija por adelant
   lazo talamocortical valga exactamente 1 en ninguna unidad particular. Extender la
   derivación a la bifurcación bajo forzamiento estocástico (que desplaza el umbral
   observado empíricamente, como en los barridos de `0.4.py`) es trabajo pendiente.
+- **Ninguna versión de la prueba de rastreo de fuente (§9.1) es una prueba causal
+  concluyente**, ni siquiera en su versión corregida para estímulo compartido. Ambas
+  descansan en un supuesto de no-causa-común-no-medida que ningún condicionamiento
+  observacional puede cerrar por completo (§9.1) — son corroborativas bajo supuestos
+  declarados. Esto no es específico del arousal ni del estímulo: es el techo general de
+  cualquier diseño no-interventivo para la Predicción 6, y conviene declararlo por
+  adelantado en vez de tratarlo como un problema a resolver agregando más condicionantes
+  cuando el resultado sea ambiguo.
 
 ---
 

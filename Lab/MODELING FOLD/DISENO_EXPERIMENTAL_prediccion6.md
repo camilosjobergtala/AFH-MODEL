@@ -53,6 +53,17 @@ sensorial tardía independiente (p. ej., sin un segundo estímulo o retroaliment
 externa cerca de la ventana tardía) — si no, la Sección 6 (vía independiente) deja de ser
 una alternativa real y la comparación pierde sentido.
 
+**Decisión de diseño que hay que resolver antes de correr el Test 2 (§6): ¿el paradigma
+repite un estímulo único/idéntico entre ensayos, o lo varía?** No es un detalle — determina
+qué versión del Test 2 es válida. Si varía, registrar la identidad/categoría de estímulo
+de cada ensayo como una medida más (§5): sin eso, el Test 2 no se puede corregir.
+
+- **Estímulo repetido/idéntico**: la versión simple del Test 2 (§6) es válida tal cual.
+- **Estímulo variable**: obligatorio usar la versión condicionada por estímulo del Test 2
+  — de lo contrario el test puede confundir "ambas fases codifican el mismo estímulo,
+  por vías separadas" con rastreo de fuente genuino, y dar positivo incluso sin ningún
+  retorno reflexivo (ver §6 y la Sec. 9.1 de `AFH_modelo_matematico_pliegue.md`).
+
 ## 4. Señales a registrar
 
 | Señal | Dónde | Para qué |
@@ -76,6 +87,9 @@ Para cada ensayo válido, calcular:
   dimensión que un solo número) — necesaria sólo para el Test 2 (§6).
 - **Contenido de la fase tardía** ($l$): análogo, mismo espacio de representación.
 - **Proxy de arousal** ($\hat z$): un valor por ensayo de la señal elegida en §4.
+- **Identidad/categoría de estímulo**: obligatoria si el paradigma varía el estímulo entre
+  ensayos (§3) — sin esta medida, la versión condicionada del Test 2 (§6) no se puede
+  ejecutar.
 - **Diferencial de latencia**: separación temporal entre el pico/inicio de la fase
   temprana y el de la fase tardía.
 
@@ -95,9 +109,25 @@ arousal similar (exactitud top-1, contra un nulo por permutación **dentro de ca
 de arousal**, nunca global). Éxito: exactitud por encima del nulo. Este test puede ser
 positivo aunque el Test 1 no lo sea — no lo descarten sólo por eso.
 
+**Cuál versión correr depende de la decisión de diseño de §3:**
+- **Estímulo repetido/idéntico** → correr el Test 2 tal como se describe arriba.
+- **Estímulo variable entre ensayos** → correr la versión **condicionada por estímulo**:
+  incluir la categoría de estímulo (además de $\hat z$) en la regresión que descuenta el
+  confusor, y restringir el pool de emparejamiento a ensayos de la **misma** categoría de
+  estímulo, no sólo del mismo estrato de arousal. Sin esta corrección, un positivo en el
+  Test 2 puede significar sólo "ambas fases codifican qué estímulo fue", no rastreo de
+  fuente — un falso positivo bajo la hipótesis de vía independiente, no evidencia a favor
+  de la reflexiva. Costo esperado: menor potencia, porque sólo la fluctuación
+  idiosincrática ensayo-a-ensayo queda como señal discriminante (la validación numérica
+  de esto está en `test_rastreo_de_fuente.py`, Bloque 5).
+
 **Test 3 — Covarianza H\*/∇.** Dentro de los ensayos donde el proxy de convergencia
 talamocortical (H\*) está presente, ¿su fuerza covaría con la fuerza del retorno
-específico (∇)? Umbral pre-registrado: $r>0.50$.
+específico (∇)? Umbral pre-registrado: $r>0.50$. **Sobre este número**: es la convención
+de "efecto grande" que ya trae el manuscrito original (Predicción 4), no algo derivado
+aquí de una propiedad específica de AFH — no hay una respuesta de primeros principios a
+"por qué 0.50 y no 0.35". Tratarlo como convención pre-registrada heredada, y decirlo así
+si un revisor pregunta, en vez de buscarle una justificación post hoc.
 
 **Test 4 — Diferencial de latencia.** ¿La separación temprana/tardía cae en el rango
 150–550 ms? Esto es descriptivo, no discrimina Tipo A de Tipo B por sí solo, pero es
@@ -109,12 +139,38 @@ esperada: H presente con volumen colapsado en N3 vs. H ausente en anestesia).
 
 ## 7. Qué significa cada combinación de resultados
 
+**Tests 1 y 2 (el núcleo — origen de la señal).**
+
 | Test 1 (magnitud) | Test 2 (contenido) | Lectura |
 |---|---|---|
 | Positivo | Positivo | Evidencia convergente fuerte a favor de Tipo B |
 | Negativo | Positivo | Tipo B presente pero codificado en patrón, no en fuerza — **no** interpretar el Test 1 negativo como refutación |
 | Positivo | Negativo | Covarianza de fuerza sin rastro de contenido específico — revisar si la covarianza es artefacto del confusor compartido |
 | Negativo | Negativo | Evidencia en contra de Tipo B en esta cohorte/paradigma |
+
+**Regla combinada para la familia completa de cinco tests — declarada antes de tocar
+datos, no ajustada después de verlos.** Esto extiende la tabla de arriba a Tests 3–5 y
+fija una postura sobre comparaciones múltiples, siguiendo la misma disciplina de
+validación de un solo intento que ya rige en `ScientificReports_revision/` (ECLIPSE) —
+cinco pruebas sueltas sin regla de combinación declarada por adelantado es exactamente el
+jardín de bifurcaciones que ese marco existe para prevenir:
+
+- **Corroboración fuerte**: Tests 1 y/o 2 positivos (según §6), **y** Test 3 ($r>0.50$)
+  también positivo. Tests 4 y 5 son consistentes con el perfil esperado pero no
+  necesarios para esta lectura — son descriptivos (Test 4) o condicionales a tener datos
+  de sueño/anestesia (Test 5).
+- **Corroboración parcial**: Tests 1 y/o 2 positivos, pero Test 3 no alcanza $r>0.50$.
+  Reportar como evidencia de origen reflexivo sin confirmación de la covarianza H\*/∇ —
+  no redondear hacia "corroboración fuerte".
+- **Refutación**: Tests 1 y 2 ambos negativos (bajo la versión de Test 2 correcta para el
+  paradigma usado, §6) — retroceder a interpretación causal o correlacional (§9),
+  independientemente de qué digan Tests 3–5.
+- **Comparaciones múltiples**: con cinco tests y varios umbrales, no corregir
+  post-hoc — declarar antes de correr los datos cuáles de los cinco son confirmatorios
+  (Tests 1–3, los que entran en la regla de arriba) y cuáles son exploratorios/descriptivos
+  (Tests 4–5, que informan pero no mueven la aguja de corroboración/refutación por sí
+  solos). Esa distinción, hecha por adelantado, es lo que evita tener que corregir por
+  cinco compariones después — sólo Tests 1–3 compiten por el mismo presupuesto de error.
 
 ## 8. Tamaño muestral y calidad del proxy de arousal
 
@@ -138,7 +194,8 @@ parámetros ilustrativos, no calibrados a ningún dataset real):
 Retroceder de la posición constitutiva (Tipo B) a una interpretación causal o
 correlacional si ocurre cualquiera de:
 
-1. El Test 1 y el Test 2 son ambos negativos.
+1. El Test 1 y el Test 2 (en la versión de §6 correcta para el paradigma usado —
+   condicionada por estímulo si el estímulo varía) son ambos negativos.
 2. La correlación H\*/∇ (Test 3) es menor a 0.50 de forma consistente.
 3. Emergen disociaciones sistemáticas y replicables entre ∇ operativo (bajo cualquiera de
    los dos tests) y la presencia reportada, en cohortes con reporte fenomenológico
@@ -151,6 +208,22 @@ correlacional si ocurre cualquiera de:
 - El proxy de arousal es, en la práctica, siempre una medición imperfecta del confusor
   real — el Test 1 hereda ese límite (§8); el Test 2 lo mitiga parcialmente al estratificar,
   pero no lo elimina.
+- **Si el paradigma varía el estímulo entre ensayos, el Test 2 sin condicionar por
+  identidad de estímulo puede dar un falso positivo bajo la hipótesis de vía
+  independiente** — el estímulo es causa común de ambas fases por vías separadas, y eso no
+  lo resuelve estratificar sólo por arousal. Usar obligatoriamente la versión condicionada
+  por estímulo en ese caso (§6); aceptar la pérdida de potencia que eso implica en vez de
+  usar la versión sin condicionar porque "da resultados más claros".
+- **Techo general, no específico del arousal ni del estímulo**: incluso el Test 2 en su
+  versión mejor ejecutada sigue siendo una inferencia observacional que descansa en el
+  supuesto de que ningún otro estado específico del ensayo —no sólo arousal o identidad de
+  estímulo, sino cualquier otra causa común no medida (adaptación, atención encubierta,
+  estado de red pre-estímulo)— module en paralelo ambas fases. Ninguna cantidad de
+  condicionamiento observacional cierra esa posibilidad por completo; sólo una
+  intervención (perturbar el tálamo y observar si el contenido tardío específico cambia)
+  la rompería, y eso casi seguro excede lo disponible en una cohorte clínica. Esto es lo
+  máximo que un diseño no-interventivo puede establecer sobre la Predicción 6 — nombrarlo
+  ahora, no escalar a un sexto test si el resultado queda ambiguo.
 - Este diseño prueba la Predicción 6. No prueba la hipótesis constitutiva completa (que la
   convergencia sea *idéntica* a la presencia, no sólo su correlato) — eso excede lo que
   cualquier diseño puramente neural puede establecer, y sigue dependiendo de reporte en
