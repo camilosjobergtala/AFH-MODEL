@@ -72,7 +72,10 @@ QUE HACE:
 
 INSTALACION: pip install numpy scipy
 CORRER:      python "test_rastreo_de_fuente.py"
-TIEMPO:      unos segundos
+TIEMPO:      unos segundos para Bloques 1-5; Bloque 6 (curvas FPR/poder
+             vs. N, 80 repeticiones x 4 valores de N x 3 variantes)
+             tarda unos 3-4 minutos -- top1_accuracy esta vectorizada
+             con numpy precisamente para que esto sea viable.
 =======================================================================
 """
 
@@ -191,18 +194,25 @@ def estratificar(proxy, n_estratos=5):
 def top1_accuracy(Lhat, Lte, estrato):
     """Para cada ensayo de prueba, ¿el vecino mas cercano a su l
     predicho -- DENTRO de su propio estrato de arousal -- es su propio
-    l verdadero? Devuelve la fraccion de aciertos."""
+    l verdadero? Devuelve la fraccion de aciertos.
+
+    Vectorizado con numpy (distancias por pares via broadcasting) en
+    vez del doble loop en Python puro de la version original -- el
+    cuello de botella real de las curvas de poder/FPR de Bloque 6, que
+    necesitan cientos de repeticiones de esta funcion por celda."""
     aciertos, evaluados = 0, 0
     for e_id in np.unique(estrato):
         idxs = np.where(estrato == e_id)[0]
-        if len(idxs) < 3:
+        m = len(idxs)
+        if m < 3:
             continue
-        for i in idxs:
-            dists = [np.sum((Lhat[i] - Lte[j])**2) for j in idxs]
-            mejor = idxs[int(np.argmin(dists))]
-            evaluados += 1
-            if mejor == i:
-                aciertos += 1
+        Lhat_g, Lte_g = Lhat[idxs], Lte[idxs]
+        sq_hat = np.sum(Lhat_g**2, axis=1)[:, None]
+        sq_te = np.sum(Lte_g**2, axis=1)[None, :]
+        dist2 = sq_hat + sq_te - 2 * (Lhat_g @ Lte_g.T)
+        mejor_local = np.argmin(dist2, axis=1)
+        aciertos += int(np.sum(mejor_local == np.arange(m)))
+        evaluados += m
     return aciertos / evaluados if evaluados > 0 else np.nan
 
 
@@ -387,6 +397,118 @@ def demostrar_confusion_por_estimulo(n_trials=600, n_estimulos=5, semilla=1):
 
 
 # =====================================================================
+# BLOQUE 6: CURVA DE PODER (Tipo B) Y DE FALSOS POSITIVOS (Tipo A)
+#           DEL TEST YA CORREGIDO POR ESTIMULO, EN FUNCION DE N
+# =====================================================================
+#
+# Bloque 5 mostro un solo resultado por celda (una semilla). Eso alcanza
+# para confirmar el MECANISMO del sesgo por estimulo y su correccion,
+# pero no para dos preguntas distintas y mas importantes:
+#   (a) SENSIBILIDAD: la version condicionada por estimulo colapsa la
+#       varianza discriminante a la fluctuacion idiosincratica -- ¿eso
+#       le cuesta tanto poder que deja de detectar Tipo B verdadero?
+#   (b) TASA DE FALSOS POSITIVOS EN FUNCION DE N: el hallazgo central
+#       de simulacion_acoplamiento_fase_temprana_tardia.py fue que, con
+#       proxy ruidoso, la FPR de la prueba de MAGNITUD crece con N en
+#       vez de estabilizarse. ¿La correccion por estimulo resuelve ese
+#       problema, o solo tapa el del estimulo y deja vivo el del
+#       proxy de arousal, que reaparece mas confiado (mas "signif-
+#       icativo") cuantos mas ensayos se junten?
+#
+# Un solo p-valor (Bloque 5) no puede contestar (b): 0.037 es
+# perfectamente compatible con una FPR nominal ~0.05 y una corrida con
+# mala suerte. Hace falta la tasa de deteccion sobre MUCHAS repeticiones
+# sinteticas, para cada N -- eso es lo que sigue.
+
+def curva_fpr_y_poder_condicionada(n_trials_grid, n_estimulos=5,
+                                    n_repeticiones=80, n_perm=150,
+                                    semilla=0):
+    """
+    Para cada N en n_trials_grid, corre n_repeticiones simulaciones
+    independientes de la version YA CONDICIONADA por estimulo
+    (regresion + pool restringido a la misma categoria) y devuelve:
+        tasa_A_proxy   -- FPR bajo Tipo A, proxy ruidoso (el caso real)
+        tasa_A_oraculo -- FPR bajo Tipo A, confusor verdadero (control)
+        tasa_B_proxy   -- poder bajo Tipo B, proxy ruidoso (el caso real)
+    "Tasa" = proporcion de repeticiones con p<0.05.
+    """
+    rng_base = np.random.default_rng(semilla)
+    filas = []
+    for n in n_trials_grid:
+        conteos = {"A_proxy": 0, "A_oraculo": 0, "B_proxy": 0}
+        for rep in range(n_repeticiones):
+            s = int(rng_base.integers(0, 2**31 - 1))
+
+            e, l, obsZ, z, estimulo, Q = generar_ensayos_con_estimulo(
+                n, n_estimulos=n_estimulos, tipo="A", semilla=s)
+            dummies = dummies_categoria(estimulo, n_estimulos)
+            _, _, p_proxy = prueba_identificabilidad(
+                e, l, np.column_stack([obsZ, dummies]), estimulo,
+                n_perm=n_perm, semilla=s + 1)
+            if not np.isnan(p_proxy) and p_proxy < 0.05:
+                conteos["A_proxy"] += 1
+            _, _, p_oraculo = prueba_identificabilidad(
+                e, l, np.column_stack([z, dummies]), estimulo,
+                n_perm=n_perm, semilla=s + 1)
+            if not np.isnan(p_oraculo) and p_oraculo < 0.05:
+                conteos["A_oraculo"] += 1
+
+            eB, lB, obsZB, zB, estimuloB, QB = generar_ensayos_con_estimulo(
+                n, n_estimulos=n_estimulos, tipo="B", semilla=s + 2)
+            dummiesB = dummies_categoria(estimuloB, n_estimulos)
+            _, _, p_B = prueba_identificabilidad(
+                eB, lB, np.column_stack([obsZB, dummiesB]), estimuloB,
+                n_perm=n_perm, semilla=s + 3)
+            if not np.isnan(p_B) and p_B < 0.05:
+                conteos["B_proxy"] += 1
+
+        filas.append({
+            "n": n,
+            "fpr_proxy": conteos["A_proxy"] / n_repeticiones,
+            "fpr_oraculo": conteos["A_oraculo"] / n_repeticiones,
+            "poder_proxy": conteos["B_proxy"] / n_repeticiones,
+        })
+    return filas
+
+
+def reportar_curva_fpr_y_poder():
+    print("\n" + "=" * 72)
+    print("  CURVA FPR-vs-N Y PODER-vs-N (test YA CONDICIONADO por estimulo)")
+    print("=" * 72)
+    grid = [400, 800, 1600, 2400]
+    print(f"\n  ({len(grid)} valores de N, 80 repeticiones c/u -- unos minutos)\n")
+    filas = curva_fpr_y_poder_condicionada(grid, n_repeticiones=80, n_perm=150, semilla=7)
+
+    encabezado = "  {:>8s} {:>16s} {:>16s} {:>16s}"
+    print(encabezado.format("N", "FPR (proxy)", "FPR (oraculo)", "Poder Tipo B"))
+    print("  " + "-" * 60)
+    for f in filas:
+        print("  {:>8d} {:>16.3f} {:>16.3f} {:>16.3f}".format(
+            f["n"], f["fpr_proxy"], f["fpr_oraculo"], f["poder_proxy"]))
+
+    fpr_proxy_vals = [f["fpr_proxy"] for f in filas]
+    creciendo = fpr_proxy_vals[-1] > fpr_proxy_vals[0] + 0.05
+    print()
+    if creciendo:
+        print("  -> La FPR con proxy ruidoso SIGUE creciendo con N incluso despues")
+        print("     de condicionar por estimulo: la correccion resolvio el")
+        print("     confusor de estimulo pero el de arousal (proxy imperfecto)")
+        print("     sigue vivo y se comporta igual que en la prueba de magnitud.")
+        print("     Mismo remedio que antes: mejorar el proxy, no juntar mas datos.")
+    else:
+        print("  -> La FPR con proxy ruidoso se mantiene aproximadamente estable")
+        print("     alrededor de alpha=0.05 en este rango de N -- a diferencia de")
+        print("     la prueba de magnitud, aqui condicionar por estimulo parece")
+        print("     ser suficiente para no heredar el problema de crecimiento con N.")
+    print("  La FPR con el confusor verdadero (oraculo) deberia rondar 0.05 en")
+    print("  todos los casos -- es el punto de referencia para separar sesgo por")
+    print("  proxy de cualquier otro problema.")
+    print("  El poder de Tipo B deberia subir con N si el test tiene sensibilidad")
+    print("  real tras condicionar -- un poder que no despega indicaria que la")
+    print("  correccion por estimulo dejo tan poca señal que el test ya no sirve.")
+
+
+# =====================================================================
 # BLOQUE 4: DEMOSTRACION
 # =====================================================================
 
@@ -436,6 +558,7 @@ def main():
     print("     por que esa suposicion es load-bearing, no un detalle.")
 
     demostrar_confusion_por_estimulo()
+    reportar_curva_fpr_y_poder()
 
     print("\n" + "=" * 72)
     print("  LECTURA PRACTICA")

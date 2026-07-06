@@ -474,6 +474,30 @@ no una falla de la lógica de condicionar por estímulo. Bajo Tipo B, la versió
 condicionada sigue detectando el efecto con claridad ($p<0.0001$), con exactitud top-1
 menor que en el escenario sin estímulo compartido — el costo de poder anticipado arriba.
 
+Un único resultado por celda confirma el *mecanismo* pero no responde dos preguntas
+distintas: si el poder sobrevive a condicionar por estímulo, y si la tasa de falsos
+positivos (FPR) con el proxy ruidoso *crece con N* tras la corrección —el patrón
+encontrado para la prueba de magnitud en
+`simulacion_acoplamiento_fase_temprana_tardia.py`— o si la corrección también evita eso.
+Repitiendo la prueba condicionada 80 veces por valor de $N \in \{400, 800, 1600, 2400\}$:
+
+| $N$ | FPR (proxy) | FPR (oráculo) | Poder Tipo B |
+|---|---|---|---|
+| 400 | 0.013 | 0.037 | 1.000 |
+| 800 | 0.025 | 0.025 | 1.000 |
+| 1600 | 0.013 | 0.025 | 1.000 |
+| 2400 | 0.025 | 0.062 | 1.000 |
+
+La FPR con proxy ruidoso se mantiene entre $0.013$ y $0.025$ en todo el rango —dentro del
+ruido de muestreo esperado alrededor de $\alpha=0.05$ con 80 repeticiones ($\text{ES}
+\approx 0.024$)—, sin la tendencia creciente que sí aparece en la prueba de magnitud. El
+poder bajo Tipo B es $1.000$ en los cuatro valores de $N$: la corrección no destruye la
+sensibilidad, al menos para esta magnitud de acoplamiento ($\kappa=0.8$). Honestidad sobre
+el límite de esta validación: el poder saturado en $1.0$ confirma que la prueba retiene
+sensibilidad, pero no traza una curva de poder informativa (no hay pendiente que mostrar
+cuando ya se está en el techo) — para caracterizar el punto donde el poder empieza a caer
+haría falta repetir esto con $\kappa$ menor, no hecho aquí.
+
 **La pregunta que decide el diseño, antes de tocar datos.** ¿El paradigma real repite un
 estímulo único/idéntico, o lo varía entre ensayos?
 - Si se **repite**: el procedimiento original de esta sección (sin condicionar por

@@ -66,5 +66,11 @@
   de magnitud del script anterior es ciega (la variación entre ensayos está en el patrón, no
   en la fuerza) para mostrar que ambas pruebas no son redundantes: con los mismos datos, la
   de magnitud da p>0.4 en los dos modelos generativos, mientras la de identificabilidad
-  distingue Tipo A (p=0.37, al nivel del azar) de Tipo B (p<0.001) con claridad. Corre en
-  segundos (`python "test_rastreo_de_fuente.py"`).
+  distingue Tipo A (p=0.37, al nivel del azar) de Tipo B (p<0.001) con claridad. También
+  construye el escenario donde ese test de identificabilidad *ingenuo* falla — estímulo
+  compartido entre fase temprana y tardía por vías separadas, sin ningún retorno reflexivo
+  — y confirma que condicionar por identidad de estímulo (no sólo por arousal) lo corrige,
+  con un chequeo de poder y de FPR-vs-N (80 repeticiones × 4 tamaños de muestra) que
+  confirma que la corrección ni pierde sensibilidad (poder=1.000) ni hereda el problema de
+  FPR creciente con N que sí tiene la prueba de magnitud. Bloques 1-5 corren en segundos;
+  el Bloque 6 (las curvas) tarda 3-4 minutos (`python "test_rastreo_de_fuente.py"`).

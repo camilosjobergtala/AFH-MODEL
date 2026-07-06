@@ -118,8 +118,15 @@ positivo aunque el Test 1 no lo sea — no lo descarten sólo por eso.
   Test 2 puede significar sólo "ambas fases codifican qué estímulo fue", no rastreo de
   fuente — un falso positivo bajo la hipótesis de vía independiente, no evidencia a favor
   de la reflexiva. Costo esperado: menor potencia, porque sólo la fluctuación
-  idiosincrática ensayo-a-ensayo queda como señal discriminante (la validación numérica
-  de esto está en `test_rastreo_de_fuente.py`, Bloque 5).
+  idiosincrática ensayo-a-ensayo queda como señal discriminante.
+
+  **Validado, no sólo esperado** (`test_rastreo_de_fuente.py`, Bloque 6): repitiendo la
+  versión condicionada 80 veces por $N\in\{400,800,1600,2400\}$, la FPR con proxy ruidoso
+  se mantiene entre 0.013–0.025 (sin la tendencia creciente con $N$ que sí muestra la
+  prueba de magnitud, §8), y el poder bajo un acoplamiento reflexivo moderado es 1.000 en
+  los cuatro tamaños — la corrección no destruye la sensibilidad, al menos para ese tamaño
+  de efecto. No se caracterizó todavía el tamaño de efecto mínimo detectable tras
+  condicionar por estímulo (haría falta repetir con acoplamientos más débiles).
 
 **Test 3 — Covarianza H\*/∇.** Dentro de los ensayos donde el proxy de convergencia
 talamocortical (H\*) está presente, ¿su fuerza covaría con la fuerza del retorno
