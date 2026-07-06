@@ -1,5 +1,11 @@
 # MODELING FOLD — formalización matemática del Pliegue Autopsíquico
 
+- **`DISENO_EXPERIMENTAL_prediccion6.md`** — protocolo puro, sin matemática ni código: qué
+  población, qué tarea, qué señales registrar, en qué orden correr los análisis, cuántos
+  ensayos hacen falta, y bajo qué condiciones retroceder de la posición constitutiva. Para
+  alguien que quiera saber "si mañana hay acceso a un registro adecuado, ¿qué hay que
+  hacer?" sin tener que leer las derivaciones.
+
 - **`0.4.py`** (internamente versionado "AFH v0.5" en su docstring — nombre de archivo y
   versión interna no coinciden, mantenido tal cual) — simulación de un lazo talamocortical
   escalar con retardo (tálamo `x`, corteza `y`). Implementa la distinción central del marco:
