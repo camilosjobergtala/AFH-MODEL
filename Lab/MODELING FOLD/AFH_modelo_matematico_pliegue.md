@@ -356,6 +356,204 @@ derivada aquí).
 
 ---
 
+## 9.1 De correlación de magnitud a identificabilidad de contenido: la prueba de rastreo de fuente
+
+La Predicción 6 tal como se formaliza en §3–4 opera sobre una cantidad **escalar**: la
+fuerza (magnitud) de la señal lenta en un retardo $\tau$. Eso es necesario pero no agota lo
+que el manuscrito llama "rastreo de fuente": que la señal retardada "derive... del mismo
+procesamiento cortical desencadenado por la entrada rápida" es una afirmación sobre el
+**contenido específico** de cada instancia de convergencia, no sólo sobre si dos números
+resumen (fuerza temprana, fuerza tardía) covarían. Ambas nociones son lógicamente
+independientes:
+
+- Dos ensayos pueden tener magnitudes correlacionadas sin que el patrón específico de la
+  fase tardía porte ninguna huella del patrón específico de la fase temprana de *ese*
+  ensayo — si la correlación de magnitud viene sólo de una ganancia global compartida
+  (p. ej. arousal modulando la fuerza de ambas fases por igual).
+- El contenido puede ser rastreable —la fase tardía *sí* deriva del procesamiento de la
+  fase temprana específica— incluso si las magnitudes resumen no correlacionan, si la
+  variación entre ensayos está sobre todo en **qué patrón** ocurrió, no en **cuán fuerte**
+  fue.
+
+Un análisis que sólo pruebe magnitud puede reportar "sin evidencia de Tipo B" cuando el
+acoplamiento reflexivo genuino está presente pero codificado en el patrón, no en la fuerza
+— un falso negativo estructural, no una falla del sistema. Esta sección formaliza la
+prueba más exigente.
+
+**Generalización vectorial.** Sea $e_i \in \mathbb{R}^d$ el contenido de la fase temprana
+del ensayo $i$ (una featurización multivariada — espectral, de forma de onda, o cualquier
+representación de la actividad talamocortical rápida de ese ensayo) y $l_i \in
+\mathbb{R}^d$ el contenido de la fase tardía, en el mismo espacio de representación (o uno
+relacionado por una transformación conocida). Como en §3, $z_i$ es el confusor latente
+(arousal) y $\hat z_i$ su proxy observable y ruidoso.
+
+$$
+\textbf{Tipo A (heterogénea):}\quad l_i = \mu_L + B z_i \mathbf{1} + \eta_i, \qquad \eta_i \perp e_i
+$$
+
+$$
+\textbf{Tipo B (reflexiva):}\quad l_i = \mu_L + B z_i \mathbf{1} + \Phi(e_i) + \eta_i, \qquad \Phi:\mathbb{R}^d\to\mathbb{R}^d \text{ fija, independiente del ensayo}
+$$
+
+Bajo Tipo A, ningún mapeo ajustado de $e$ a $l$ puede identificar de qué ensayo proviene
+$l_i$ mejor que el azar, una vez descontado $z$ — porque $\eta_i$ es, por construcción,
+independiente de la identidad de $e_i$. Bajo Tipo B, $\Phi(e_i)$ es una huella específica
+del ensayo que sobrevive a controlar por $z$.
+
+**La prueba: identificabilidad por emparejamiento, estratificada por confusor.**
+
+1. Descontar el confusor de ambos contenidos por regresión lineal contra el proxy $\hat
+   z$: $\tilde e_i := e_i - \widehat{\mathbb{E}}[e_i \mid \hat z_i]$, análogamente
+   $\tilde l_i$.
+2. Ajustar $\hat\Phi$ (regresión ridge $\tilde l \sim \tilde e$) sólo sobre ensayos de
+   entrenamiento.
+3. Sobre ensayos de prueba, calcular $\hat l_i := \hat\Phi(\tilde e_i)$ y, **dentro de cada
+   estrato de $\hat z$** (para no comparar ensayos con niveles de confusor distintos),
+   buscar cuál $\tilde l_j$ del mismo estrato está más cerca de $\hat l_i$. Estadístico:
+   *exactitud top-1* — proporción de ensayos donde el más cercano es el propio $\tilde
+   l_i$.
+4. Nulo por permutación **dentro de cada estrato** (nunca global — permutar entre estratos
+   subestima la tasa de acierto esperada bajo Tipo A, porque ensayos de estratos distintos
+   ya son disímiles por el confusor solo, y eso vuelve la prueba anticonservadora; el
+   mismo tipo de sesgo que el proxy ruidoso introduce en la Sec. de falsos positivos de
+   `simulacion_acoplamiento_fase_temprana_tardia.py`).
+
+**Relación con ∇.** Esta exactitud top-1 estratificada es la generalización
+multivariada, a nivel de contenido, de $\nabla(t;\tau)$ (§4): mismo principio
+—información sobre el presente que proviene específicamente de la propia trayectoria
+pasada, más allá de lo que factores compartidos ya explican— aplicado a un vector de
+contenido en vez de a un escalar de magnitud, y controlando por un confusor medido en vez
+de por el propio pasado autorregresivo.
+
+**Validación numérica (`test_rastreo_de_fuente.py`).** Con $N=400$ ensayos, $d=10$, y un
+diseño donde el contenido temprano varía casi enteramente en dirección (patrón) y casi
+nada en norma (fuerza): la prueba de magnitud da $r_{\text{parcial}}\approx 0.03$–$0.04$
+($p>0.4$) en **ambos** modelos generativos — ciega, tal como se predice arriba. La prueba
+de identificabilidad, sobre los mismos datos, da exactitud top-1 al nivel del azar bajo
+Tipo A ($0.030$ vs. nulo $0.025$, $p=0.37$) y muy por encima del azar bajo Tipo B ($0.130$
+vs. nulo $0.026$, $p<0.001$). Esto confirma que las dos pruebas no son redundantes: un
+resultado nulo en la prueba de magnitud no permite concluir ausencia de Tipo B si no se
+corrió también la de identificabilidad.
+
+**El problema del estímulo compartido — más serio que el del arousal.** El modelo de
+Tipo A de arriba asume $\eta_i \perp e_i$: el ruido del contenido tardío es independiente
+de la *identidad específica* del contenido temprano. Eso es cierto si $e_i$ varía de
+ensayo a ensayo sin ninguna estructura compartida con $l_i$ más allá de $z$. Pero si el
+paradigma presenta **estímulos que varían entre ensayos** (no un estímulo único o
+idéntico repetido), esa independencia falla incluso bajo Tipo A puro: el estímulo es una
+causa común de $e_i$ y de $l_i$ por *dos vías anatómicamente separadas* —la vía rápida que
+genera $e$, y cualquier procesamiento cortical descendente de $l$ que no tenga nada que
+ver con un retorno reflexivo—, y ambas vías codifican de qué estímulo se trató. Un mapeo
+$\hat\Phi$ ajustado sobre datos así puede lograr exactitud top-1 muy por encima del azar
+**identificando el estímulo, no rastreando linaje causal** — un falso positivo de Tipo B
+bajo Tipo A puro. Estratificar por arousal (como en el procedimiento de arriba) no
+resuelve esto: el confusor relevante aquí es la identidad del estímulo, no el arousal, y
+son necesidades de control distintas.
+
+La corrección: si el paradigma varía el estímulo, condicionar la prueba **también** por
+identidad de estímulo — (i) incluir la categoría de estímulo (codificada como variables
+indicadoras) junto con $\hat z$ en la regresión que descuenta el confusor, y (ii)
+restringir el pool de emparejamiento del paso 3 a ensayos de la **misma** categoría de
+estímulo, no sólo del mismo estrato de arousal (más robusto que sólo la regresión si el
+efecto del estímulo no es puramente aditivo). El precio: la varianza discriminante que
+queda tras condicionar por estímulo es sólo la fluctuación idiosincrática ensayo-a-ensayo
+—no la identidad del estímulo—, que tiene menor relación señal/ruido. El problema de
+poder de la Sec. 8 de `DISENO_EXPERIMENTAL_prediccion6.md` no se evita condicionando por
+estímulo; se hereda agravado.
+
+**Validación numérica del problema y su corrección (`test_rastreo_de_fuente.py`, Bloque
+5).** Con estímulo compartido entre $e$ y $l$ por vías separadas (5 categorías, $N=600$):
+la prueba "ingenua" (sólo arousal) da exactitud top-1 significativamente por encima del
+azar bajo **Tipo A puro** ($0.087$ vs. nulo $0.017$, $p<0.0001$) — el falso positivo
+predicho arriba, confirmado. La prueba condicionada por estímulo lo corrige cuando ambos
+confusores se conocen con exactitud ("oráculo": $0.010$ vs. nulo $0.017$, $p=0.98$,
+limpio). Bajo Tipo B, la versión condicionada sigue detectando el efecto con claridad en
+las cuatro variantes de la descomposición 2×2 siguiente ($p<0.0001$ en todas), con
+exactitud top-1 menor que en el escenario sin estímulo compartido — el costo de poder
+anticipado arriba.
+
+**Un matiz que la primera versión de esta sección no cubría.** "Oráculo" no es una única
+condición: hay que descontar el confusor verdadero de arousal *y* usar la identidad de
+estímulo verdadera. La descomposición 2×2 (¿cuál de los dos confusores es ruidoso?) aísla
+de dónde viene cualquier residuo bajo Tipo A puro, con $N=600$:
+
+| Variante (Tipo A) | top-1 obs. | top-1 nulo | $p$ |
+|---|---|---|---|
+| $z$ ruidoso, estímulo verdadero | 0.030 | 0.017 | 0.037 (residuo marginal) |
+| $z$ verdadero, estímulo ruidoso (8%) | 0.043 | 0.017 | <0.0001 |
+| Ambos ruidosos (realista) | 0.043 | 0.016 | <0.0001 |
+| Ambos verdaderos (oráculo) | 0.010 | 0.017 | 0.98 (limpio) |
+
+El resultado no es simétrico: ruido de clasificación en la identidad de estímulo pesa
+*más* que ruido continuo de medición en arousal, incluso a una tasa de error moderada
+(8%). Tiene sentido estructuralmente — el ruido continuo se diluye parcialmente en una
+regresión lineal; el error de clasificación categórico mueve un ensayo *fuera* del grupo
+de comparación correcto por completo, rompiendo la premisa misma del emparejamiento.
+
+**FPR-vs-N: la fragilidad es proporcional a la calidad del etiquetado, no binaria
+(`test_rastreo_de_fuente.py`, Bloque 7).** Repitiendo la prueba condicionada 80 veces por
+$N \in \{400, 800, 1600, 2400\}$, comparando dos regímenes de calidad del proxy de
+estímulo:
+
+| $N$ | FPR, error 1% | FPR, error 8% | FPR oráculo | Poder Tipo B |
+|---|---|---|---|---|
+| 400 | 0.037 | 0.200 | 0.037 | 1.000 |
+| 800 | 0.037 | 0.400 | 0.025 | 1.000 |
+| 1600 | 0.062 | 0.787 | 0.025 | 1.000 |
+| 2400 | 0.062 | 0.887 | 0.062 | 1.000 |
+
+Con un error de clasificación de estímulo del 1% (plausible si la identidad de estímulo
+la registra directamente el software de la tarea, no algo inferido post-hoc), la FPR se
+mantiene plana y cerca de $\alpha=0.05$ — el resultado que la versión anterior de esta
+sección reportaba, pero que sólo había probado variando la calidad del proxy de *arousal*,
+dejando la identidad de estímulo siempre exacta. Con un error del 8% (no exótico si la
+identidad de estímulo se infiere post-hoc o hay codificación manual), la FPR **se dispara
+con N** — de $0.20$ a $0.89$ entre $N=400$ y $N=2400$, peor que el problema original de la
+prueba de magnitud en `simulacion_acoplamiento_fase_temprana_tardia.py`. El poder bajo
+Tipo B se mantiene en $1.000$ en ambos regímenes — la corrección no pierde sensibilidad,
+pero eso no compensa una FPR que se dispara si el etiquetado de estímulo es poco fiable.
+
+**Consecuencia para la Predicción 6.** La fiabilidad del etiquetado de estímulo es una
+condición de validez de primer orden para la versión condicionada del test — auditable y,
+en principio, controlable (a diferencia del ruido de arousal, que es en parte irreducible
+por ser una variable latente). Antes de confiar en un resultado del Test 2 condicionado
+sobre datos reales, verificar la tasa de error de codificación de estímulo del propio
+registro, no asumirla despreciable. Honestidad sobre el límite de esta validación: el
+poder saturado en $1.0$ confirma que la prueba retiene sensibilidad, pero no traza una
+curva de poder informativa (no hay pendiente que mostrar cuando ya se está en el techo) —
+para caracterizar el punto donde el poder empieza a caer haría falta repetir esto con
+$\kappa$ menor, no hecho aquí.
+
+**La pregunta que decide el diseño, antes de tocar datos.** ¿El paradigma real repite un
+estímulo único/idéntico, o lo varía entre ensayos?
+- Si se **repite**: el procedimiento original de esta sección (sin condicionar por
+  estímulo) es válido tal como está — no hay causa común vía estímulo que remover.
+- Si **varía**: es obligatorio condicionar también por identidad de estímulo, como se
+  describe arriba, y reportar el costo de poder que eso implica.
+
+**El techo que ninguna de las dos versiones rompe.** Incluso la versión condicionada por
+estímulo sigue siendo una inferencia causal observacional, apoyada en el supuesto de
+*no-causa-común-no-medida*: que ningún otro estado específico del ensayo —adaptación,
+atención encubierta, estado de red pre-estímulo— module en paralelo el contenido temprano
+y el tardío. El arousal es una de esas causas posibles; la identidad del estímulo es otra,
+ya corregida arriba; puede haber una tercera no identificada. Ninguna cantidad de
+condicionamiento observacional puede cerrar esa posibilidad por completo — sólo la
+intervención (perturbar el tálamo y observar si el contenido tardío específico cambia en
+consecuencia) rompe ese techo, y eso excede lo que una cohorte puramente observacional
+puede ofrecer. La prueba de identificabilidad, en cualquiera de sus dos versiones, es
+**corroborativa bajo supuestos declarados**, no una prueba concluyente — y esto vale para
+la Predicción 6 en general, no sólo para esta sección (ver §11).
+
+**Predicción 6, versión fuerte.** Un análisis real debería reportar ambas pruebas
+(magnitud e identificabilidad), la versión de identificabilidad correspondiente a si el
+paradigma repite o varía el estímulo, y declarar explícitamente el supuesto de
+no-causa-común-no-medida bajo el cual se interpreta el resultado. La posición
+constitutiva se fortalece si la identificabilidad —en su versión correcta para el
+paradigma usado— es significativa incluso cuando la magnitud no lo es (el patrón
+encontrado en la validación numérica); se debilita si ninguna de las dos lo es.
+
+---
+
 ## 10. Condiciones de falsación (§6.4), como regla de decisión
 
 Sea $\text{Falla}(k)\in\{0,1\}$ el indicador de que la condición $k$ de §6.4 del
@@ -410,6 +608,14 @@ causal o correlacional (exactamente el umbral que el manuscrito fija por adelant
   lazo talamocortical valga exactamente 1 en ninguna unidad particular. Extender la
   derivación a la bifurcación bajo forzamiento estocástico (que desplaza el umbral
   observado empíricamente, como en los barridos de `0.4.py`) es trabajo pendiente.
+- **Ninguna versión de la prueba de rastreo de fuente (§9.1) es una prueba causal
+  concluyente**, ni siquiera en su versión corregida para estímulo compartido. Ambas
+  descansan en un supuesto de no-causa-común-no-medida que ningún condicionamiento
+  observacional puede cerrar por completo (§9.1) — son corroborativas bajo supuestos
+  declarados. Esto no es específico del arousal ni del estímulo: es el techo general de
+  cualquier diseño no-interventivo para la Predicción 6, y conviene declararlo por
+  adelantado en vez de tratarlo como un problema a resolver agregando más condicionantes
+  cuando el resultado sea ambiguo.
 
 ---
 
@@ -425,6 +631,9 @@ causal o correlacional (exactamente el umbral que el manuscrito fija por adelant
 | $\widehat\nabla(\tau)$, estimador lineal | `granger_en_tau()` → `F`, `ΔR²` | ninguno directo; `HCTSA*.py`/`hctsa discovery.py` buscan proxies (Hjorth, DFA) |
 | $\beta_c$ (umbral H\*) | cruce empírico en `barrer_beta_nabla()`/`granger_barrido_beta()`, $\beta\in[0,2.6]$ | "H\* v2" (`NIVEL 4/3.py`): proxy exploratorio `theta_beta_ratio`, sin derivación analítica |
 | $V(t)$ (razón de participación) | no implementado | complejidad de Lempel-Ziv en `CASCADA*.py` (estimador alternativo, señal simbólica) |
+| Realización N-nodos, $\beta_c$ estimado directamente | `AFH_modelo_N_nodos.py`: bisección sobre tasa de crecimiento (§5/8), confirma $\beta_c\approx1.0$ | — |
+| $\widehat\nabla$ ensayo-a-ensayo (magnitud) | `simulacion_acoplamiento_fase_temprana_tardia.py`: correlación parcial controlando proxy de arousal | — |
+| Identificabilidad de contenido (§9.1) | `test_rastreo_de_fuente.py`: exactitud top-1 estratificada, nulo por permutación intra-estrato | — |
 
 Esta tabla es la ruta concreta para extender el código existente: `0.4.py` ya calcula
 $\widehat\nabla$ vía Granger específico y compara Tipo B/A; le falta el retardo aferente

@@ -1,5 +1,11 @@
 # MODELING FOLD — formalización matemática del Pliegue Autopsíquico
 
+- **`DISENO_EXPERIMENTAL_prediccion6.md`** — protocolo puro, sin matemática ni código: qué
+  población, qué tarea, qué señales registrar, en qué orden correr los análisis, cuántos
+  ensayos hacen falta, y bajo qué condiciones retroceder de la posición constitutiva. Para
+  alguien que quiera saber "si mañana hay acceso a un registro adecuado, ¿qué hay que
+  hacer?" sin tener que leer las derivaciones.
+
 - **`0.4.py`** (internamente versionado "AFH v0.5" en su docstring — nombre de archivo y
   versión interna no coinciden, mantenido tal cual) — simulación de un lazo talamocortical
   escalar con retardo (tálamo `x`, corteza `y`). Implementa la distinción central del marco:
@@ -45,3 +51,30 @@
   de confusor ruidoso, la tasa de falsos positivos de la correlación parcial *crece* con N en
   vez de diluirse — un proxy de arousal poco fiel es más urgente que sumar ensayos. Corre en
   segundos (`python "simulacion_acoplamiento_fase_temprana_tardia.py"`).
+
+- **`resultados.html`** — página autocontenida con los resultados reales (no ilustrativos) de
+  correr `AFH_modelo_N_nodos.py` y `simulacion_acoplamiento_fase_temprana_tardia.py`: tablas y
+  gráficos de la validación de β\_c≈1.0, la discriminación Tipo B/Tipo A, y el análisis de
+  poder del acoplamiento ensayo-a-ensayo, con enlace al instrumento interactivo. Publicada
+  también como Artifact en `https://claude.ai/code/artifact/cbecc267-6ce8-4e39-bc56-84a36487604d`.
+
+- **`test_rastreo_de_fuente.py`** — va más allá de la magnitud: prueba si el *contenido*
+  específico de la fase tardía (no sólo su fuerza resumen) es rastreable hasta el contenido
+  específico de la fase temprana de ese mismo ensayo. Implementa la prueba de
+  identificabilidad por emparejamiento estratificada por confusor que formaliza la Sec. 9.1
+  de `AFH_modelo_matematico_pliegue.md`. Construye a propósito un escenario donde la prueba
+  de magnitud del script anterior es ciega (la variación entre ensayos está en el patrón, no
+  en la fuerza) para mostrar que ambas pruebas no son redundantes: con los mismos datos, la
+  de magnitud da p>0.4 en los dos modelos generativos, mientras la de identificabilidad
+  distingue Tipo A (p=0.37, al nivel del azar) de Tipo B (p<0.001) con claridad. También
+  construye el escenario donde ese test de identificabilidad *ingenuo* falla — estímulo
+  compartido entre fase temprana y tardía por vías separadas, sin ningún retorno reflexivo
+  — y confirma que condicionar por identidad de estímulo (no sólo por arousal) lo corrige
+  en el caso oráculo. El hallazgo más importante está en el Bloque 7: la validez de esa
+  corrección depende de qué tan fiel sea el *etiquetado* de estímulo, no sólo de si se
+  condiciona o no — con ~1% de error de codificación la FPR queda plana cerca de α=0.05
+  en todo el rango de N probado, pero con ~8% de error se dispara con N (0.20 a 0.89 entre
+  N=400 y N=2400), peor que el problema de la prueba de magnitud que motivó la corrección
+  en primer lugar. El poder no se resiente en ningún régimen (1.000 siempre). Bloques 1-5
+  corren en segundos; el Bloque 7 (las curvas, dos regímenes de calidad de proxy) tarda
+  7-8 minutos (`python "test_rastreo_de_fuente.py"`).
