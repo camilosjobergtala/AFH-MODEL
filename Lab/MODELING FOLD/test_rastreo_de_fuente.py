@@ -343,18 +343,47 @@ def generar_ensayos_con_estimulo(n_trials, d=10, n_estimulos=5, tipo="B",
     return e, l, obsZ, z, estimulo, Q
 
 
-def demostrar_confusion_por_estimulo(n_trials=600, n_estimulos=5, semilla=1):
+def estimulo_ruidoso(estimulo, n_estimulos, p_error, rng):
+    """Proxy OBSERVADO e imperfecto de la identidad de estimulo: con
+    probabilidad p_error, la etiqueta observada es una categoria
+    distinta a la verdadera (elegida uniformemente entre las
+    restantes). Es el analogo categorico del proxy ruidoso continuo
+    que ya existe para arousal (obsZ = z + ruido).
+
+    Sin esto, la "condicion oraculo" solo aislaba el proxy de arousal
+    -- el estimulo, dummy-codificado y usado para restringir el pool
+    de emparejamiento, siempre era la categoria VERDADERA, en toda
+    version de la prueba. Eso no coincide con lo que describe el
+    manuscrito (proxies ruidosos para AMBOS confusores) y esta funcion
+    lo corrige: ahora existe una version genuinamente ruidosa de la
+    identidad de estimulo para usar en la condicion "realista"."""
+    n = len(estimulo)
+    mal_clasificado = rng.random(n) < p_error
+    obs = estimulo.copy()
+    idxs = np.where(mal_clasificado)[0]
+    if len(idxs) > 0:
+        offset = rng.integers(1, n_estimulos, size=len(idxs))
+        obs[idxs] = (estimulo[idxs] + offset) % n_estimulos
+    return obs
+
+
+def demostrar_confusion_por_estimulo(n_trials=600, n_estimulos=5,
+                                      p_error_estimulo=0.08, semilla=1):
     print("\n" + "=" * 72)
     print("  EL PROBLEMA DEL ESTIMULO COMPARTIDO (y su correccion)")
     print("=" * 72)
+    print(f"\n  (proxy de estimulo: {p_error_estimulo:.0%} de tasa de mala clasificacion)\n")
 
-    fila = "  {:<38s} {:>10s} {:>10s} {:>10s}"
+    fila = "  {:<42s} {:>10s} {:>10s} {:>10s}"
     print(fila.format("Modelo / version de la prueba", "top-1 obs", "top-1 null", "p"))
-    print("  " + "-" * 70)
+    print("  " + "-" * 76)
+
+    rng = np.random.default_rng(semilla + 100)
 
     for tipo, nombre in [("A", "Tipo A"), ("B", "Tipo B")]:
         e, l, obsZ, z, estimulo, Q = generar_ensayos_con_estimulo(
             n_trials, n_estimulos=n_estimulos, tipo=tipo, semilla=semilla)
+        obs_estimulo = estimulo_ruidoso(estimulo, n_estimulos, p_error_estimulo, rng)
 
         # prueba INGENUA: condiciona solo por arousal (igual que Bloque 3)
         estrato_arousal = estratificar(obsZ, n_estratos=5)
@@ -363,37 +392,33 @@ def demostrar_confusion_por_estimulo(n_trials=600, n_estimulos=5, semilla=1):
         print(fila.format(f"{nombre} - ingenua (solo arousal)",
                            f"{acc_i:.3f}", f"{null_i:.3f}", f"{p_i:.4f}{marca_i}"))
 
-        # prueba CONDICIONADA: regresion + pool restringidos a la MISMA
-        # categoria de estimulo (ademas del proxy de arousal)
-        dummies = dummies_categoria(estimulo, n_estimulos)
-        covars = np.column_stack([obsZ, dummies])
-        acc_c, null_c, p_c = prueba_identificabilidad(e, l, covars, estimulo, semilla=2)
-        marca_c = "*" if p_c < 0.05 else " "
-        print(fila.format(f"{nombre} - condicionada (arousal+estimulo)",
-                           f"{acc_c:.3f}", f"{null_c:.3f}", f"{p_c:.4f}{marca_c}"))
-
-        # oraculo: igual que la condicionada, pero descontando el arousal
-        # VERDADERO (z) en vez de su proxy ruidoso -- para separar cuanto
-        # del residuo, si queda alguno, es sesgo por proxy imperfecto
-        # (mismo fenomeno que en simulacion_acoplamiento_fase_temprana_tardia.py)
-        # y cuanto seria un problema real de la logica de condicionamiento.
-        covars_oraculo = np.column_stack([z, dummies])
-        acc_o, null_o, p_o = prueba_identificabilidad(e, l, covars_oraculo, estimulo, semilla=2)
-        marca_o = "*" if p_o < 0.05 else " "
-        print(fila.format(f"{nombre} - condicionada (oraculo, z verdadero)",
-                           f"{acc_o:.3f}", f"{null_o:.3f}", f"{p_o:.4f}{marca_o}"))
+        # descomposicion 2x2: cual de los dos proxies (z, estimulo) es
+        # ruidoso, para atribuir cualquier residuo a uno, al otro, o a
+        # ambos -- en vez de mezclarlos en una sola condicion "realista".
+        variantes = [
+            ("z ruidoso, s verdadero",  obsZ, estimulo),
+            ("z verdadero, s ruidoso",  z,    obs_estimulo),
+            ("ambos ruidosos (realista)", obsZ, obs_estimulo),
+            ("oraculo (ambos verdaderos)", z,  estimulo),
+        ]
+        for etiqueta, z_usado, estim_usado in variantes:
+            dummies = dummies_categoria(estim_usado, n_estimulos)
+            covars = np.column_stack([z_usado, dummies])
+            acc, null, p = prueba_identificabilidad(e, l, covars, estim_usado, semilla=2)
+            marca = "*" if p < 0.05 else " "
+            print(fila.format(f"{nombre} - condicionada ({etiqueta})",
+                               f"{acc:.3f}", f"{null:.3f}", f"{p:.4f}{marca}"))
         print()
 
     print("  -> La prueba INGENUA da positivo bajo Tipo A cuando hay estimulo")
-    print("     compartido: identifica el estimulo, no el linaje causal. La")
-    print("     prueba CONDICIONADA por categoria de estimulo lo corrige --")
-    print("     vuelve (casi) a azar bajo Tipo A, y sigue detectando Tipo B, con")
-    print("     menor top-1 que en Bloque 3-4 (solo queda la fluctuacion")
-    print("     idiosincratica como señal). Si la version con proxy ruidoso deja")
-    print("     un residuo marginal bajo Tipo A, comparar contra la oraculo: si")
-    print("     el oraculo esta limpio, el residuo es el mismo problema de proxy")
-    print("     imperfecto de siempre, no una falla de la logica de")
-    print("     condicionamiento por estimulo.")
+    print("     compartido: identifica el estimulo, no el linaje causal.")
+    print("     Condicionar por categoria de estimulo lo corrige. La")
+    print("     descomposicion 2x2 muestra de donde viene cualquier residuo")
+    print("     bajo Tipo A: si 'ambos verdaderos' (oraculo) esta limpio pero")
+    print("     'ambos ruidosos' no, el residuo es enteramente de calidad de")
+    print("     proxy -- no una falla de la logica de condicionamiento --, y")
+    print("     las filas intermedias (un proxy ruidoso, el otro no) dicen")
+    print("     cual de los dos confusores pesa mas en ese residuo.")
 
 
 # =====================================================================
@@ -421,16 +446,22 @@ def demostrar_confusion_por_estimulo(n_trials=600, n_estimulos=5, semilla=1):
 # sinteticas, para cada N -- eso es lo que sigue.
 
 def curva_fpr_y_poder_condicionada(n_trials_grid, n_estimulos=5,
+                                    p_error_estimulo=0.08,
                                     n_repeticiones=80, n_perm=150,
                                     semilla=0):
     """
     Para cada N en n_trials_grid, corre n_repeticiones simulaciones
     independientes de la version YA CONDICIONADA por estimulo
     (regresion + pool restringido a la misma categoria) y devuelve:
-        tasa_A_proxy   -- FPR bajo Tipo A, proxy ruidoso (el caso real)
-        tasa_A_oraculo -- FPR bajo Tipo A, confusor verdadero (control)
-        tasa_B_proxy   -- poder bajo Tipo B, proxy ruidoso (el caso real)
-    "Tasa" = proporcion de repeticiones con p<0.05.
+        fpr_proxy   -- FPR bajo Tipo A, AMBOS confusores con proxy
+                       ruidoso (arousal Y estimulo -- el caso realista)
+        fpr_oraculo -- FPR bajo Tipo A, AMBOS confusores verdaderos
+        poder_proxy -- poder bajo Tipo B, ambos confusores con proxy
+                       ruidoso
+    "Tasa" = proporcion de repeticiones con p<0.05. La version anterior
+    de esta funcion solo hacia ruidoso el proxy de arousal y dejaba el
+    estimulo siempre exacto -- no coincidia con lo que describe el
+    manuscrito (proxies ruidosos para ambos confusores). Corregido.
     """
     rng_base = np.random.default_rng(semilla)
     filas = []
@@ -438,26 +469,32 @@ def curva_fpr_y_poder_condicionada(n_trials_grid, n_estimulos=5,
         conteos = {"A_proxy": 0, "A_oraculo": 0, "B_proxy": 0}
         for rep in range(n_repeticiones):
             s = int(rng_base.integers(0, 2**31 - 1))
+            rng_ruido = np.random.default_rng(s + 500)
 
             e, l, obsZ, z, estimulo, Q = generar_ensayos_con_estimulo(
                 n, n_estimulos=n_estimulos, tipo="A", semilla=s)
-            dummies = dummies_categoria(estimulo, n_estimulos)
+            obs_estimulo = estimulo_ruidoso(estimulo, n_estimulos, p_error_estimulo, rng_ruido)
+
+            dummies_proxy = dummies_categoria(obs_estimulo, n_estimulos)
             _, _, p_proxy = prueba_identificabilidad(
-                e, l, np.column_stack([obsZ, dummies]), estimulo,
+                e, l, np.column_stack([obsZ, dummies_proxy]), obs_estimulo,
                 n_perm=n_perm, semilla=s + 1)
             if not np.isnan(p_proxy) and p_proxy < 0.05:
                 conteos["A_proxy"] += 1
+
+            dummies_oraculo = dummies_categoria(estimulo, n_estimulos)
             _, _, p_oraculo = prueba_identificabilidad(
-                e, l, np.column_stack([z, dummies]), estimulo,
+                e, l, np.column_stack([z, dummies_oraculo]), estimulo,
                 n_perm=n_perm, semilla=s + 1)
             if not np.isnan(p_oraculo) and p_oraculo < 0.05:
                 conteos["A_oraculo"] += 1
 
             eB, lB, obsZB, zB, estimuloB, QB = generar_ensayos_con_estimulo(
                 n, n_estimulos=n_estimulos, tipo="B", semilla=s + 2)
-            dummiesB = dummies_categoria(estimuloB, n_estimulos)
+            obs_estimuloB = estimulo_ruidoso(estimuloB, n_estimulos, p_error_estimulo, rng_ruido)
+            dummiesB_proxy = dummies_categoria(obs_estimuloB, n_estimulos)
             _, _, p_B = prueba_identificabilidad(
-                eB, lB, np.column_stack([obsZB, dummiesB]), estimuloB,
+                eB, lB, np.column_stack([obsZB, dummiesB_proxy]), obs_estimuloB,
                 n_perm=n_perm, semilla=s + 3)
             if not np.isnan(p_B) and p_B < 0.05:
                 conteos["B_proxy"] += 1
@@ -473,7 +510,8 @@ def curva_fpr_y_poder_condicionada(n_trials_grid, n_estimulos=5,
 
 def reportar_curva_fpr_y_poder():
     print("\n" + "=" * 72)
-    print("  CURVA FPR-vs-N Y PODER-vs-N (test YA CONDICIONADO por estimulo)")
+    print("  CURVA FPR-vs-N Y PODER-vs-N (test YA CONDICIONADO por estimulo,")
+    print("  AMBOS confusores -- arousal Y estimulo -- con proxy ruidoso)")
     print("=" * 72)
     grid = [400, 800, 1600, 2400]
     print(f"\n  ({len(grid)} valores de N, 80 repeticiones c/u -- unos minutos)\n")
@@ -490,18 +528,19 @@ def reportar_curva_fpr_y_poder():
     creciendo = fpr_proxy_vals[-1] > fpr_proxy_vals[0] + 0.05
     print()
     if creciendo:
-        print("  -> La FPR con proxy ruidoso SIGUE creciendo con N incluso despues")
-        print("     de condicionar por estimulo: la correccion resolvio el")
-        print("     confusor de estimulo pero el de arousal (proxy imperfecto)")
-        print("     sigue vivo y se comporta igual que en la prueba de magnitud.")
-        print("     Mismo remedio que antes: mejorar el proxy, no juntar mas datos.")
+        print("  -> La FPR con AMBOS proxies ruidosos SIGUE creciendo con N incluso")
+        print("     despues de condicionar por estimulo: la correccion no evita que")
+        print("     el proxy imperfecto (de cualquiera de los dos confusores) se")
+        print("     comporte igual que en la prueba de magnitud. Mismo remedio de")
+        print("     siempre: mejorar el proxy, no juntar mas datos.")
     else:
-        print("  -> La FPR con proxy ruidoso se mantiene aproximadamente estable")
-        print("     alrededor de alpha=0.05 en este rango de N -- a diferencia de")
-        print("     la prueba de magnitud, aqui condicionar por estimulo parece")
-        print("     ser suficiente para no heredar el problema de crecimiento con N.")
-    print("  La FPR con el confusor verdadero (oraculo) deberia rondar 0.05 en")
-    print("  todos los casos -- es el punto de referencia para separar sesgo por")
+        print("  -> La FPR con AMBOS proxies ruidosos se mantiene aproximadamente")
+        print("     estable alrededor de alpha=0.05 en este rango de N -- a diferencia")
+        print("     de la prueba de magnitud, aqui condicionar por estimulo parece")
+        print("     ser suficiente para no heredar el problema de crecimiento con N,")
+        print("     incluso con los dos confusores medidos de forma imperfecta.")
+    print("  La FPR con AMBOS confusores verdaderos (oraculo) deberia rondar 0.05")
+    print("  en todos los casos -- es el punto de referencia para separar sesgo por")
     print("  proxy de cualquier otro problema.")
     print("  El poder de Tipo B deberia subir con N si el test tiene sensibilidad")
     print("  real tras condicionar -- un poder que no despega indicaria que la")
