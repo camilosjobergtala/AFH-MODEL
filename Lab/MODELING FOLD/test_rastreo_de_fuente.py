@@ -69,12 +69,25 @@ QUE HACE:
        el supuesto de estimulo unico o identico repetido -- ver Sec.
        9.1 de AFH_modelo_matematico_pliegue.md para la formalizacion
        completa de ambas versiones.
+    5. (Bloque 7) La correccion del paso 4 asume que la identidad de
+       estimulo se conoce con exactitud. En la practica solo se tiene
+       un PROXY de eso tambien (igual que de arousal) -- y a diferencia
+       del ruido continuo de arousal, el error de clasificacion
+       categorica resulta mucho mas dañino: con ~8% de mala
+       clasificacion la FPR se dispara con N (0.20 a 0.89 entre N=400
+       y N=2400), peor que el problema original de la prueba de
+       magnitud. Con ~1% (lo esperable si el estimulo lo registra el
+       propio software de la tarea) la FPR se mantiene plana. La
+       fragilidad es proporcional a la calidad del etiquetado, no
+       binaria -- y por eso auditar esa fidelidad es una condicion de
+       validez de primer orden para el Test 2 condicionado.
 
 INSTALACION: pip install numpy scipy
 CORRER:      python "test_rastreo_de_fuente.py"
-TIEMPO:      unos segundos para Bloques 1-5; Bloque 6 (curvas FPR/poder
-             vs. N, 80 repeticiones x 4 valores de N x 3 variantes)
-             tarda unos 3-4 minutos -- top1_accuracy esta vectorizada
+TIEMPO:      unos segundos para Bloques 1-5; Bloque 7 (dos regimenes de
+             calidad de proxy de estimulo x 4 valores de N x 80
+             repeticiones -- incluye lo que antes era Bloque 6)
+             tarda unos 7-8 minutos -- top1_accuracy esta vectorizada
              con numpy precisamente para que esto sea viable.
 =======================================================================
 """
@@ -548,6 +561,58 @@ def reportar_curva_fpr_y_poder():
 
 
 # =====================================================================
+# BLOQUE 7: ¿PROPORCIONAL O FRAGIL? FPR SEGUN LA CALIDAD DEL
+#           ETIQUETADO DE ESTIMULO, NO SOLO SI HAY RUIDO O NO
+# =====================================================================
+#
+# El default de Bloque 6 (p_error_estimulo=0.08) muestra una FPR que
+# se DISPARA con N -- 0.20 a 0.89 entre N=400 y N=2400, peor que el
+# problema original de la prueba de magnitud. Eso podria leerse como
+# "la correccion por estimulo esta rota", pero es una lectura
+# apresurada: 8% es una tasa de mala clasificacion bastante alta para
+# identidad de estimulo -- a diferencia de arousal (una variable
+# latente, inevitablemente medida con ruido), la identidad de estimulo
+# es tipicamente algo que el propio software de la tarea registra, y
+# debería poder mantenerse casi libre de error. La pregunta real no es
+# "hay ruido si o no" sino "cuanto error tolera el test antes de
+# romperse". Este bloque compara dos regimenes explicitamente.
+
+def comparar_calidad_proxy_estimulo(n_trials_grid=(400, 800, 1600, 2400),
+                                     p_errores=(0.01, 0.08),
+                                     n_repeticiones=80, n_perm=150,
+                                     semilla=7):
+    print("\n" + "=" * 72)
+    print("  FPR-vs-N SEGUN LA CALIDAD DEL ETIQUETADO DE ESTIMULO")
+    print("=" * 72)
+    resultados = {}
+    for p_err in p_errores:
+        print(f"\n  p_error_estimulo = {p_err:.0%}"
+              + ("  (logging automatico, caso favorable)" if p_err <= 0.02
+                 else "  (codificacion propensa a error)"))
+        filas = curva_fpr_y_poder_condicionada(
+            list(n_trials_grid), p_error_estimulo=p_err,
+            n_repeticiones=n_repeticiones, n_perm=n_perm, semilla=semilla)
+        resultados[p_err] = filas
+        print("  {:>8s} {:>16s} {:>16s} {:>16s}".format(
+            "N", "FPR (proxy)", "FPR (oraculo)", "Poder Tipo B"))
+        for f in filas:
+            print("  {:>8d} {:>16.3f} {:>16.3f} {:>16.3f}".format(
+                f["n"], f["fpr_proxy"], f["fpr_oraculo"], f["poder_proxy"]))
+
+    print("\n  -> La fragilidad no es categorica ('cualquier ruido rompe el test') --")
+    print("     es proporcional a la tasa de mala clasificacion, y hay una zona donde")
+    print("     eso importa en la practica: con etiquetado casi perfecto (~1%, lo")
+    print("     esperable si el estimulo lo registra el propio software de la tarea),")
+    print("     la FPR se mantiene plana y cerca de alpha. Con 8% -- nada exotico si")
+    print("     la identidad de estimulo se infiere post-hoc o hay codificacion manual")
+    print("     -- la FPR se dispara con N. Implicacion de diseño: auditar la fidelidad")
+    print("     del etiquetado de estimulo es una condicion de validez de primer orden")
+    print("     para el Test 2 condicionado, no un detalle menor -- y es, en principio,")
+    print("     controlable (a diferencia del ruido de arousal, que no lo es del todo).")
+    return resultados
+
+
+# =====================================================================
 # BLOQUE 4: DEMOSTRACION
 # =====================================================================
 
@@ -597,7 +662,7 @@ def main():
     print("     por que esa suposicion es load-bearing, no un detalle.")
 
     demostrar_confusion_por_estimulo()
-    reportar_curva_fpr_y_poder()
+    comparar_calidad_proxy_estimulo()
 
     print("\n" + "=" * 72)
     print("  LECTURA PRACTICA")
@@ -611,6 +676,9 @@ def main():
     print("  ensayos varian el estimulo, o repiten el mismo? Si varian, usar la")
     print("  version condicionada de Bloque 5 -- y aceptar que el poder baja,")
     print("  porque sólo queda la fluctuacion idiosincratica como señal.")
+    print("  Y no alcanza con condicionar: la FIDELIDAD del etiquetado de estimulo")
+    print("  (Bloque 7) determina si esa correccion sostiene una FPR estable o se")
+    print("  dispara con N -- auditarla es una condicion de validez, no un detalle.")
     print("=" * 72)
 
 
