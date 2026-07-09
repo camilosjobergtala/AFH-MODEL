@@ -72,6 +72,7 @@ de cada ensayo como una medida más (§5): sin eso, el Test 2 no se puede correg
 | LFP simultáneo | corteza relevante a la tarea | idem, lado cortical del lazo |
 | Proxy de arousal/enganche por ensayo | pupilometría, potencia espectral basal pre-estímulo, o tiempo de reacción | control de confusores (§7) — **esta señal es tan importante como las dos anteriores**, ver §8 |
 | Marcadores conductuales | inicio de estímulo, tiempo y ocurrencia de respuesta, precisión | define las ventanas de fase temprana/tardía y filtra ensayos válidos |
+| Tasa de error de codificación de la identidad de estímulo | log del software de la tarea, auditado contra una muestra revisada manualmente | **si el paradigma varía el estímulo (§3), esto no es opcional** — §8 muestra que un 8% de mala clasificación dispara la tasa de falsos positivos del Test 2 condicionado con N, mientras un 1% la deja plana |
 
 ## 5. Medidas por ensayo
 
@@ -120,13 +121,29 @@ positivo aunque el Test 1 no lo sea — no lo descarten sólo por eso.
   de la reflexiva. Costo esperado: menor potencia, porque sólo la fluctuación
   idiosincrática ensayo-a-ensayo queda como señal discriminante.
 
-  **Validado, no sólo esperado** (`test_rastreo_de_fuente.py`, Bloque 6): repitiendo la
-  versión condicionada 80 veces por $N\in\{400,800,1600,2400\}$, la FPR con proxy ruidoso
-  se mantiene entre 0.013–0.025 (sin la tendencia creciente con $N$ que sí muestra la
-  prueba de magnitud, §8), y el poder bajo un acoplamiento reflexivo moderado es 1.000 en
-  los cuatro tamaños — la corrección no destruye la sensibilidad, al menos para ese tamaño
-  de efecto. No se caracterizó todavía el tamaño de efecto mínimo detectable tras
-  condicionar por estímulo (haría falta repetir con acoplamientos más débiles).
+  **Validado, no sólo esperado — y con un matiz importante** (`test_rastreo_de_fuente.py`,
+  Bloques 6-7): repitiendo la versión condicionada 80 veces por
+  $N\in\{400,800,1600,2400\}$, comparando dos calidades de etiquetado de estímulo:
+
+  | $N$ | FPR, etiquetado ~1% error | FPR, etiquetado ~8% error | Poder Tipo B |
+  |---|---|---|---|
+  | 400 | 0.037 | 0.200 | 1.000 |
+  | 800 | 0.037 | 0.400 | 1.000 |
+  | 1600 | 0.062 | 0.787 | 1.000 |
+  | 2400 | 0.062 | 0.887 | 1.000 |
+
+  Con un etiquetado de estímulo casi exacto (~1% de error, lo esperable si el estímulo lo
+  registra directamente el software de la tarea), la FPR se mantiene plana cerca de
+  $\alpha=0.05$. Con un 8% de error —nada exótico si la identidad de estímulo se infiere
+  post-hoc o hay codificación manual— la FPR **se dispara con N**, de 0.20 a 0.89, peor
+  que el problema de la prueba de magnitud (§8) que motivó condicionar por estímulo en
+  primer lugar. El poder no se resiente en ningún régimen (1.000 en los ocho casos). **Antes
+  de confiar en un resultado del Test 2 condicionado, auditar la tasa de error de
+  codificación de estímulo del propio registro — es una condición de validez, no un
+  detalle**, y a diferencia del ruido de arousal (una variable latente, en parte
+  irreducible), la fidelidad del etiquetado de estímulo es controlable con buenas
+  prácticas de registro. No se caracterizó todavía el tamaño de efecto mínimo detectable
+  tras condicionar por estímulo (haría falta repetir con acoplamientos más débiles).
 
 **Test 3 — Covarianza H\*/∇.** Dentro de los ensayos donde el proxy de convergencia
 talamocortical (H\*) está presente, ¿su fuerza covaría con la fuerza del retorno
@@ -221,6 +238,13 @@ correlacional si ocurre cualquiera de:
   lo resuelve estratificar sólo por arousal. Usar obligatoriamente la versión condicionada
   por estímulo en ese caso (§6); aceptar la pérdida de potencia que eso implica en vez de
   usar la versión sin condicionar porque "da resultados más claros".
+- **La versión condicionada por estímulo no es automáticamente segura** — su validez
+  depende de qué tan fiel sea el etiquetado de estímulo, no sólo de si se condiciona o no
+  (§6, §8): con ~1% de error de codificación se mantiene bien calibrada, con ~8% la tasa de
+  falsos positivos se dispara con N, peor que el problema que motivó la corrección. Un
+  error de clasificación categórico en la variable de agrupamiento pesa más que ruido
+  continuo de medición en el confusor de arousal — auditar la fidelidad del etiquetado de
+  estímulo del registro real antes de confiar en cualquier resultado de esta versión.
 - **Techo general, no específico del arousal ni del estímulo**: incluso el Test 2 en su
   versión mejor ejecutada sigue siendo una inferencia observacional que descansa en el
   supuesto de que ningún otro estado específico del ensayo —no sólo arousal o identidad de

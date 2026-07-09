@@ -69,8 +69,12 @@
   distingue Tipo A (p=0.37, al nivel del azar) de Tipo B (p<0.001) con claridad. También
   construye el escenario donde ese test de identificabilidad *ingenuo* falla — estímulo
   compartido entre fase temprana y tardía por vías separadas, sin ningún retorno reflexivo
-  — y confirma que condicionar por identidad de estímulo (no sólo por arousal) lo corrige,
-  con un chequeo de poder y de FPR-vs-N (80 repeticiones × 4 tamaños de muestra) que
-  confirma que la corrección ni pierde sensibilidad (poder=1.000) ni hereda el problema de
-  FPR creciente con N que sí tiene la prueba de magnitud. Bloques 1-5 corren en segundos;
-  el Bloque 6 (las curvas) tarda 3-4 minutos (`python "test_rastreo_de_fuente.py"`).
+  — y confirma que condicionar por identidad de estímulo (no sólo por arousal) lo corrige
+  en el caso oráculo. El hallazgo más importante está en el Bloque 7: la validez de esa
+  corrección depende de qué tan fiel sea el *etiquetado* de estímulo, no sólo de si se
+  condiciona o no — con ~1% de error de codificación la FPR queda plana cerca de α=0.05
+  en todo el rango de N probado, pero con ~8% de error se dispara con N (0.20 a 0.89 entre
+  N=400 y N=2400), peor que el problema de la prueba de magnitud que motivó la corrección
+  en primer lugar. El poder no se resiente en ningún régimen (1.000 siempre). Bloques 1-5
+  corren en segundos; el Bloque 7 (las curvas, dos regímenes de calidad de proxy) tarda
+  7-8 minutos (`python "test_rastreo_de_fuente.py"`).

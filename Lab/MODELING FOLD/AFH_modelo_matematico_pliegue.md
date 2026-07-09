@@ -465,38 +465,64 @@ estímulo; se hereda agravado.
 5).** Con estímulo compartido entre $e$ y $l$ por vías separadas (5 categorías, $N=600$):
 la prueba "ingenua" (sólo arousal) da exactitud top-1 significativamente por encima del
 azar bajo **Tipo A puro** ($0.087$ vs. nulo $0.017$, $p<0.0001$) — el falso positivo
-predicho arriba, confirmado. La prueba condicionada por estímulo lo corrige: bajo Tipo A,
-$0.030$ vs. nulo $0.017$ ($p=0.037$, un residuo marginal); descontando el confusor
-verdadero en vez de su proxy ruidoso (control "oráculo"), ese residuo desaparece por
-completo ($p=0.98$) — confirmando que el residuo marginal es el mismo problema de proxy
-imperfecto de siempre (§ falsos positivos en `simulacion_acoplamiento_fase_temprana_tardia.py`),
-no una falla de la lógica de condicionar por estímulo. Bajo Tipo B, la versión
-condicionada sigue detectando el efecto con claridad ($p<0.0001$), con exactitud top-1
-menor que en el escenario sin estímulo compartido — el costo de poder anticipado arriba.
+predicho arriba, confirmado. La prueba condicionada por estímulo lo corrige cuando ambos
+confusores se conocen con exactitud ("oráculo": $0.010$ vs. nulo $0.017$, $p=0.98$,
+limpio). Bajo Tipo B, la versión condicionada sigue detectando el efecto con claridad en
+las cuatro variantes de la descomposición 2×2 siguiente ($p<0.0001$ en todas), con
+exactitud top-1 menor que en el escenario sin estímulo compartido — el costo de poder
+anticipado arriba.
 
-Un único resultado por celda confirma el *mecanismo* pero no responde dos preguntas
-distintas: si el poder sobrevive a condicionar por estímulo, y si la tasa de falsos
-positivos (FPR) con el proxy ruidoso *crece con N* tras la corrección —el patrón
-encontrado para la prueba de magnitud en
-`simulacion_acoplamiento_fase_temprana_tardia.py`— o si la corrección también evita eso.
-Repitiendo la prueba condicionada 80 veces por valor de $N \in \{400, 800, 1600, 2400\}$:
+**Un matiz que la primera versión de esta sección no cubría.** "Oráculo" no es una única
+condición: hay que descontar el confusor verdadero de arousal *y* usar la identidad de
+estímulo verdadera. La descomposición 2×2 (¿cuál de los dos confusores es ruidoso?) aísla
+de dónde viene cualquier residuo bajo Tipo A puro, con $N=600$:
 
-| $N$ | FPR (proxy) | FPR (oráculo) | Poder Tipo B |
+| Variante (Tipo A) | top-1 obs. | top-1 nulo | $p$ |
 |---|---|---|---|
-| 400 | 0.013 | 0.037 | 1.000 |
-| 800 | 0.025 | 0.025 | 1.000 |
-| 1600 | 0.013 | 0.025 | 1.000 |
-| 2400 | 0.025 | 0.062 | 1.000 |
+| $z$ ruidoso, estímulo verdadero | 0.030 | 0.017 | 0.037 (residuo marginal) |
+| $z$ verdadero, estímulo ruidoso (8%) | 0.043 | 0.017 | <0.0001 |
+| Ambos ruidosos (realista) | 0.043 | 0.016 | <0.0001 |
+| Ambos verdaderos (oráculo) | 0.010 | 0.017 | 0.98 (limpio) |
 
-La FPR con proxy ruidoso se mantiene entre $0.013$ y $0.025$ en todo el rango —dentro del
-ruido de muestreo esperado alrededor de $\alpha=0.05$ con 80 repeticiones ($\text{ES}
-\approx 0.024$)—, sin la tendencia creciente que sí aparece en la prueba de magnitud. El
-poder bajo Tipo B es $1.000$ en los cuatro valores de $N$: la corrección no destruye la
-sensibilidad, al menos para esta magnitud de acoplamiento ($\kappa=0.8$). Honestidad sobre
-el límite de esta validación: el poder saturado en $1.0$ confirma que la prueba retiene
-sensibilidad, pero no traza una curva de poder informativa (no hay pendiente que mostrar
-cuando ya se está en el techo) — para caracterizar el punto donde el poder empieza a caer
-haría falta repetir esto con $\kappa$ menor, no hecho aquí.
+El resultado no es simétrico: ruido de clasificación en la identidad de estímulo pesa
+*más* que ruido continuo de medición en arousal, incluso a una tasa de error moderada
+(8%). Tiene sentido estructuralmente — el ruido continuo se diluye parcialmente en una
+regresión lineal; el error de clasificación categórico mueve un ensayo *fuera* del grupo
+de comparación correcto por completo, rompiendo la premisa misma del emparejamiento.
+
+**FPR-vs-N: la fragilidad es proporcional a la calidad del etiquetado, no binaria
+(`test_rastreo_de_fuente.py`, Bloque 7).** Repitiendo la prueba condicionada 80 veces por
+$N \in \{400, 800, 1600, 2400\}$, comparando dos regímenes de calidad del proxy de
+estímulo:
+
+| $N$ | FPR, error 1% | FPR, error 8% | FPR oráculo | Poder Tipo B |
+|---|---|---|---|---|
+| 400 | 0.037 | 0.200 | 0.037 | 1.000 |
+| 800 | 0.037 | 0.400 | 0.025 | 1.000 |
+| 1600 | 0.062 | 0.787 | 0.025 | 1.000 |
+| 2400 | 0.062 | 0.887 | 0.062 | 1.000 |
+
+Con un error de clasificación de estímulo del 1% (plausible si la identidad de estímulo
+la registra directamente el software de la tarea, no algo inferido post-hoc), la FPR se
+mantiene plana y cerca de $\alpha=0.05$ — el resultado que la versión anterior de esta
+sección reportaba, pero que sólo había probado variando la calidad del proxy de *arousal*,
+dejando la identidad de estímulo siempre exacta. Con un error del 8% (no exótico si la
+identidad de estímulo se infiere post-hoc o hay codificación manual), la FPR **se dispara
+con N** — de $0.20$ a $0.89$ entre $N=400$ y $N=2400$, peor que el problema original de la
+prueba de magnitud en `simulacion_acoplamiento_fase_temprana_tardia.py`. El poder bajo
+Tipo B se mantiene en $1.000$ en ambos regímenes — la corrección no pierde sensibilidad,
+pero eso no compensa una FPR que se dispara si el etiquetado de estímulo es poco fiable.
+
+**Consecuencia para la Predicción 6.** La fiabilidad del etiquetado de estímulo es una
+condición de validez de primer orden para la versión condicionada del test — auditable y,
+en principio, controlable (a diferencia del ruido de arousal, que es en parte irreducible
+por ser una variable latente). Antes de confiar en un resultado del Test 2 condicionado
+sobre datos reales, verificar la tasa de error de codificación de estímulo del propio
+registro, no asumirla despreciable. Honestidad sobre el límite de esta validación: el
+poder saturado en $1.0$ confirma que la prueba retiene sensibilidad, pero no traza una
+curva de poder informativa (no hay pendiente que mostrar cuando ya se está en el techo) —
+para caracterizar el punto donde el poder empieza a caer haría falta repetir esto con
+$\kappa$ menor, no hecho aquí.
 
 **La pregunta que decide el diseño, antes de tocar datos.** ¿El paradigma real repite un
 estímulo único/idéntico, o lo varía entre ensayos?
