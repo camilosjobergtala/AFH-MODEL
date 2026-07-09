@@ -1,0 +1,96 @@
+{
+  "modelo_evaluado": "PAH* v2.3 - DATOS EEG REALES + Horizonte H*",
+  "investigador": "Camilo Alejandro Sjöberg Tala",
+  "timestamp_eureka": "2025-06-13T10:50:03.279150",
+  "fecha_eureka": "2025-06-13 10:50:03",
+  "configuracion_validacion": {
+    "metodo": "Split irreversible + BESTIA MODE + Holdout final",
+    "n_sujetos_holdout": 46,
+    "n_ventanas_holdout": 126160,
+    "hardware_utilizado": "8C/16T, 31GB RAM",
+    "workers_bestia": 15,
+    "es_irreversible": true,
+    "una_sola_oportunidad": true
+  },
+  "umbrales_aplicados": {
+    "k_topo": 0.06285714285714286,
+    "phi_h": 0.14666988972612852,
+    "delta_pci": 2.0,
+    "desc": "Top 15% κ, Top 20% Φ, Bottom 20% Δ",
+    "tasa_deteccion": 1.5171601119457947,
+    "n_candidatos": 206
+  },
+  "metricas_finales": {
+    "f1_score": 0.030647553138902616,
+    "precision": 0.03172978505629478,
+    "recall": 0.029636711281070746,
+    "tasa_deteccion": 0.007744134432466709,
+    "coincidencias": 31,
+    "singularidades_detectadas": 977,
+    "transiciones_reales": 1046
+  },
+  "evaluacion_criterios": {
+    "cumple_f1": false,
+    "cumple_precision": false,
+    "cumple_recall": false,
+    "cumple_tasa_deteccion": true,
+    "criterios_cumplidos_total": 2,
+    "criterios_requeridos": 5
+  },
+  "veredicto_final": "FALSADO",
+  "interpretacion": {
+    "condicion": "Criterios mÃ­nimos no cumplidos",
+    "significado": "Modelo PAH* FALSADO empÃ­ricamente",
+    "implicacion": "Requiere reformulaciÃ³n teÃ³rica fundamental"
+  },
+  "es_definitivo": true,
+  "es_irreversible": true,
+  "criterios_aplicados": {
+    "modelo_evaluado": "PAH* v2.3 - DATOS EEG REALES + Horizonte H*",
+    "investigador": "Camilo Alejandro SjÃ¶berg Tala",
+    "fecha_definicion": "2025-06-13 09:40:04",
+    "timestamp_definicion": "2025-06-13T09:40:04.512007",
+    "criterios_falsacion": {
+      "f1_minimo_eureka": 0.25,
+      "precision_minima": 0.3,
+      "recall_minimo": 0.2,
+      "tasa_deteccion_minima": 0.005,
+      "tasa_deteccion_maxima": 0.1,
+      "estabilidad_cv_maxima": 0.15
+    },
+    "interpretacion_automatica": {
+      "EUREKA_REAL": {
+        "condicion": "Todos los criterios mÃ­nimos cumplidos",
+        "significado": "Modelo PAH* VALIDADO empÃ­ricamente",
+        "implicacion": "Primera teorÃ­a falsable de conciencia con soporte real"
+      },
+      "EVIDENCIA_PARCIAL": {
+        "condicion": "MayorÃ­a de criterios cumplidos",
+        "significado": "Modelo PAH* con evidencia limitada",
+        "implicacion": "Requiere refinamiento antes de aplicaciones"
+      },
+      "FALSADO": {
+        "condicion": "Criterios mÃ­nimos no cumplidos",
+        "significado": "Modelo PAH* FALSADO empÃ­ricamente",
+        "implicacion": "Requiere reformulaciÃ³n teÃ³rica fundamental"
+      }
+    },
+    "compromiso_cientifico": {
+      "acepto_criterios_vinculantes": true,
+      "acepto_posible_falsacion": true,
+      "no_modificare_criterios_post_resultados": true,
+      "falsacion_tan_valiosa_como_confirmacion": true,
+      "priorizo_verdad_sobre_ego": true
+    },
+    "configuracion_validacion": {
+      "metodo": "Split irreversible + ValidaciÃ³n cruzada + Holdout final",
+      "k_folds_cv": 5,
+      "seed_reproducibilidad": 2025,
+      "una_sola_oportunidad_holdout": true
+    },
+    "hash_criterios": "d16870938fb06d83a2a309d50ae67551"
+  },
+  "hash_integridad_resultado": "b0b90438b1afad6192f2535fbe44094c",
+  "seed_verificacion": 2025,
+  "declaracion_final": "El Modelo PAH* ha sido FALSADO de forma definitiva e irreversible mediante validación empírica honesta."
+}

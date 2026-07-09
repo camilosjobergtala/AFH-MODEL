@@ -6,8 +6,12 @@ For the Scientific Reports manuscript "ECLIPSE v2.0: A Reproducible Scaffold for
 
 → /ScientificReports_revision
 
-See the README inside that directory for layout and reproduction steps.
+For the Neuroscience of Consciousness manuscript "La convergencia temporal talámica intralaminar como mecanismo candidato de la presencia fenomenológica" (C. A. Sjöberg Tala), the reviewer-facing package (manuscript, formal model, code, and results) is in:
 
-Other directories (e.g. Lab/) contain the author's earlier and separate exploratory research and are not part of the manuscript above.
+→ /NeuroscienceOfConsciousness_revision
+
+See the README inside each directory for layout and reproduction steps.
+
+Other directories (e.g. Lab/) contain the author's earlier and separate exploratory research archive from which the two packages above were curated, and are not part of either manuscript.
 
 License: Apache License 2.0 (see LICENSE).

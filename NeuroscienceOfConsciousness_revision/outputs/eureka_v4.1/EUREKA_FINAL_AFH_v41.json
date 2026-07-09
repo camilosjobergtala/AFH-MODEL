@@ -1,0 +1,96 @@
+{
+  "modelo_evaluado": "AFH* v4.1 - 3 VARIABLES SÓLIDAS + Horizonte H* v4.1",
+  "investigador": "Camilo Alejandro Sjöberg Tala",
+  "timestamp_eureka": "2025-07-23T03:14:26.871055",
+  "fecha_eureka": "2025-07-23 03:14:26",
+  "variables_v41_evaluadas": {
+    "k_topo_ricci": "Ollivier-Ricci curvature en redes funcionales",
+    "sigma_estabilidad": "Coherencia temporal multiescala",
+    "phi_h_transfer": "Transfer entropy direccional"
+  },
+  "configuracion_validacion": {
+    "metodo": "Split irreversible + BESTIA MODE + Holdout final v4.1",
+    "n_sujetos_holdout": 46,
+    "n_ventanas_holdout": 126160,
+    "hardware_utilizado": "8C/16T, 31GB RAM",
+    "workers_bestia": 15,
+    "arquitectura_preservada": "ECLIPSE FINAL",
+    "simplificacion_variables": "v4.0 → v4.1 (sin variable experimental)"
+  },
+  "umbrales_aplicados_v41": {
+    "k_topo_ricci": 0.2702625231301105,
+    "sigma_estabilidad": 0.25388083227364433,
+    "phi_h_transfer": 0.06924424027854008,
+    "desc": "Top 30% todas las 3 variables",
+    "tasa_deteccion": 1.4669560661627123,
+    "n_candidatos": 392
+  },
+  "metricas_finales_v41": {
+    "f1_score": 0.03672532517214996,
+    "precision": 0.025043478260869566,
+    "recall": 0.06883365200764818,
+    "tasa_deteccion": 0.02278852251109702,
+    "coincidencias": 72,
+    "singularidades_detectadas": 2875,
+    "transiciones_reales": 1046
+  },
+  "evaluacion_criterios_v41": {
+    "cumple_f1": false,
+    "cumple_precision": false,
+    "cumple_recall": false,
+    "cumple_tasa_deteccion": true,
+    "criterios_cumplidos_total": 2,
+    "criterios_requeridos": 5
+  },
+  "veredicto_final": "FALSADO_v41",
+  "interpretacion": {
+    "condicion": "Criterios v4.1 no cumplidos",
+    "significado": "AFH* v4.1 FALSADO - Reformulación v5.0 requerida",
+    "implicacion": "Incluso 3 variables sólidas insuficientes, enfoque fundamental nuevo"
+  },
+  "es_definitivo": true,
+  "es_irreversible": true,
+  "criterios_aplicados": {
+    "modelo_evaluado": "AFH* v4.1 - 3 VARIABLES SÓLIDAS + Horizonte H* v4.1",
+    "investigador": "Camilo Alejandro Sjöberg Tala",
+    "fecha_definicion": "2025-07-22 22:19:46",
+    "timestamp_definicion": "2025-07-22T22:19:46.984760",
+    "criterios_falsacion": {
+      "f1_minimo_eureka": 0.6,
+      "precision_minima": 0.7,
+      "recall_minimo": 0.5,
+      "tasa_deteccion_minima": 0.01,
+      "tasa_deteccion_maxima": 0.15,
+      "estabilidad_cv_maxima": 0.1,
+      "cobertura_poblacional_minima": 0.8
+    },
+    "interpretacion_automatica": {
+      "EUREKA_REAL_v41": {
+        "condicion": "Todos los criterios v4.1 cumplidos",
+        "significado": "AFH* v4.1 VALIDADO empíricamente - 3 variables sólidas exitosas",
+        "implicacion": "Framework simplificado y robusto para detección de conciencia"
+      },
+      "EVIDENCIA_PARCIAL_v41": {
+        "condicion": "Mayoría de criterios v4.1 cumplidos",
+        "significado": "AFH* v4.1 con evidencia limitada - Refinamiento v4.2 requerido",
+        "implicacion": "Base sólida confirmada, optimización de umbrales necesaria"
+      },
+      "FALSADO_v41": {
+        "condicion": "Criterios v4.1 no cumplidos",
+        "significado": "AFH* v4.1 FALSADO - Reformulación v5.0 requerida",
+        "implicacion": "Incluso 3 variables sólidas insuficientes, enfoque fundamental nuevo"
+      }
+    },
+    "configuracion_validacion": {
+      "metodo": "Split irreversible + Validación cruzada + Holdout final v4.1",
+      "k_folds_cv": 5,
+      "seed_reproducibilidad": 2025,
+      "arquitectura_preservada": "ECLIPSE FINAL",
+      "variables_solidas": "3 variables robustas sin experimental"
+    },
+    "hash_criterios_v41": "a36bba32f61ba3b52af632c8c8d40803"
+  },
+  "hash_integridad_resultado": "a58513ce31ad9c9824d3e74f616342ef",
+  "seed_verificacion": 2025,
+  "declaracion_final": "El Modelo AFH* v4.1 ha sido FALSADO_v41 de forma definitiva e irreversible mediante validación empírica honesta con 3 variables sólidas."
+}
