@@ -1,0 +1,31 @@
+{
+  "project_name": "DeltaTFold_SleepEDF_RealData",
+  "registration_date": "2025-10-21T16:42:01.235462",
+  "criteria": [
+    {
+      "name": "Cohen's d (Wake vs Sleep)",
+      "threshold": 0.3,
+      "comparison": ">=",
+      "description": "Tama\u00f1o del efecto >= 0.3 (efecto mediano)",
+      "is_required": true
+    },
+    {
+      "name": "p-value (one-tailed t-test)",
+      "threshold": 0.05,
+      "comparison": "<=",
+      "description": "p < 0.05 para H1: vigilia > sue\u00f1o",
+      "is_required": true
+    },
+    {
+      "name": "Mean difference (ms)",
+      "threshold": 10.0,
+      "comparison": ">=",
+      "description": "Diferencia media >= 10 ms",
+      "is_required": false
+    }
+  ],
+  "n_required": 2,
+  "n_optional": 1,
+  "criteria_hash": "bc7079b1766f46d3c12015b9be56611bf2790876ebfc9f00b1f71ed21814d78d",
+  "binding_declaration": "These criteria are binding and cannot be modified after registration. Any changes invalidate all subsequent analyses."
+}

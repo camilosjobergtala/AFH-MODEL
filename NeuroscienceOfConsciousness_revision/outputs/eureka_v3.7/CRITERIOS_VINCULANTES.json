@@ -1,0 +1,45 @@
+{
+  "modelo_evaluado": "PAH* v2.3 - DATOS EEG REALES + Horizonte H*",
+  "investigador": "Camilo Alejandro Sjöberg Tala",
+  "fecha_definicion": "2025-06-13 09:40:04",
+  "timestamp_definicion": "2025-06-13T09:40:04.512007",
+  "criterios_falsacion": {
+    "f1_minimo_eureka": 0.25,
+    "precision_minima": 0.3,
+    "recall_minimo": 0.2,
+    "tasa_deteccion_minima": 0.005,
+    "tasa_deteccion_maxima": 0.1,
+    "estabilidad_cv_maxima": 0.15
+  },
+  "interpretacion_automatica": {
+    "EUREKA_REAL": {
+      "condicion": "Todos los criterios mínimos cumplidos",
+      "significado": "Modelo PAH* VALIDADO empíricamente",
+      "implicacion": "Primera teoría falsable de conciencia con soporte real"
+    },
+    "EVIDENCIA_PARCIAL": {
+      "condicion": "Mayoría de criterios cumplidos",
+      "significado": "Modelo PAH* con evidencia limitada",
+      "implicacion": "Requiere refinamiento antes de aplicaciones"
+    },
+    "FALSADO": {
+      "condicion": "Criterios mínimos no cumplidos",
+      "significado": "Modelo PAH* FALSADO empíricamente",
+      "implicacion": "Requiere reformulación teórica fundamental"
+    }
+  },
+  "compromiso_cientifico": {
+    "acepto_criterios_vinculantes": true,
+    "acepto_posible_falsacion": true,
+    "no_modificare_criterios_post_resultados": true,
+    "falsacion_tan_valiosa_como_confirmacion": true,
+    "priorizo_verdad_sobre_ego": true
+  },
+  "configuracion_validacion": {
+    "metodo": "Split irreversible + Validación cruzada + Holdout final",
+    "k_folds_cv": 5,
+    "seed_reproducibilidad": 2025,
+    "una_sola_oportunidad_holdout": true
+  },
+  "hash_criterios": "d16870938fb06d83a2a309d50ae67551"
+}

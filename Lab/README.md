@@ -5,6 +5,12 @@ model, distinct from the *Scientific Reports* manuscript materials in
 [`../ScientificReports_revision/`](../ScientificReports_revision/) (see the root
 [`README.md`](../README.md)). Nothing here is part of that manuscript.
 
+The reviewer-facing package for the *Neuroscience of Consciousness* AFH manuscript — manuscript
+PDF, formal model, code, and results, curated and copied out of this archive — lives in
+[`../NeuroscienceOfConsciousness_revision/`](../NeuroscienceOfConsciousness_revision/). This
+folder (`Lab/`) is left untouched as the historical archive that package was curated from; it is
+not itself part of that submission.
+
 This is an archive, not a maintained codebase: scripts accumulate as numbered/versioned
 snapshots (e.g. `1.py` → `4.py`, `v2` → `v3.2` → `v4`), and older versions are kept alongside
 newer ones intentionally, as a record of how each analysis evolved. Superseded, near-duplicate,

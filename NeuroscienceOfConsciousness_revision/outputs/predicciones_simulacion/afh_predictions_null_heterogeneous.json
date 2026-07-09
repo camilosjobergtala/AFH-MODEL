@@ -1,0 +1,100 @@
+{
+  "regime": "null_heterogeneous",
+  "seed": 42,
+  "predictions": [
+    {
+      "id": "P1",
+      "name": "Correlacion fenomenologica gradada",
+      "metric_name": "r(Nabla, reporte)",
+      "metric_value": -0.032257561090734674,
+      "threshold_desc": "r > 0.30, p < 0.05 (umbral ilustrativo; el texto pide covariacion gradada, no un valor fijo)",
+      "passed": false,
+      "detail": {
+        "p_value": 0.6502251596424884,
+        "n_trials": 200
+      }
+    },
+    {
+      "id": "P2",
+      "name": "Disociacion cualitativa N3/anestesia",
+      "metric_name": "Cohen's d (H_N3 vs H_anestesia)",
+      "metric_value": 0.26374982881754166,
+      "threshold_desc": "|d| > 0.80 (efecto grande) y p < 0.05 -- deben diferir pese a V~0 en ambos",
+      "passed": false,
+      "detail": {
+        "p_value": 0.15463657084101204,
+        "n_per_group": 60
+      }
+    },
+    {
+      "id": "P3",
+      "name": "Ordenamiento temporal en la emergencia",
+      "metric_name": "media(onset_conducta - onset_H*) [ms]",
+      "metric_value": -19.11005779940233,
+      "threshold_desc": "media > 50 ms y p < 0.05 -- H*/Nabla deben cambiar antes que la evidencia conductual",
+      "passed": false,
+      "detail": {
+        "p_value": 0.4557941644857377,
+        "n_trials": 80
+      }
+    },
+    {
+      "id": "P4",
+      "name": "Covarianza H*/Nabla con horizonte presente",
+      "metric_name": "r(H*, Nabla)",
+      "metric_value": 0.031698884846031034,
+      "threshold_desc": "r > 0.50, p < 0.05 (umbral explicito del texto, Prediccion 4)",
+      "passed": false,
+      "detail": {
+        "p_value": 0.6558919655004102,
+        "n_total": 200,
+        "states": [
+          "Wake",
+          "N1",
+          "N2",
+          "N3",
+          "REM"
+        ]
+      }
+    },
+    {
+      "id": "P5",
+      "name": "Covarianza bajo manipulacion de retencion",
+      "metric_name": "r_lenta - r_rapida (vs vividez)",
+      "metric_value": -0.23550403589663269,
+      "threshold_desc": "r_lenta > 0.30 (p<0.05) y sustancialmente mayor que r_rapida -- disociacion, no mero analogo",
+      "passed": false,
+      "detail": {
+        "r_slow": -0.04378349553337923,
+        "p_slow": 0.6653505803825845,
+        "r_fast": 0.19172054036325345,
+        "p_fast": 0.056021595056583
+      }
+    },
+    {
+      "id": "P6",
+      "name": "Origen reflexivo de la senal lenta (decisiva)",
+      "metric_name": "fraccion de varianza explicada por F->S",
+      "metric_value": 0.036296288111491576,
+      "threshold_desc": "p < 0.05 y varianza explicada > 5% -- rastreo de fuente hasta la entrada rapida precedente",
+      "passed": false,
+      "detail": {
+        "f_stat": 0.9628360544858832,
+        "p_value": 0.6069256394529381,
+        "clasificacion": "Tipo A (heterogeneo, falsaria Nabla)",
+        "max_lag_ms": 700
+      }
+    },
+    {
+      "id": "P7",
+      "name": "Diferencial de latencia rapido-lento en los ILN",
+      "metric_name": "lag del pico de correlacion [ms]",
+      "metric_value": 620.0,
+      "threshold_desc": "150-550 ms con |r_pico| > 0.20 -- ventana predicha por el texto (Seccion 6.1)",
+      "passed": false,
+      "detail": {
+        "peak_r": 0.09875751728195833
+      }
+    }
+  ]
+}

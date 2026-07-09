@@ -1,0 +1,422 @@
+{
+  "metadata_historico": {
+    "titulo": "Primera Validación Empírica Honesta de Teoría de Conciencia",
+    "modelo": "PAH* v2.3 - DATOS EEG REALES + Horizonte H*",
+    "investigador": "Camilo Alejandro Sjöberg Tala",
+    "fecha_validacion": "2025-06-13 10:50:03",
+    "significado_historico": "Primera teoría falsable de conciencia sometida a validación empírica rigurosa",
+    "metodologia": "Split irreversible + BESTIA MODE + Holdout final",
+    "nivel_honestidad": "MÁXIMO",
+    "falsabilidad": "REAL"
+  },
+  "split_irreversible": {
+    "archivo": "G:\\Mi unidad\\AFH\\EXPERIMENTO\\FASE 2\\SLEEP-EDF\\DATABASE\\sleep-cassette\\PAH_BESTIA_REAL_v23\\SPLIT_DEFINITIVO_PAH.json",
+    "seed_sagrado": 2025,
+    "sujetos_desarrollo": [
+      "SC4051E0",
+      "SC4552F0",
+      "SC4041E0",
+      "SC4022E0",
+      "SC4752E0",
+      "SC4731E0",
+      "SC4762E0",
+      "SC4212E0",
+      "SC4811G0",
+      "SC4112E0",
+      "SC4412E0",
+      "SC4332F0",
+      "SC4121E0",
+      "SC4501E0",
+      "SC4542F0",
+      "SC4562F0",
+      "SC4242E0",
+      "SC4341F0",
+      "SC4592G0",
+      "SC4221E0",
+      "SC4241E0",
+      "SC4082E0",
+      "SC4801G0",
+      "SC4661E0",
+      "SC4431E0",
+      "SC4711E0",
+      "SC4742E0",
+      "SC4632E0",
+      "SC4131E0",
+      "SC4511E0",
+      "SC4621E0",
+      "SC4402E0",
+      "SC4702E0",
+      "SC4462F0",
+      "SC4532E0",
+      "SC4101E0",
+      "SC4381F0",
+      "SC4152E0",
+      "SC4062E0",
+      "SC4352F0",
+      "SC4211E0",
+      "SC4671G0",
+      "SC4491G0",
+      "SC4362F0",
+      "SC4651E0",
+      "SC4291G0",
+      "SC4322E0",
+      "SC4712E0",
+      "SC4001E0",
+      "SC4321E0",
+      "SC4151E0",
+      "SC4451F0",
+      "SC4282G0",
+      "SC4822G0",
+      "SC4292G0",
+      "SC4011E0",
+      "SC4141E0",
+      "SC4442E0",
+      "SC4471F0",
+      "SC4581G0",
+      "SC4482F0",
+      "SC4732E0",
+      "SC4372F0",
+      "SC4541F0",
+      "SC4092E0",
+      "SC4772G0",
+      "SC4261F0",
+      "SC4561F0",
+      "SC4171E0",
+      "SC4512E0",
+      "SC4021E0",
+      "SC4722E0",
+      "SC4432E0",
+      "SC4622E0",
+      "SC4411E0",
+      "SC4421E0",
+      "SC4601E0",
+      "SC4342F0",
+      "SC4611E0",
+      "SC4111E0",
+      "SC4191E0",
+      "SC4161E0",
+      "SC4761E0",
+      "SC4481F0",
+      "SC4231E0",
+      "SC4232E0",
+      "SC4262F0",
+      "SC4102E0",
+      "SC4201E0",
+      "SC4741E0",
+      "SC4162E0",
+      "SC4181E0",
+      "SC4202E0",
+      "SC4602E0",
+      "SC4031E0",
+      "SC4492G0",
+      "SC4002E0",
+      "SC4612E0",
+      "SC4502E0",
+      "SC4572F0",
+      "SC4531E0",
+      "SC4721E0",
+      "SC4812G0",
+      "SC4662E0",
+      "SC4461F0",
+      "SC4192E0",
+      "SC4401E0"
+    ],
+    "sujetos_holdout": [
+      "SC4642E0",
+      "SC4382F0",
+      "SC4052E0",
+      "SC4091E0",
+      "SC4631E0",
+      "SC4071E0",
+      "SC4371F0",
+      "SC4472F0",
+      "SC4751E0",
+      "SC4652E0",
+      "SC4591G0",
+      "SC4802G0",
+      "SC4312E0",
+      "SC4641E0",
+      "SC4012E0",
+      "SC4272F0",
+      "SC4042E0",
+      "SC4351F0",
+      "SC4821G0",
+      "SC4422E0",
+      "SC4081E0",
+      "SC4142E0",
+      "SC4061E0",
+      "SC4222E0",
+      "SC4271F0",
+      "SC4551F0",
+      "SC4251E0",
+      "SC4172E0",
+      "SC4571F0",
+      "SC4522E0",
+      "SC4582G0",
+      "SC4452F0",
+      "SC4122E0",
+      "SC4672G0",
+      "SC4441E0",
+      "SC4252E0",
+      "SC4281G0",
+      "SC4771G0",
+      "SC4311E0",
+      "SC4302E0",
+      "SC4072E0",
+      "SC4182E0",
+      "SC4301E0",
+      "SC4032E0",
+      "SC4331F0",
+      "SC4701E0"
+    ],
+    "es_inmutable": true
+  },
+  "criterios_vinculantes": {
+    "modelo_evaluado": "PAH* v2.3 - DATOS EEG REALES + Horizonte H*",
+    "investigador": "Camilo Alejandro SjÃ¶berg Tala",
+    "fecha_definicion": "2025-06-13 09:40:04",
+    "timestamp_definicion": "2025-06-13T09:40:04.512007",
+    "criterios_falsacion": {
+      "f1_minimo_eureka": 0.25,
+      "precision_minima": 0.3,
+      "recall_minimo": 0.2,
+      "tasa_deteccion_minima": 0.005,
+      "tasa_deteccion_maxima": 0.1,
+      "estabilidad_cv_maxima": 0.15
+    },
+    "interpretacion_automatica": {
+      "EUREKA_REAL": {
+        "condicion": "Todos los criterios mÃ­nimos cumplidos",
+        "significado": "Modelo PAH* VALIDADO empÃ­ricamente",
+        "implicacion": "Primera teorÃ­a falsable de conciencia con soporte real"
+      },
+      "EVIDENCIA_PARCIAL": {
+        "condicion": "MayorÃ­a de criterios cumplidos",
+        "significado": "Modelo PAH* con evidencia limitada",
+        "implicacion": "Requiere refinamiento antes de aplicaciones"
+      },
+      "FALSADO": {
+        "condicion": "Criterios mÃ­nimos no cumplidos",
+        "significado": "Modelo PAH* FALSADO empÃ­ricamente",
+        "implicacion": "Requiere reformulaciÃ³n teÃ³rica fundamental"
+      }
+    },
+    "compromiso_cientifico": {
+      "acepto_criterios_vinculantes": true,
+      "acepto_posible_falsacion": true,
+      "no_modificare_criterios_post_resultados": true,
+      "falsacion_tan_valiosa_como_confirmacion": true,
+      "priorizo_verdad_sobre_ego": true
+    },
+    "configuracion_validacion": {
+      "metodo": "Split irreversible + ValidaciÃ³n cruzada + Holdout final",
+      "k_folds_cv": 5,
+      "seed_reproducibilidad": 2025,
+      "una_sola_oportunidad_holdout": true
+    },
+    "hash_criterios": "d16870938fb06d83a2a309d50ae67551"
+  },
+  "desarrollo_limpio": {
+    "f1_mean": 0.4203892816618661,
+    "f1_std": 0.3989272186876653,
+    "n_folds_exitosos": 5,
+    "resultados_detallados": [
+      {
+        "fold": 1,
+        "f1": 0.10526315789473684,
+        "precision": 1.0,
+        "recall": 0.05555555555555555,
+        "umbrales": {
+          "k_topo": 0.065,
+          "phi_h": 0.15592555137810532,
+          "delta_pci": 2.0,
+          "desc": "Top 15% κ, Top 20% Φ, Bottom 20% Δ",
+          "tasa_deteccion": 1.5727871250914411,
+          "n_candidatos": 86
+        },
+        "n_train": 85,
+        "n_test": 22
+      },
+      {
+        "fold": 2,
+        "f1": 0.07960199004975126,
+        "precision": 0.04145077720207254,
+        "recall": 1.0,
+        "umbrales": {
+          "k_topo": 0.04190476190476191,
+          "phi_h": 0.13790255829233633,
+          "delta_pci": 2.0,
+          "desc": "Top 15% κ, Top 20% Φ, Bottom 20% Δ",
+          "tasa_deteccion": 1.8853974121996304,
+          "n_candidatos": 102
+        },
+        "n_train": 85,
+        "n_test": 22
+      },
+      {
+        "fold": 3,
+        "f1": 0.1111111111111111,
+        "precision": 1.0,
+        "recall": 0.058823529411764705,
+        "umbrales": {
+          "k_topo": 0.055714285714285716,
+          "phi_h": 0.15268306137999132,
+          "delta_pci": 2.0,
+          "desc": "Top 15% κ, Top 20% Φ, Bottom 20% Δ",
+          "tasa_deteccion": 2.157079646017699,
+          "n_candidatos": 117
+        },
+        "n_train": 86,
+        "n_test": 21
+      },
+      {
+        "fold": 4,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "umbrales": {
+          "k_topo": 0.055714285714285716,
+          "phi_h": 0.15268306137999132,
+          "delta_pci": 2.0,
+          "desc": "Top 15% κ, Top 20% Φ, Bottom 20% Δ",
+          "tasa_deteccion": 2.120206489675516,
+          "n_candidatos": 115
+        },
+        "n_train": 86,
+        "n_test": 21
+      },
+      {
+        "fold": 5,
+        "f1": 0.8059701492537313,
+        "precision": 0.675,
+        "recall": 1.0,
+        "umbrales": {
+          "k_topo": 0.055714285714285716,
+          "phi_h": 0.15268306137999132,
+          "delta_pci": 2.0,
+          "desc": "Top 15% κ, Top 20% Φ, Bottom 20% Δ",
+          "tasa_deteccion": 2.083333333333333,
+          "n_candidatos": 113
+        },
+        "n_train": 86,
+        "n_test": 21
+      }
+    ]
+  },
+  "umbrales_calibrados": {
+    "k_topo": 0.06285714285714286,
+    "phi_h": 0.14666988972612852,
+    "delta_pci": 2.0,
+    "desc": "Top 15% κ, Top 20% Φ, Bottom 20% Δ",
+    "tasa_deteccion": 1.5171601119457947,
+    "n_candidatos": 206
+  },
+  "validacion_final": {
+    "modelo_evaluado": "PAH* v2.3 - DATOS EEG REALES + Horizonte H*",
+    "investigador": "Camilo Alejandro Sjöberg Tala",
+    "timestamp_eureka": "2025-06-13T10:50:03.279150",
+    "fecha_eureka": "2025-06-13 10:50:03",
+    "configuracion_validacion": {
+      "metodo": "Split irreversible + BESTIA MODE + Holdout final",
+      "n_sujetos_holdout": 46,
+      "n_ventanas_holdout": 126160,
+      "hardware_utilizado": "8C/16T, 31GB RAM",
+      "workers_bestia": 15,
+      "es_irreversible": true,
+      "una_sola_oportunidad": true
+    },
+    "umbrales_aplicados": {
+      "k_topo": 0.06285714285714286,
+      "phi_h": 0.14666988972612852,
+      "delta_pci": 2.0,
+      "desc": "Top 15% κ, Top 20% Φ, Bottom 20% Δ",
+      "tasa_deteccion": 1.5171601119457947,
+      "n_candidatos": 206
+    },
+    "metricas_finales": {
+      "f1_score": 0.030647553138902616,
+      "precision": 0.03172978505629478,
+      "recall": 0.029636711281070746,
+      "tasa_deteccion": 0.007744134432466709,
+      "coincidencias": 31,
+      "singularidades_detectadas": 977,
+      "transiciones_reales": 1046
+    },
+    "evaluacion_criterios": {
+      "cumple_f1": false,
+      "cumple_precision": false,
+      "cumple_recall": false,
+      "cumple_tasa_deteccion": true,
+      "criterios_cumplidos_total": 2,
+      "criterios_requeridos": 5
+    },
+    "veredicto_final": "FALSADO",
+    "interpretacion": {
+      "condicion": "Criterios mÃ­nimos no cumplidos",
+      "significado": "Modelo PAH* FALSADO empÃ­ricamente",
+      "implicacion": "Requiere reformulaciÃ³n teÃ³rica fundamental"
+    },
+    "es_definitivo": true,
+    "es_irreversible": true,
+    "criterios_aplicados": {
+      "modelo_evaluado": "PAH* v2.3 - DATOS EEG REALES + Horizonte H*",
+      "investigador": "Camilo Alejandro SjÃ¶berg Tala",
+      "fecha_definicion": "2025-06-13 09:40:04",
+      "timestamp_definicion": "2025-06-13T09:40:04.512007",
+      "criterios_falsacion": {
+        "f1_minimo_eureka": 0.25,
+        "precision_minima": 0.3,
+        "recall_minimo": 0.2,
+        "tasa_deteccion_minima": 0.005,
+        "tasa_deteccion_maxima": 0.1,
+        "estabilidad_cv_maxima": 0.15
+      },
+      "interpretacion_automatica": {
+        "EUREKA_REAL": {
+          "condicion": "Todos los criterios mÃ­nimos cumplidos",
+          "significado": "Modelo PAH* VALIDADO empÃ­ricamente",
+          "implicacion": "Primera teorÃ­a falsable de conciencia con soporte real"
+        },
+        "EVIDENCIA_PARCIAL": {
+          "condicion": "MayorÃ­a de criterios cumplidos",
+          "significado": "Modelo PAH* con evidencia limitada",
+          "implicacion": "Requiere refinamiento antes de aplicaciones"
+        },
+        "FALSADO": {
+          "condicion": "Criterios mÃ­nimos no cumplidos",
+          "significado": "Modelo PAH* FALSADO empÃ­ricamente",
+          "implicacion": "Requiere reformulaciÃ³n teÃ³rica fundamental"
+        }
+      },
+      "compromiso_cientifico": {
+        "acepto_criterios_vinculantes": true,
+        "acepto_posible_falsacion": true,
+        "no_modificare_criterios_post_resultados": true,
+        "falsacion_tan_valiosa_como_confirmacion": true,
+        "priorizo_verdad_sobre_ego": true
+      },
+      "configuracion_validacion": {
+        "metodo": "Split irreversible + ValidaciÃ³n cruzada + Holdout final",
+        "k_folds_cv": 5,
+        "seed_reproducibilidad": 2025,
+        "una_sola_oportunidad_holdout": true
+      },
+      "hash_criterios": "d16870938fb06d83a2a309d50ae67551"
+    },
+    "hash_integridad_resultado": "b0b90438b1afad6192f2535fbe44094c",
+    "seed_verificacion": 2025,
+    "declaracion_final": "El Modelo PAH* ha sido FALSADO de forma definitiva e irreversible mediante validación empírica honesta."
+  },
+  "archivos_criticos": {
+    "split_definitivo": "G:\\Mi unidad\\AFH\\EXPERIMENTO\\FASE 2\\SLEEP-EDF\\DATABASE\\sleep-cassette\\PAH_BESTIA_REAL_v23\\SPLIT_DEFINITIVO_PAH.json",
+    "criterios_vinculantes": "G:\\Mi unidad\\AFH\\EXPERIMENTO\\FASE 2\\SLEEP-EDF\\DATABASE\\sleep-cassette\\PAH_BESTIA_REAL_v23\\CRITERIOS_VINCULANTES.json",
+    "eureka_final": "G:\\Mi unidad\\AFH\\EXPERIMENTO\\FASE 2\\SLEEP-EDF\\DATABASE\\sleep-cassette\\PAH_BESTIA_REAL_v23\\EUREKA_FINAL_IRREVERSIBLE.json",
+    "reporte_historico": "G:\\Mi unidad\\AFH\\EXPERIMENTO\\FASE 2\\SLEEP-EDF\\DATABASE\\sleep-cassette\\PAH_BESTIA_REAL_v23\\REPORTE_HISTORICO_PAH.txt"
+  },
+  "verificacion_integridad": {
+    "hash_resultado": "b0b90438b1afad6192f2535fbe44094c",
+    "timestamp_reporte": "2025-06-13T10:50:03.345089",
+    "es_inmutable": true,
+    "replicable": true
+  }
+}
