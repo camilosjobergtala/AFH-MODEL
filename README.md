@@ -1,4 +1,3 @@
-AFH-MODEL
 
 This repository collects the author's research across several projects.
 
