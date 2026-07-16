@@ -4,19 +4,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository purpose
 
-This repo collects C. A. Sjöberg Tala's research. It is **not** a software product — there is no
-package to build, no app to serve, no CI, and no dependency manager beyond pip. It contains two
-unrelated bodies of work:
+This is C. A. Sjöberg Tala's personal research repository — not a product, not an org repo. It is
+**not** a software product either — there is no package to build, no app to serve, no CI, and no
+dependency manager beyond pip. It contains two unrelated bodies of work:
 
 - **`ScientificReports_revision/`** — the current, active work: code, data, and reproducibility
   materials for the *Scientific Reports* manuscript "ECLIPSE v2.0: A Reproducible Scaffold for
   Severe Confirmatory Testing through Preregistration, Single-Shot Validation, and Static-Analysis
-  Screening." Treat this directory as the primary thing to reason carefully about.
-- **`Lab/`** — the author's earlier, separate exploratory research (AFH* model vs. IIT, EEG/PSG
-  sleep-stage analyses, feature-filtering experiments). It is **not** part of the manuscript and is
-  a much looser, notebook-style collection of one-off scripts with Spanish/English mixed naming
-  (`NIVEL 0/1/2/3/4`, `FOLD`, `ECLIPSE 3.7/4.1.py`). Treat it as reference/archive, not code to
-  refactor toward consistency with `ScientificReports_revision/`.
+  Screening." Treat this directory as the primary thing to reason carefully about. This is the
+  directory linked to reviewers of that submission — be extra conservative about changes here.
+- Everything else is the author's separate, personal line of research on the AFH* model
+  (Autopsychic Fold Hypothesis), unrelated to the manuscript above beyond an incidental naming
+  overlap ("ECLIPSE" is reused as a script name in both, by historical coincidence, not shared
+  logic):
+  - **`Lab/`** — the earlier, exploratory research archive (AFH* model vs. IIT, EEG/PSG
+    sleep-stage analyses, feature-filtering experiments). A much looser, notebook-style collection
+    of one-off scripts with Spanish/English mixed naming (`NIVEL 0/1/2/3/4`, `FOLD`,
+    `ECLIPSE 3.7/4.1.py`). Treat it as reference/archive, not code to refactor toward consistency
+    with `ScientificReports_revision/`.
+  - **`NeuroscienceOfConsciousness_revision/`** — a self-contained, reviewer-facing package
+    (manuscript, formal model, code, results) for a separate, not-yet-submitted manuscript, "La
+    convergencia temporal talámica intralaminar como mecanismo candidato de la presencia
+    fenomenológica", curated out of `Lab/`. Its own README documents its layout; it references
+    `Lab/` by relative path in prose and in one script's path resolution
+    (`Lab/afh-predicciones-simulacion/evaluate_real_sleepedf_predictions.py` assumes `Lab/` hangs
+    directly off the repo root) — keep that in mind before moving either directory.
 
 Root-level `NISA'S CODE` is a joke file (the author's cat walked on the keyboard) — leave it as is.
 

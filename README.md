@@ -1,17 +1,41 @@
 AFH-MODEL
 
-This repository collects the author's research across several projects.
+Personal research repository of C. A. Sjöberg Tala, independent researcher. Not a product, not
+an organization — just where the code, data, and writeups for my own work live.
 
-For the Scientific Reports manuscript "ECLIPSE v2.0: A Reproducible Scaffold for Severe Confirmatory Testing through Preregistration, Single-Shot Validation, and Static-Analysis Screening" (C. A. Sjöberg Tala), all code, data, and reproducibility materials are in:
+## For reviewers: Scientific Reports manuscript
 
-→ /ScientificReports_revision
+If you're here to check the *Scientific Reports* manuscript "ECLIPSE v2.0: A Reproducible
+Scaffold for Severe Confirmatory Testing through Preregistration, Single-Shot Validation, and
+Static-Analysis Screening", all code, data, and reproducibility materials are in:
 
-For the Neuroscience of Consciousness manuscript "La convergencia temporal talámica intralaminar como mecanismo candidato de la presencia fenomenológica" (C. A. Sjöberg Tala), the reviewer-facing package (manuscript, formal model, code, and results) is in:
+→ [`/ScientificReports_revision`](ScientificReports_revision/)
 
-→ /NeuroscienceOfConsciousness_revision
+See the README inside that directory for layout and reproduction steps. This is the only part of
+the repo tied to an active submission; everything else below is separate, personal research.
 
-See the README inside each directory for layout and reproduction steps.
+## AFH research (personal, independent line of work)
 
-Other directories (e.g. Lab/) contain the author's earlier and separate exploratory research archive from which the two packages above were curated, and are not part of either manuscript.
+The rest of this repo is my own exploratory work on the AFH* model (Autopsychic Fold Hypothesis),
+unrelated to the manuscript above beyond an incidental name overlap (see note below):
 
-License: Apache License 2.0 (see LICENSE).
+- [`/Lab`](Lab/) — the exploratory research archive: falsification tests against IIT, EEG/PSG
+  sleep-stage analyses, feature-filtering experiments. Notebook-style, not a maintained codebase
+  — see [`Lab/README.md`](Lab/README.md) for the map.
+- [`/NeuroscienceOfConsciousness_revision`](NeuroscienceOfConsciousness_revision/) — the
+  reviewer-facing package (manuscript, formal model, code, results) for a separate manuscript,
+  "La convergencia temporal talámica intralaminar como mecanismo candidato de la presencia
+  fenomenológica", curated out of `Lab/`. Not yet submitted.
+
+**Note on naming:** some archived scripts under `Lab/` (`ECLIPSE 3.7.py`, `ECLIPSE 4.1.py`, etc.)
+share the name "ECLIPSE" with the *Scientific Reports* manuscript above purely by historical
+coincidence — they are earlier, unrelated attempts at modeling H\* and have nothing to do with the
+EIS/STDS/CodeAuditor scaffold in `ScientificReports_revision/`.
+
+## Also in here
+
+[`NISA'S CODE`](NISA'S%20CODE) — my cat's one and only commit. Left exactly as she typed it.
+
+## License
+
+Apache License 2.0 (see [LICENSE](LICENSE)).
