@@ -1,9 +1,9 @@
-# Adenda propuesta — §8 Limitación 4 (y nota abierta sobre §6.2-6.3)
+# Adenda propuesta — §8 Limitación 4 y aclaración en §6.2
 
 Motivada por `../code/barrido_confusor_latente.py`, que extiende la validación de §6.4
 (Tabla 2) más allá del único punto de intensidad de confusor (kappa_U=0.9) que la tabla
 reporta para la arquitectura `confusor_latente`. No incorporada todavía al texto del
-manuscrito — es una propuesta para que el autor decida, no una edición aplicada.
+manuscrito — es una propuesta para el autor, no una edición aplicada.
 
 ## Resultado que motiva la adenda
 
@@ -21,71 +21,80 @@ kappa_U |  T1 dR2   T1+ | T2n dAcc  T2n+ | T2r dAcc  T2r+
 (La fila kappa_U=0.90 es la fila `confusor_latente` de la Tabla 2 del paper.)
 
 En kappa_U=0 (sin confusor), Test 1 y Test 2 residualizado calibran al nivel nominal (~5%),
-confirmando que la falla no es un artefacto de implementación. Pero la falla no es de
-umbral: crece de forma gradual y, sobre todo, **asimétrica** — el Test 1 supera 50% de
-falsos positivos ya en kappa_U≈0.15-0.30 (una fracción de la intensidad de la Tabla 2),
-mientras el Test 2 residualizado se mantiene calibrado hasta ese mismo rango y recién
+confirmando que lo que la Tabla 2 muestra en kappa=0.9 no es un artefacto de implementación.
+La falla no es de umbral: crece de forma gradual con la fuerza del confusor, y de forma
+asimétrica entre los dos tests — el Test 1 supera 50% de positivos ya en kappa_U≈0.15,
+mientras el Test 2 residualizado se mantiene calibrado hasta kappa_U≈0.30-0.45 y recién
 después se dispara.
 
-**Razón estructural** (no solo un patrón numérico): el Test 1 acumula covarianza residual
-sobre toda la muestra y las 6 dimensiones de L, así que cualquier fuga no nula de un
-confusor no medido se vuelve estadísticamente detectable con N suficiente, por diminuta que
-sea — es el problema conocido de que casi ninguna hipótesis nula puntual ("la covarianza es
-exactamente cero") es cierta con datos continuos y N grande. El Test 2 residualizado exige
-algo más duro: que el aporte incremental de E alcance para identificar, ENSAYO POR ENSAYO,
-cuál L residual le corresponde contra sus vecinos del mismo estrato — un criterio de
-discriminabilidad individual que una fuga débil y difusa no satisface aunque sea
-estadísticamente detectable en agregado.
+## Cómo hay que leer esa asimetría (importante — no es "un test más frágil que el otro")
 
-## Texto propuesto para agregar a la Limitación 4 (§8)
+Una primera lectura tentadora es "el test primario es el más frágil, habría que invertir la
+jerarquía". Es incorrecta, y por una razón que toca el núcleo del §4:
 
-Texto actual del paper:
+1. **El Test 1 es el test de la condición necesaria.** En el aparato del §4, refutar "linaje
+   E→L necesario" exige mostrar independencia condicional E ⊥ L | X — que es exactamente la
+   condición (a) del §6.3, y lo que el Test 1 evalúa. El Test 2 mide algo *más fuerte* que la
+   condición necesaria (identificabilidad por ensayo). Por construcción, entonces, el Test 1
+   es el falsador primario; el Test 2 corrobora especificidad por ensayo. Invertir pondría al
+   test de la propiedad más-que-necesaria como falsador principal, rompiendo la estructura
+   falsacionista sobre la que se apoya todo el §4.
+
+2. **Bajo confusor latente ninguno de los dos "falla como test".** E y L son *genuinamente*
+   dependientes dado el X observado (serían independientes recién dado X *y* U). El Test 1
+   detecta correctamente esa dependencia; lo "falso" está solo en la sobre-lectura como
+   linaje, no en el test. Lo mismo vale para el Test 2r. Ambos positivos son correctos
+   respecto de lo que operacionalmente miden y engañosos solo como evidencia de linaje —
+   exactamente el punto que §6.4-6.5 ya declara.
+
+3. **La asimetría es sensibilidad/especificidad, no robustez.** El Test 1 es el detector
+   *más sensible* de dependencia condicional: dispara con acoplamiento más débil, venga de
+   linaje o de confusor. El Test 2r es *más específico*: exige que la señal sea lo bastante
+   fuerte para sostener identificabilidad por ensayo. Que el Test 1 dispare antes bajo
+   confusor débil es el reverso de su mayor poder, no un defecto — la curva
+   sensibilidad/especificidad de manual. Razón estructural: el Test 1 acumula covarianza
+   residual sobre toda la muestra y todas las dimensiones de L, de modo que cualquier fuga no
+   nula de un confusor no medido se vuelve detectable con N suficiente; el Test 2r exige que
+   el aporte incremental de E identifique, ensayo por ensayo, cuál L residual le corresponde,
+   y una fuga débil se pierde en el ruido idiosincrático antes de discriminar nada.
+
+**Decisión (autor, resuelta):** mantener el Test 1 como primario —es el test de la condición
+necesaria— y afinar el caveat, no invertir ni disolver la jerarquía.
+
+## Texto propuesto para §8 (Limitación 4)
+
+Texto actual:
 
 > "Cuarta, la validación del ejemplo es sintética: establece la sensibilidad y especificidad
 > del diseño frente a arquitecturas conocidas —incluida su falla sistemática ante factores
 > latentes— pero no sustituye su aplicación a datos reales ni la variación exógena que §6.5
 > exige."
 
-Adenda propuesta (a continuación del texto anterior, misma viñeta):
+Adenda propuesta (a continuación, misma viñeta):
 
-> "La Tabla 2 reporta esa falla sistemática en un único punto de intensidad de acoplamiento;
-> un barrido posterior (material suplementario, `barrido_confusor_latente.py`) muestra que no
-> es un fenómeno de umbral: la tasa de falsos positivos crece de forma gradual con la fuerza
-> del confusor, y lo hace de forma asimétrica entre los dos tests — el Test 1 (dependencia
-> condicionada, declarado primario en §6.2) se satura al 100% con una fracción de la
-> intensidad que requiere el Test 2 residualizado para hacer lo mismo. La razón es
-> estructural: el Test 1 acumula covarianza residual sobre toda la muestra, de modo que
-> cualquier fuga no nula de un confusor no medido termina siendo detectable con N suficiente,
-> mientras que el Test 2 residualizado exige identificabilidad ensayo por ensayo, un criterio
-> que una fuga débil no alcanza a satisfacer. En consecuencia, ante confusión latente débil el
-> Test 1 es el más vulnerable de los dos, no el más robusto, pese a su designación como
-> primario."
+> "La Tabla 2 reporta esa falla en un único punto de intensidad de acoplamiento; un barrido
+> posterior (material suplementario, `barrido_confusor_latente.py`) muestra que no es un
+> fenómeno de umbral sino gradual: la tasa de positivos bajo confusor latente crece de forma
+> continua con la fuerza del confusor. El barrido caracteriza además a los dos tests como un
+> par sensibilidad/especificidad — el Test 1 detecta dependencia condicional con un
+> acoplamiento más débil que el que el Test 2 residualizado necesita para alcanzar
+> identificabilidad por ensayo—. Conviene subrayar que, bajo confusor latente, ninguno de los
+> dos incurre en error respecto de lo que operacionalmente mide: E y L son genuinamente
+> dependientes dado el X observado, y el positivo es engañoso solo como evidencia de linaje,
+> que es el punto de §6.4-6.5. Por ello un positivo del Test 1, por ser el más sensible, no es
+> por eso más diagnóstico de linaje que uno del Test 2 residualizado."
 
-## Pregunta abierta: ¿mantener el Test 1 como "primario"? (§6.2-6.3)
+## Aclaración propuesta para §6.2 (una cláusula)
 
-No se resuelve acá — es una decisión editorial del autor sobre la arquitectura argumental
-del paper, no algo para aplicar unilateralmente. Los argumentos:
+Donde el texto introduce el Test 1 como "(primario)", agregar (o nota al pie):
 
-**A favor de mantener a Test 1 como primario:**
-- Mayor poder ante recurrencia genuina y ante confusores fuertes (Tabla 2, fila
-  `recurrencia`: ambos tests detectan al 100%, pero el Test 1 es más simple de computar e
-  interpretar — una ganancia de R², no un procedimiento de emparejamiento).
-- Es más fácil de exponer y de preregistrar como criterio de falsación único (§6.3 ya lo
-  usa como condición (a) del criterio conjunto).
+> "'Primario' refiere a que el Test 1 opera la condición necesaria del §4 —dependencia
+> condicional E ⊥̸ L | X, cuya ausencia refuta el linaje— y a su mayor sensibilidad, no a que
+> su positivo sea más diagnóstico de linaje que el del Test 2 residualizado: por §6.4 y el
+> barrido suplementario, ambos positivos son igualmente compatibles con una causa común
+> latente."
 
-**A favor de revertir la jerarquía (Test 2 residualizado como primario, Test 1 como
-corroborativo):**
-- El Test 2 residualizado aproxima mejor el estimando que el propio §6.1 declara
-  ("continuidad informacional temprana-tardía condicionada", no "existe alguna covarianza
-  residual, sea cual sea su origen").
-- Es más conservador precisamente en el régimen más realista y más insidioso: un confusor
-  latente *fuerte* que domina la señal es, en la práctica, más fácil de sospechar (y quizás
-  de medir y mover a X); uno *débil y difuso* —el que este barrido muestra que rompe el
-  Test 1 primero— es el que pasa desapercibido en un registro real.
-
-**Recomendación de mínima intervención:** incorporar la adenda de arriba a la Limitación 4
-(defendible sin reescribir la arquitectura argumental del paper) y, si el autor quiere ir
-más allá sin invertir la jerarquía, agregar una frase en §6.2 aclarando que "primario"
-refiere a simplicidad de cómputo/interpretación, no a robustez ante confusión latente débil
-— evitando así que el texto prometa, incluso implícitamente, una jerarquía de robustez que
-este barrido contradice.
+Con estas dos incorporaciones, el rótulo "primario/corroborativo" deja de sugerir —aunque sea
+implícitamente— una jerarquía de robustez que el barrido contradice, sin tocar la lógica
+falsacionista de §6.3 (que sigue siendo conjuntiva y bien justificada: se falsa solo si el
+test sensible *y* el específico dan negativo con potencia adecuada).

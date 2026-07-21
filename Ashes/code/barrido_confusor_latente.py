@@ -43,25 +43,34 @@ Tres lecturas:
      de `test_rastreo_de_fuente.py` para el proxy de estímulo: la fragilidad
      es proporcional a la fuerza del confusor, no un interruptor todo-o-nada.
 
-  3. La falla es ASIMÉTRICA entre los dos tests, y en la dirección
-     incómoda: el Test 1 (declarado "primario" en §6.2 del paper) se satura
-     al 100% con kappa=0.30 -- un tercio de la intensidad de la Tabla 2 --
-     mientras el Test 2 residualizado ("corroborativo") se mantiene
-     calibrado hasta kappa~0.15-0.30 y recién después se dispara. Razón
-     estructural: el Test 1 acumula covarianza residual sobre TODA la
-     muestra y las 6 dimensiones de L, así que cualquier fuga no nula de un
-     confusor no medido se vuelve detectable con N suficiente, por diminuta
-     que sea. El Test 2 residualizado exige algo más duro: que el aporte
-     incremental de E alcance para identificar, ENSAYO POR ENSAYO, cuál L
-     residual le corresponde contra sus vecinos del mismo estrato -- una
-     fuga débil se pierde en el ruido idiosincrático de cada ensayo antes de
-     servir para discriminar nada.
+  3. La falla es ASIMÉTRICA entre los dos tests: el Test 1 supera 50% de
+     positivos ya en kappa~0.15, mientras el Test 2 residualizado se mantiene
+     calibrado hasta kappa~0.30-0.45 y recién después se dispara. OJO con la
+     lectura: NO es que "el test primario sea el más frágil". Bajo confusor
+     latente ninguno de los dos falla como test -- E y L son GENUINAMENTE
+     dependientes dado el X observado (serían independientes recién dado X y
+     U), así que el Test 1 detecta correctamente esa dependencia; lo "falso"
+     está solo en la sobre-lectura como linaje, no en el test (el punto de
+     §6.4-6.5). La asimetría es la curva sensibilidad/especificidad de
+     manual: el Test 1 es el detector MÁS SENSIBLE de dependencia condicional
+     (dispara con acoplamiento más débil, venga de linaje o de confusor); el
+     Test 2 residualizado es MÁS ESPECÍFICO (exige señal más fuerte para
+     sostener identificabilidad por ensayo). Razón estructural: el Test 1
+     acumula covarianza residual sobre TODA la muestra y las 6 dimensiones de
+     L, así que cualquier fuga no nula de un confusor no medido se vuelve
+     detectable con N suficiente; el Test 2 residualizado exige que el aporte
+     incremental de E identifique, ENSAYO POR ENSAYO, cuál L residual le
+     corresponde, y una fuga débil se pierde en el ruido idiosincrático antes
+     de discriminar nada.
 
-  Implicación: el test que el paper trata como principal es, ante confusión
-  latente débil, el más vulnerable de los dos, no el más robusto. Ver
-  `../notes/adenda_limitacion4.md` para el texto propuesto para §8 y la
-  discusión abierta sobre si eso amerita revisar la designación
-  primario/corroborativo de §6.2-6.3.
+  Implicación (decisión del autor, ya resuelta): el Test 1 se MANTIENE como
+  primario -- es el test de la condición necesaria del §4 (E ⊥̸ L | X), y el
+  Test 2 mide algo más fuerte que esa condición necesaria, así que invertir
+  rompería la lógica falsacionista. Lo que sí cambia es el caveat: "primario"
+  no implica que un positivo del Test 1 sea más diagnóstico de linaje que uno
+  del Test 2 residualizado (ambos son igualmente compatibles con causa común
+  latente), ni que sea el más robusto. Ver `../notes/adenda_limitacion4.md`
+  para el texto propuesto para §8 y la aclaración para §6.2.
 
 CORRER: python barrido_confusor_latente.py
 TIEMPO: ~5 minutos (7 valores de kappa x 40 réplicas x 3 tests).
@@ -216,21 +225,21 @@ print("\n" + "=" * 72)
 print("  LECTURA")
 print("=" * 72)
 if idx_t1 is not None and idx_t2r is not None:
-    print(f"  Test 1 supera 50% de falsos positivos ya en kappa_U={kappas[idx_t1]:.2f};")
+    print(f"  Test 1 supera 50% de positivos ya en kappa_U={kappas[idx_t1]:.2f};")
     print(f"  Test 2 residualizado recien lo hace en kappa_U={kappas[idx_t2r]:.2f}.")
 print("  La falla es GRADUAL, no binaria (igual que en Bloque 7 de test_rastreo_de_fuente.py")
-print("  para el proxy de estimulo) -- y ademas ASIMETRICA entre los dos tests: el Test 1,")
-print("  que el paper (Sec. 6.2) designa 'primario', se satura mucho antes que el Test 2")
-print("  residualizado ('corroborativo'). Razon estructural: el Test 1 suma covarianza")
-print("  residual sobre TODA la muestra y TODAS las dimensiones de L -- con N grande,")
-print("  cualquier fuga no-cero de un confusor no medido se acumula hasta ser detectable,")
-print("  por diminuta que sea. El Test 2 residualizado exige algo mas duro: que el aporte")
-print("  incremental de E alcance para identificar, ENSAYO POR ENSAYO, cual L residual le")
-print("  corresponde contra sus vecinos del mismo estrato -- una fuga debil se pierde en el")
-print("  ruido idiosincratico de cada ensayo antes de servir para discriminar nada. Por eso")
-print("  el Test 2 residualizado tolera confusores mas debiles que el Test 1, pese a que el")
-print("  paper lo trata como el test secundario.")
-print("  Implicacion para Sec. 8 (Limitaciones) y Sec. 6.2-6.3: la fragilidad ante un")
-print("  confusor latente no es un fenomeno de umbral (todo o nada) sino proporcional a su")
-print("  fuerza, y el test declarado 'primario' es el mas vulnerable de los dos, no el mas")
-print("  robusto -- ver ../notes/adenda_limitacion4.md para el texto propuesto.")
+print("  para el proxy de estimulo), y ASIMETRICA entre los dos tests. OJO con la lectura:")
+print("  NO es que 'el test primario sea el mas fragil'. Bajo confusor latente ninguno falla")
+print("  como test -- E y L son GENUINAMENTE dependientes dado el X observado, y el positivo")
+print("  es enganoso solo como evidencia de LINAJE (el punto de Sec. 6.4-6.5), no como test")
+print("  de dependencia condicional. La asimetria es sensibilidad/especificidad: el Test 1 es")
+print("  el detector MAS SENSIBLE de dependencia condicional (dispara con acoplamiento mas")
+print("  debil, venga de linaje o de confusor); el Test 2 residualizado es MAS ESPECIFICO")
+print("  (exige senal mas fuerte para sostener identificabilidad por ensayo). Razon")
+print("  estructural: el Test 1 acumula covarianza residual sobre TODA la muestra; el Test 2")
+print("  residualizado exige identificar ENSAYO POR ENSAYO, y una fuga debil se pierde en el")
+print("  ruido idiosincratico antes de discriminar nada.")
+print("  Decision del autor: el Test 1 se MANTIENE primario (es el test de la condicion")
+print("  necesaria del Sec. 4); lo que se afina es el caveat -- 'primario' no implica que su")
+print("  positivo sea mas diagnostico de linaje que el del Test 2r, ni que sea mas robusto.")
+print("  Ver ../notes/adenda_limitacion4.md para el texto propuesto para Sec. 8 y Sec. 6.2.")

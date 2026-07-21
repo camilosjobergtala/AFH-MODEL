@@ -48,10 +48,12 @@ coincide, número a número, con la Tabla 2 del manuscrito.
 ## `notes/`
 
 - `adenda_limitacion4.md` — el barrido de `barrido_confusor_latente.py` muestra que la falla
-  ante confusión latente (§6.4) es gradual, no de umbral, y que el Test 1 ("primario", §6.2)
-  es más frágil ante confusores débiles que el Test 2 residualizado ("corroborativo") — lo
-  opuesto de lo que su designación jerárquica sugeriría. Texto propuesto para §8 y discusión
-  abierta sobre si eso amerita revisar la designación primario/corroborativo de §6.2-6.3.
+  ante confusión latente (§6.4) es gradual, no de umbral, y caracteriza a los dos tests como
+  un par sensibilidad/especificidad (el Test 1 dispara con confusor más débil que el Test 2
+  residualizado). Documenta la decisión del autor de **mantener** el Test 1 como primario —es
+  el test de la condición necesaria del §4— y afinar el caveat: texto propuesto para §8 y una
+  aclaración para §6.2 de que "primario" no implica que su positivo sea más diagnóstico de
+  linaje que el del Test 2 residualizado.
 
 ## Huecos pendientes entre el texto y el material suplementario
 
