@@ -1,0 +1,27 @@
+{
+  "architecture": "local_persistence",
+  "display_name": "Local persistence",
+  "has_return": false,
+  "n_replicates": 200,
+  "seg1_rate": 100.0,
+  "seg1_ci": [
+    98.11539940816793,
+    100.0
+  ],
+  "seg2_rate": 4.0,
+  "seg2_ci": [
+    2.040538715065641,
+    7.693293829419883
+  ],
+  "chain_rate": 2.0,
+  "chain_ci": [
+    0.7804300176394187,
+    5.028786550519387
+  ],
+  "conjunction_rate": 0.0,
+  "conjunction_ci": [
+    0.0,
+    1.8846005918320894
+  ],
+  "mean_theta_chain": -0.00018333333333333445
+}

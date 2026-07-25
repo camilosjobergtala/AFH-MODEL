@@ -1,0 +1,11 @@
+{
+  "scenario": "unreliable_recording",
+  "display_name": "Unreliable recording of B",
+  "n_studies": 5,
+  "subjects": 20,
+  "trials": 200,
+  "contradicted_pct": 0.0,
+  "survived_pct": 0.0,
+  "inconclusive_pct": 0.0,
+  "not_evaluable_pct": 100.0
+}
