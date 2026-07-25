@@ -1,0 +1,62 @@
+[
+  {
+    "trials": 250,
+    "n_replicates": 200,
+    "conjunction_rate": 5.5,
+    "conjunction_ci": [
+      3.0985020801370102,
+      9.57879244659355
+    ],
+    "seg1_rate": 100.0,
+    "seg2_rate": 49.0,
+    "chain_rate": 9.0
+  },
+  {
+    "trials": 500,
+    "n_replicates": 200,
+    "conjunction_rate": 9.0,
+    "conjunction_ci": [
+      5.768697871453362,
+      13.776674613848956
+    ],
+    "seg1_rate": 100.0,
+    "seg2_rate": 79.0,
+    "chain_rate": 9.0
+  },
+  {
+    "trials": 1000,
+    "n_replicates": 200,
+    "conjunction_rate": 11.0,
+    "conjunction_ci": [
+      7.377190160716046,
+      16.092798300912985
+    ],
+    "seg1_rate": 100.0,
+    "seg2_rate": 96.5,
+    "chain_rate": 11.5
+  },
+  {
+    "trials": 2000,
+    "n_replicates": 200,
+    "conjunction_rate": 11.5,
+    "conjunction_ci": [
+      7.786317221824318,
+      16.664825233886393
+    ],
+    "seg1_rate": 100.0,
+    "seg2_rate": 99.5,
+    "chain_rate": 11.5
+  },
+  {
+    "trials": 4000,
+    "n_replicates": 80,
+    "conjunction_rate": 11.25,
+    "conjunction_ci": [
+      6.0326186948270175,
+      20.018410865677552
+    ],
+    "seg1_rate": 100.0,
+    "seg2_rate": 100.0,
+    "chain_rate": 11.25
+  }
+]

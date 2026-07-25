@@ -1,0 +1,27 @@
+{
+  "architecture": "feedforward_chain",
+  "display_name": "Feedforward chain",
+  "has_return": false,
+  "n_replicates": 200,
+  "seg1_rate": 100.0,
+  "seg1_ci": [
+    98.11539940816793,
+    100.0
+  ],
+  "seg2_rate": 4.5,
+  "seg2_ci": [
+    2.385227172470417,
+    8.329759366096786
+  ],
+  "chain_rate": 3.0,
+  "chain_ci": [
+    1.3820125830748324,
+    6.389511973247333
+  ],
+  "conjunction_rate": 1.0,
+  "conjunction_ci": [
+    0.27466006037749346,
+    3.572248519617954
+  ],
+  "mean_theta_chain": 0.00011666666666666546
+}

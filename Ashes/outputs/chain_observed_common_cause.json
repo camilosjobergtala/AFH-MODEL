@@ -1,0 +1,27 @@
+{
+  "architecture": "observed_common_cause",
+  "display_name": "Observed common cause",
+  "has_return": false,
+  "n_replicates": 200,
+  "seg1_rate": 4.5,
+  "seg1_ci": [
+    2.385227172470417,
+    8.329759366096786
+  ],
+  "seg2_rate": 3.0,
+  "seg2_ci": [
+    1.3820125830748324,
+    6.389511973247333
+  ],
+  "chain_rate": 0.0,
+  "chain_ci": [
+    0.0,
+    1.8846005918320894
+  ],
+  "conjunction_rate": 0.0,
+  "conjunction_ci": [
+    0.0,
+    1.8846005918320894
+  ],
+  "mean_theta_chain": -0.0022083333333333343
+}

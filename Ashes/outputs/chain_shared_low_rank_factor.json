@@ -1,0 +1,27 @@
+{
+  "architecture": "shared_low_rank_factor",
+  "display_name": "Shared low-rank factor",
+  "has_return": false,
+  "n_replicates": 20,
+  "seg1_rate": 100.0,
+  "seg1_ci": [
+    83.88698745050667,
+    99.99999999999997
+  ],
+  "seg2_rate": 100.0,
+  "seg2_ci": [
+    83.88698745050667,
+    99.99999999999997
+  ],
+  "chain_rate": 50.0,
+  "chain_ci": [
+    29.92949144298199,
+    70.070508557018
+  ],
+  "conjunction_rate": 50.0,
+  "conjunction_ci": [
+    29.92949144298199,
+    70.070508557018
+  ],
+  "mean_theta_chain": 0.010166666666666664
+}

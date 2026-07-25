@@ -1,0 +1,27 @@
+{
+  "architecture": "latent_confounder_weak_return",
+  "display_name": "Latent confounder + weak return",
+  "has_return": true,
+  "n_replicates": 200,
+  "seg1_rate": 100.0,
+  "seg1_ci": [
+    98.11539940816793,
+    100.0
+  ],
+  "seg2_rate": 100.0,
+  "seg2_ci": [
+    98.11539940816793,
+    100.0
+  ],
+  "chain_rate": 99.5,
+  "chain_ci": [
+    97.22256001302287,
+    99.9116854010634
+  ],
+  "conjunction_rate": 99.5,
+  "conjunction_ci": [
+    97.22256001302287,
+    99.9116854010634
+  ],
+  "mean_theta_chain": 0.05748333333333333
+}
