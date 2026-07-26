@@ -1,0 +1,11 @@
+{
+  "scenario": "effect_near_boundary",
+  "display_name": "Effect near the boundary",
+  "n_studies": 200,
+  "subjects": 20,
+  "trials": 200,
+  "contradicted_pct": 4.0,
+  "survived_pct": 11.5,
+  "inconclusive_pct": 84.5,
+  "not_evaluable_pct": 0.0
+}

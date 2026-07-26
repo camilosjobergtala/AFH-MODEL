@@ -1,7 +1,7 @@
 {
   "scenario": "unreliable_recording",
   "display_name": "Unreliable recording of B",
-  "n_studies": 5,
+  "n_studies": 200,
   "subjects": 20,
   "trials": 200,
   "contradicted_pct": 0.0,
