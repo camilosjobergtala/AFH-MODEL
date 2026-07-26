@@ -1,4 +1,0 @@
-# Versions used for the analyses reported in the manuscript (Supplementary
-# Methods S1: Python 3.12.3, single core).
-numpy==2.4.4
-matplotlib==3.10.8   # figure generation only (make_fig1-4.py)
