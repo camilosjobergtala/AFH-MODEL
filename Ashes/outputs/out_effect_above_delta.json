@@ -1,6 +1,6 @@
 {
-  "scenario": "return_present",
-  "display_name": "Return present",
+  "scenario": "effect_above_delta",
+  "display_name": "Effect clearly above delta_min",
   "n_studies": 200,
   "subjects": 20,
   "trials": 200,

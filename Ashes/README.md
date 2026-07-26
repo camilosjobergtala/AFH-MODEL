@@ -71,18 +71,21 @@ pip install -r code/requirements.txt   # numpy==2.4.4, matplotlib==3.10.8 (Suppl
 | `make_fig3.py` | Figura 3 (tasas por componente, lee `outputs/chain_*.json`) | `python3 make_fig3.py` | <1 min |
 | `make_fig4.py` | Figura 4 (mapa de calor de desenlaces, lee `outputs/out_*.json`) | `python3 make_fig4.py` | <1 min |
 
-Nota de auditoría: los cuatro scripts `run_*.py` fueron ejecutados de cero (no solo leídos) como
-parte de este depósito. Los resultados obtenidos reproducen el patrón cualitativo y, en la mayoría
-de las celdas, el valor numérico exacto reportado en las Tablas 6-9 del manuscrito (p. ej. "Latent
-feedforward state" 100/100/100/100 en la Tabla 6, o "Absent return, adequate sample" 100%
-contradicted en la Tabla 7, coinciden exactamente); algunas celdas — sobre todo en la Tabla 8 y en
-componentes del test de cadena con arquitecturas de acoplamiento débil — difieren de la tabla
-publicada en unos pocos puntos porcentuales, dentro del rango esperable de una reimplementación
-independiente a partir de la especificación matemática del Supplementary Methods (no del código
-original del autor, que este depósito es el primero en escribir). El mecanismo de control positivo
-(S10, umbral "recovery > 0.5·δmin") no está especificado por el Supplementary Methods más allá de
-su criterio de paso — `run_outcomes.py` documenta en su docstring el canal de calibración sintético
-concreto que este depósito eligió para instanciarlo.
+Nota de auditoría: los cuatro scripts `run_*.py` fueron ejecutados de cero (no solo leídos, y a los
+recuentos de réplicas/estudios completos de la Tabla S3-S9: 200 réplicas por arquitectura en la
+Tabla 6, 200 estudios por escenario en la Tabla 7, 200 réplicas por tamaño de muestra —80 en
+4000— en la Tabla 8, 150 estudios por celda en la Tabla 9) como parte de este depósito, no solo
+leídos. Los resultados en `outputs/` reproducen el patrón cualitativo íntegro de las Tablas 6-9 y,
+en una fracción sustancial de las celdas, el valor numérico exacto reportado en el manuscrito —p.
+ej. "Token disruption" 97.5/99.5/30.0/30.0 en la Tabla 6, u "Absent return, adequate sample" 100%
+contradicted, "Misspecified covariates" y "Latent confounding" 100% survived, "Unreliable
+recording of B" 100% not evaluable en la Tabla 7, coinciden exactamente—; el resto difiere de la
+tabla publicada en unos pocos puntos porcentuales, dentro del rango esperable de una
+reimplementación independiente a partir de la especificación matemática del Supplementary Methods
+(no del código original del autor, que este depósito es el primero en escribir). El mecanismo de
+control positivo (S10, umbral "recovery > 0.5·δmin") no está especificado por el Supplementary
+Methods más allá de su criterio de paso — `run_outcomes.py` documenta en su docstring el canal de
+calibración sintético concreto que este depósito eligió para instanciarlo.
 
 ### `code/` — código del borrador anterior (v5, Test 1/Test 2)
 
