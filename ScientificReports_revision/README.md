@@ -8,9 +8,11 @@ Code, data, and reproducibility materials for the *Scientific Reports* manuscrip
 - **`code/`** — analysis scripts:
   - `00_environment_check.py` — verifies the environment and prints package versions.
   - `01_study1_eis_coherence.py` — Study 1: EIS internal coherence and weight stability.
+  - `01b_figure2_correlation_heatmap.py` — regenerates Figure 2 (the Study 1 component correlation heatmap) from `01_study1_eis_coherence.py`'s output; run after it.
+  - `01c_sensitivity_g_star.py` — Study 1 sensitivity analysis: re-runs the corpus under g_star in {0.01, 0.02, 0.05} (the S_leak saturation threshold) and reports how non-redundancy and weight-stability results change.
   - `02_study2_stds_characterization.py` — Study 2: STDS operating characteristics.
   - `03_study3_code_auditor_benchmark.py` — Study 3: code-auditor construct check (including the adversarial near-miss probe).
-- **`engine/`** — the ECLIPSE implementation and instrument wrappers (`eclipse_core.py`, `eis_wrapper.py`, `stds_wrapper.py`, `auditor_wrapper.py`) and unit tests (`test_eis_wrapper.py`).
+- **`engine/`** — the ECLIPSE implementation and instrument wrappers (`eclipse_core.py`, `eis_wrapper.py`, `stds_wrapper.py`, `auditor_wrapper.py`) and unit tests (`test_eis_wrapper.py`, `test_sleak_component.py`).
 - **`outputs/`** — generated results for each study (`study1/`, `study2/`, `study3/`): summary JSON files and per-analysis CSVs.
 - **`STUDY4_specification.md`** — Study 4: the pre-specified nested-model specification (for prospective execution) and the cited external-evidence table. Study 4 is **not** an executed retrospective regression — see manuscript §3.4.
 - **`requirements_frozen.txt`** — pinned package versions.

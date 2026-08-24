@@ -74,6 +74,11 @@ class ProtocolSpec:
     dev_metrics: Dict[str, Dict[str, Any]] = None
     holdout_metrics: Dict[str, float] = None
 
+    # Explicit per-metric orientation for S_leak: 'higher_is_better' or
+    # 'lower_is_better'. Required for a metric to enter S_leak — never
+    # inferred from its name by the engine.
+    metric_orientations: Dict[str, str] = None
+
     def __post_init__(self):
         if self.dev_metrics is None:
             self.dev_metrics = {
@@ -82,6 +87,8 @@ class ProtocolSpec:
             }
         if self.holdout_metrics is None:
             self.holdout_metrics = {'f1_score': 0.65}
+        if self.metric_orientations is None:
+            self.metric_orientations = {'f1_score': 'higher_is_better'}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -94,6 +101,7 @@ class _Config:
     def __init__(self):
         self.eis_weights = None          # forces DEFAULT_WEIGHTS fallback when no explicit weights
         self.project_name = "study1_protocol"
+        self.g_star = None               # forces DEFAULT_G_STAR fallback when not overridden
 
 
 class _FrameworkAdapter:
@@ -151,24 +159,29 @@ def _materialize_files(work_dir: Path, spec: ProtocolSpec) -> None:
     results_data = {
         'development_summary': {'aggregated_metrics': spec.dev_metrics},
         'validation_summary': {'metrics': spec.holdout_metrics},
+        'metric_orientations': spec.metric_orientations,
     }
     (work_dir / "FINAL_RESULT.json").write_text(
         json.dumps(results_data, indent=2), encoding="utf-8")
 
 
 def score_protocol(spec: ProtocolSpec,
-                   weights: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
+                   weights: Optional[Dict[str, float]] = None,
+                   g_star: Optional[float] = None) -> Dict[str, Any]:
     """
     Compute EIS and its five components for a protocol spec using the CANONICAL
     v3.0 engine. Returns the full result dict from EclipseIntegrityScore.compute_eis().
 
     weights: optional weighting scheme (must sum to 1.0). If None, the engine's
              DEFAULT_WEIGHTS are used.
+    g_star: optional override for the S_leak saturation threshold (fraction of
+            |mu_dev|). If None, the engine's DEFAULT_G_STAR (0.02) is used.
     """
     work_dir = Path(tempfile.mkdtemp(prefix="eis_protocol_"))
     try:
         _materialize_files(work_dir, spec)
         adapter = _FrameworkAdapter(work_dir, spec)
+        adapter.config.g_star = g_star
         scorer = EclipseIntegrityScore(adapter)
         return scorer.compute_eis(weights=weights)
     finally:
@@ -177,8 +190,10 @@ def score_protocol(spec: ProtocolSpec,
 
 def components_of(result: Dict[str, Any]) -> Dict[str, float]:
     """Convenience: extract the five scored dimensions used in the correlation matrix.
-    Note: 'leakage_score' (= 1 - leakage_risk) is the value that enters EIS, so it
-    is the one used for the component analysis."""
+    Note: 'leakage_score' is S_leak (the engine's canonical leakage component,
+    0 = risky, 1 = safe); 'leakage_risk' = 1 - S_leak is derived from it for
+    display only. leakage_score is the value that enters EIS, so it is the
+    one used for the component analysis."""
     c = result['components']
     return {
         'preregistration': c['preregistration_score'],

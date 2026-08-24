@@ -410,94 +410,115 @@ class EclipseIntegrityScore:
         
         return min(1.0, score)
     
-    def estimate_leakage_risk(self) -> float:
+    # Default threshold gap (as a fraction of |mu_dev|) at which a metric's
+    # leakage component saturates at full credit (s(m) = 1.0). Configurable
+    # via framework.config.g_star.
+    DEFAULT_G_STAR = 0.02
+
+    # Explicit metric-orientation vocabulary. Orientation is NEVER inferred
+    # from a metric's name (e.g. "loss" != lower-is-better by assumption) —
+    # it must be declared per metric in FINAL_RESULT.json's top-level
+    # 'metric_orientations' map, or the metric is excluded from S_leak.
+    _ORIENTATION_SIGN = {
+        'higher_is_better': 1.0,
+        'lower_is_better': -1.0,
+    }
+
+    def compute_leakage_score(self, g_star: Optional[float] = None) -> float:
         """
-        Estimate risk of data leakage between dev and holdout
-        
-        v3.0 MAJOR FIX: No longer assumes degradation is always expected
-        
-        New approach:
-        1. Compute expected degradation distribution from CV variance
-        2. Compare observed degradation to this distribution
-        3. Flag if holdout is BETTER than expected (suspicious)
-        4. Allow for legitimately good generalization
-        
-        Risk indicators:
-        - Holdout >> Dev mean: Suspicious (possible optimization on holdout)
-        - Holdout ≈ Dev mean: Normal or slight concern
-        - Holdout < Dev mean: Expected (generalization gap)
-        - Holdout << Dev mean: Might indicate different distribution
+        S_leak: per-metric dev/holdout gap component, in the "good" direction
+        (0 = risky/no expected gap, 1 = safe/healthy expected gap).
+
+        For each metric m present in both development and holdout results,
+        AND with an explicit orientation declared in
+        results['metric_orientations'][m] ('higher_is_better' or
+        'lower_is_better'; never inferred):
+
+            g(m) = o(m) * (mu_dev(m) - mu_hold(m)) / abs(mu_dev(m))
+            s(m) = clip(g(m) / g_star, 0, 1)
+
+        S_leak = mean_m s(m)
+
+        o(m) = +1 for higher-is-better metrics, -1 for lower-is-better
+        metrics. g_star (default 0.02) is the fractional gap, relative to
+        |mu_dev(m)|, at which s(m) saturates at 1.0.
+
+        Interpretation: s(m) = 0 when holdout performs as well as or better
+        than dev in the metric's own "good" direction (no expected
+        degradation — consistent with leakage between dev and holdout).
+        s(m) = 1 once the expected dev-over-holdout gap reaches g_star.
+
+        Replaces the earlier z-score-bucket heuristic (v3.0). Falls back to
+        a neutral 0.5 when validation hasn't completed, results are
+        unavailable, or no metric has both dev/holdout values and an
+        explicit orientation.
         """
+        if g_star is None:
+            g_star = getattr(self.framework.config, 'g_star', None) or self.DEFAULT_G_STAR
+
         if not self.framework._validation_completed:
-            return 0.5  # Unknown risk
-        
+            return 0.5  # Unknown
+
         try:
             with open(self.framework.results_file, 'r') as f:
                 results = json.load(f)
-            
+
             dev_metrics = results.get('development_summary', {}).get('aggregated_metrics', {})
             holdout_metrics = results.get('validation_summary', {}).get('metrics', {})
-            
+            orientations = results.get('metric_orientations', {})
+
             if not dev_metrics or not holdout_metrics:
                 return 0.5
-            
-            risk_scores = []
-            
+
+            component_scores = []
+
             for metric_name in dev_metrics:
-                if metric_name in holdout_metrics:
-                    stats = dev_metrics[metric_name]
-                    dev_mean = stats.get('mean', 0)
-                    dev_std = stats.get('std', 0)
-                    dev_min = stats.get('min', dev_mean)
-                    holdout_val = holdout_metrics[metric_name]
-                    
-                    # v3.0 FIX: Handle numpy scalar types properly
-                    if hasattr(holdout_val, 'item'):
-                        holdout_val = holdout_val.item()
-                    
-                    if not isinstance(holdout_val, (int, float)) or dev_mean == 0:
-                        continue
-                    
-                    # v3.0: Context-aware risk assessment
-                    # Expected: holdout between dev_min and dev_mean
-                    # Suspicious: holdout > dev_mean + dev_std (too good)
-                    # Acceptable: holdout >= dev_min (within CV range)
-                    
-                    if dev_std > 0:
-                        # Z-score relative to development distribution
-                        z_score = (holdout_val - dev_mean) / dev_std
-                        
-                        if z_score > 1.5:
-                            # Holdout significantly BETTER than dev mean
-                            # This is suspicious (possible data snooping)
-                            risk = 0.9
-                        elif z_score > 0.5:
-                            # Holdout slightly better - moderate concern
-                            risk = 0.5
-                        elif z_score > -1.0:
-                            # Holdout within expected range
-                            risk = 0.2
-                        else:
-                            # Holdout worse than expected - might indicate
-                            # distribution shift, but not snooping
-                            risk = 0.3
-                    else:
-                        # No variance in CV (suspicious in itself)
-                        if abs(holdout_val - dev_mean) < 0.01:
-                            risk = 0.7  # Too similar
-                        else:
-                            risk = 0.4
-                    
-                    risk_scores.append(risk)
-            
-            if not risk_scores:
+                if metric_name not in holdout_metrics:
+                    continue
+
+                orientation = orientations.get(metric_name)
+                sign = self._ORIENTATION_SIGN.get(orientation)
+                if sign is None:
+                    # Orientation must be explicit; never inferred from the name.
+                    logger.warning(
+                        f"No explicit orientation for metric '{metric_name}'; "
+                        f"excluding it from S_leak."
+                    )
+                    continue
+
+                mu_dev = dev_metrics[metric_name].get('mean', 0)
+                mu_hold = holdout_metrics[metric_name]
+
+                # v3.0 FIX: Handle numpy scalar types properly
+                if hasattr(mu_hold, 'item'):
+                    mu_hold = mu_hold.item()
+
+                if not isinstance(mu_hold, (int, float)) or not isinstance(mu_dev, (int, float)):
+                    continue
+                if mu_dev == 0:
+                    # g(m) is undefined (division by |mu_dev|); exclude.
+                    continue
+
+                g = sign * (mu_dev - mu_hold) / abs(mu_dev)
+                s = min(max(g / g_star, 0.0), 1.0)
+                component_scores.append(s)
+
+            if not component_scores:
                 return 0.5
-            
-            return float(np.mean(risk_scores))
-            
+
+            return float(np.mean(component_scores))
+
         except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
-            logger.warning(f"Could not estimate leakage risk: {e}")
+            logger.warning(f"Could not compute leakage score: {e}")
             return 0.5
+
+    def estimate_leakage_risk(self) -> float:
+        """
+        Risk of data leakage between dev and holdout, as 1 - S_leak.
+        Kept for backward compatibility; compute_leakage_score() is the
+        canonical implementation (see its docstring for the S_leak formula).
+        """
+        return 1.0 - self.compute_leakage_score()
     
     def compute_transparency_score(self) -> float:
         """Score documentation and transparency"""
@@ -575,11 +596,11 @@ class EclipseIntegrityScore:
         preregistration = self.compute_preregistration_score()
         split_strength = self.compute_split_strength()
         protocol_adherence = self.compute_protocol_adherence()
-        leakage_risk = self.estimate_leakage_risk()
+        leakage_score = self.compute_leakage_score()
         transparency = self.compute_transparency_score()
-        
-        # Leakage risk is inverted (lower risk = higher score)
-        leakage_score = 1.0 - leakage_risk
+
+        # Risk is the complement of S_leak (display/back-compat only)
+        leakage_risk = 1.0 - leakage_score
         
         # Weighted average
         eis = (

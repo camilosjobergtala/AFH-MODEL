@@ -1,0 +1,195 @@
+{
+  "master_seed": 20250805,
+  "corpus_size": 300,
+  "g_star_values": [
+    0.01,
+    0.02,
+    0.05
+  ],
+  "results": {
+    "0.01": {
+      "g_star": 0.01,
+      "leakage_score_mean": 0.4412102550188134,
+      "leakage_score_std": 0.4581691511705909,
+      "leakage_score_at_0": 0.4766666666666667,
+      "leakage_score_at_1": 0.36333333333333334,
+      "non_redundancy": {
+        "max_abs_offdiag_spearman": 0.40445022440398615,
+        "mean_abs_offdiag_spearman": 0.13820796477320968,
+        "leakage_score_correlations": {
+          "preregistration": -0.03057621925216103,
+          "split_strength": -0.007767195967531983,
+          "protocol_adherence": -0.02902673765379028,
+          "transparency": 0.04104831019835271
+        }
+      },
+      "weight_stability": {
+        "min_rank_corr_vs_default": 0.7654817678416751,
+        "mean_rank_corr_vs_default": 0.909485406356711,
+        "leakage_dom_rank_corr_vs_default": 0.7654817678416751,
+        "linearity_check_max_diff": 2.220446049250313e-16
+      },
+      "weight_stability_table": [
+        {
+          "scheme": "default",
+          "spearman_vs_default": 0.9999999999999999,
+          "mean_eis": 0.6267016884383332,
+          "std_eis": 0.17323168424107205
+        },
+        {
+          "scheme": "equal",
+          "spearman_vs_default": 0.9732160754533685,
+          "mean_eis": 0.6226455345226073,
+          "std_eis": 0.16403139189060606
+        },
+        {
+          "scheme": "preregistration_dom",
+          "spearman_vs_default": 0.9605360864569822,
+          "mean_eis": 0.6032341508919553,
+          "std_eis": 0.1831009091670498
+        },
+        {
+          "scheme": "transparency_dom",
+          "spearman_vs_default": 0.9179619056796001,
+          "mean_eis": 0.6483174842252888,
+          "std_eis": 0.1417723502662973
+        },
+        {
+          "scheme": "split_dom",
+          "spearman_vs_default": 0.9302311963519291,
+          "mean_eis": 0.6417385052905109,
+          "std_eis": 0.1658690297812988
+        },
+        {
+          "scheme": "leakage_dom",
+          "spearman_vs_default": 0.7654817678416751,
+          "mean_eis": 0.5772867146466587,
+          "std_eis": 0.20796126289135092
+        }
+      ]
+    },
+    "0.02": {
+      "g_star": 0.02,
+      "leakage_score_mean": 0.4304426874374779,
+      "leakage_score_std": 0.45366709989994053,
+      "leakage_score_at_0": 0.4766666666666667,
+      "leakage_score_at_1": 0.3433333333333333,
+      "non_redundancy": {
+        "max_abs_offdiag_spearman": 0.40445022440398615,
+        "mean_abs_offdiag_spearman": 0.14113800358454204,
+        "leakage_score_correlations": {
+          "preregistration": -0.034787528058834054,
+          "split_strength": -0.008797664648952524,
+          "protocol_adherence": -0.045932576252386614,
+          "transparency": 0.048201082224986425
+        }
+      },
+      "weight_stability": {
+        "min_rank_corr_vs_default": 0.7656276719283732,
+        "mean_rank_corr_vs_default": 0.9086077409472318,
+        "leakage_dom_rank_corr_vs_default": 0.7656276719283732,
+        "linearity_check_max_diff": 2.220446049250313e-16
+      },
+      "weight_stability_table": [
+        {
+          "scheme": "default",
+          "spearman_vs_default": 0.9999999999999999,
+          "mean_eis": 0.6250865533011329,
+          "std_eis": 0.17267529242919946
+        },
+        {
+          "scheme": "equal",
+          "spearman_vs_default": 0.9729728708788792,
+          "mean_eis": 0.6204920210063402,
+          "std_eis": 0.16329787341938978
+        },
+        {
+          "scheme": "preregistration_dom",
+          "spearman_vs_default": 0.9596038811872953,
+          "mean_eis": 0.6016190157547551,
+          "std_eis": 0.18264938742871004
+        },
+        {
+          "scheme": "transparency_dom",
+          "spearman_vs_default": 0.9156894904767165,
+          "mean_eis": 0.6467023490880884,
+          "std_eis": 0.1416196469959947
+        },
+        {
+          "scheme": "split_dom",
+          "spearman_vs_default": 0.9291447902648948,
+          "mean_eis": 0.6401233701533107,
+          "std_eis": 0.16534083568078894
+        },
+        {
+          "scheme": "leakage_dom",
+          "spearman_vs_default": 0.7656276719283732,
+          "mean_eis": 0.5729796876141245,
+          "std_eis": 0.20610334493289761
+        }
+      ]
+    },
+    "0.05": {
+      "g_star": 0.05,
+      "leakage_score_mean": 0.39864432864288796,
+      "leakage_score_std": 0.4352920981978748,
+      "leakage_score_at_0": 0.4766666666666667,
+      "leakage_score_at_1": 0.2733333333333333,
+      "non_redundancy": {
+        "max_abs_offdiag_spearman": 0.40445022440398615,
+        "mean_abs_offdiag_spearman": 0.14492595654197452,
+        "leakage_score_correlations": {
+          "preregistration": -0.04053411176420654,
+          "split_strength": -0.014181723407458349,
+          "protocol_adherence": -0.07455929762991896,
+          "transparency": 0.04632324795790033
+        }
+      },
+      "weight_stability": {
+        "min_rank_corr_vs_default": 0.7579779500451,
+        "mean_rank_corr_vs_default": 0.9055755266514739,
+        "leakage_dom_rank_corr_vs_default": 0.7579779500451,
+        "linearity_check_max_diff": 2.220446049250313e-16
+      },
+      "weight_stability_table": [
+        {
+          "scheme": "default",
+          "spearman_vs_default": 1.0,
+          "mean_eis": 0.6203167994819444,
+          "std_eis": 0.17013965667103742
+        },
+        {
+          "scheme": "equal",
+          "spearman_vs_default": 0.9730653924841001,
+          "mean_eis": 0.6141323492474222,
+          "std_eis": 0.15953683145874736
+        },
+        {
+          "scheme": "preregistration_dom",
+          "spearman_vs_default": 0.9580545876372084,
+          "mean_eis": 0.5968492619355665,
+          "std_eis": 0.18042292902845739
+        },
+        {
+          "scheme": "transparency_dom",
+          "spearman_vs_default": 0.9137410412318159,
+          "mean_eis": 0.6419325952689,
+          "std_eis": 0.13912244547472497
+        },
+        {
+          "scheme": "split_dom",
+          "spearman_vs_default": 0.9250386618591447,
+          "mean_eis": 0.6353536163341222,
+          "std_eis": 0.16299239665635196
+        },
+        {
+          "scheme": "leakage_dom",
+          "spearman_vs_default": 0.7579779500451,
+          "mean_eis": 0.5602603440962886,
+          "std_eis": 0.1975582918614473
+        }
+      ]
+    }
+  },
+  "timestamp": "2026-08-24T15:50:35.686374"
+}

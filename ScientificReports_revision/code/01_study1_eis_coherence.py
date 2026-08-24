@@ -92,9 +92,13 @@ def eis_from_components(comp: dict, scheme: dict) -> float:
     return float(sum(scheme[wk] * comp[WEIGHTKEY_TO_COMPONENT[wk]] for wk in scheme))
 
 
-def generate_corpus(n: int, seed: int) -> pd.DataFrame:
+def generate_corpus(n: int, seed: int, g_star: float = None) -> pd.DataFrame:
     """Generate n synthetic protocols with independently-varied underlying features,
-    score each via the canonical engine, and return a DataFrame of components + EIS."""
+    score each via the canonical engine, and return a DataFrame of components + EIS.
+
+    g_star: optional override for the S_leak saturation threshold passed through
+    to the engine (see engine/eclipse_core.py EclipseIntegrityScore.compute_leakage_score).
+    If None, the engine's DEFAULT_G_STAR (0.02) is used."""
     rng = np.random.default_rng(seed)
     rows = []
     for i in range(n):
@@ -125,7 +129,7 @@ def generate_corpus(n: int, seed: int) -> pd.DataFrame:
                                       'values': [0.72, 0.68, 0.70, 0.66, 0.74]}},
             holdout_metrics={'f1_score': holdout_val},
         )
-        result = score_protocol(spec)            # CANONICAL engine call
+        result = score_protocol(spec, g_star=g_star)  # CANONICAL engine call
         comp = components_of(result)
         row = {'protocol_id': i, 'eis_default_engine': result['eis']}
         row.update(comp)
