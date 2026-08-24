@@ -2968,14 +2968,15 @@ model.fit(X)
         with tempfile.NamedTemporaryFile(mode='w', suffix='.ipynb', delete=False) as f:
             json.dump(mock_notebook, f)
             temp_path = f.name
-        
-        cells = NotebookAnalyzer.extract_code_cells(temp_path)
-        
-        assert len(cells) == 2, f"Expected 2 code cells, got {len(cells)}"
-        assert "import pandas" in cells[0][1], "First cell should have pandas import"
-        
-        os.unlink(temp_path)
-        
+
+        try:
+            cells = NotebookAnalyzer.extract_code_cells(temp_path)
+
+            assert len(cells) == 2, f"Expected 2 code cells, got {len(cells)}"
+            assert "import pandas" in cells[0][1], "First cell should have pandas import"
+        finally:
+            os.unlink(temp_path)
+
         print(f"   ✅ PASSED: Extracted {len(cells)} code cells")
         tests_passed += 1
     except Exception as e:
