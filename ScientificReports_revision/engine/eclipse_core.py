@@ -705,34 +705,60 @@ class EclipseIntegrityScore:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# STATISTICAL TEST FOR DATA SNOOPING (STDS) - v3.0 STANDARD STATISTICS
+# STANDARDIZED DISCREPANCY SCORE FOR DATA SNOOPING (STDS) - v3.0
 # ═══════════════════════════════════════════════════════════════════════════
 
 class StatisticalTestDataSnooping:
     """
-    Statistical Test for Data Snooping (STDS) v3.0
-    
-    METHODOLOGY: Standard statistics only. No heuristics.
-    
-    Under H0 (no snooping): The holdout result is simply another observation
-    from the same distribution that generated the CV fold results.
-    
-    Test procedure:
+    Standardized discrepancy score for data snooping (STDS) v3.0
+
+    NOT A CALIBRATED HYPOTHESIS TEST. STDS computes a familiar-looking
+    z-statistic, z = (holdout - CV_mean) / CV_std, but treating that
+    statistic's nominal thresholds (|z| > 2 ~ "p < 0.05", |z| > 3 ~ "p < 0.003")
+    as if they controlled a real Type I error rate is NOT justified by the
+    construct check reported in this manuscript (Study 2). The construction
+    assumes the holdout estimate is exchangeable with the CV-fold estimates
+    and standardizes it by a fold standard deviation computed from a small
+    number of overlapping (non-independent) model fits; it does not account
+    for the different sampling variance of the holdout vs. fold estimates,
+    uncertainty in the CV mean/SD themselves, non-normal sampling
+    distributions for many performance metrics, or selection across multiple
+    metrics. Under exactly the honest-holdout (no-snooping) configurations
+    this score is meant to screen, Study 2 measured empirical false-positive
+    rates far above the nominal 5% implied by |z| > 2 - e.g. ~15% at K=3
+    folds with 1 metric and ~38% at K=5 folds with 5 metrics (see
+    02_study2_stds_characterization.py / outputs/study2). The false-positive
+    rate rises sharply as the number of folds shrinks and the number of
+    metrics screened grows.
+
+    Given this, STDS should be read as a DESCRIPTIVE standardized-discrepancy
+    / anomaly score with empirically characterized screening behavior, not as
+    a hypothesis test with a nominal significance level, a calibrated
+    critical value, or a meaningful notion of statistical power. The
+    thresholds below (2 and 3) are retained only as fixed, empirically
+    characterized screening cutoffs - not as p-value-calibrated decision
+    rules - and any operational use should look up the actual false-positive
+    rate for the relevant (K, #metrics) cell in Study 2 rather than assume
+    5%/1%-style error control.
+
+    Procedure:
     1. Compute z-score for each metric: z = (holdout - CV_mean) / CV_std
-    2. Compute percentile rank of holdout within CV distribution
-    3. Report results - let researcher interpret
-    
+    2. Compute percentile rank of holdout within the CV-fold distribution
+    3. Report results - let the researcher interpret in light of the
+       empirical operating characteristics above
+
     Interpretation guide:
     - z > 0: Holdout performed better than CV mean
-    - z < 0: Holdout performed worse than CV mean  
-    - |z| > 2: Unusual (approximately p < 0.05 under normality)
-    - |z| > 3: Very unusual (approximately p < 0.003 under normality)
-    
-    A large POSITIVE z-score suggests holdout performed suspiciously well,
-    which MAY indicate data snooping. However, this is not proof - 
-    the researcher must interpret in context.
-    
-    This test uses standard statistics only. No invented heuristics.
+    - z < 0: Holdout performed worse than CV mean
+    - |z| > 2: exceeds the "notable" screening cutoff (empirical FPR varies
+      widely by K and number of metrics - see Study 2, NOT ~5%)
+    - |z| > 3: exceeds the "high" screening cutoff (still not a calibrated
+      p-value)
+
+    A large POSITIVE z-score suggests the holdout performed unusually well
+    relative to the CV folds, which MAY indicate data snooping. This is a
+    screening flag, not proof, and its false-positive rate is study-design
+    dependent - the researcher must interpret it in context.
     """
     
     def __init__(self, eclipse_framework):
@@ -741,23 +767,31 @@ class StatisticalTestDataSnooping:
     
     def perform_snooping_test(self, alpha: float = None) -> Dict[str, Any]:
         """
-        Perform statistical test for data snooping
-        
-        Methodology:
-        - Compare holdout to CV distribution using standard z-score
-        - z = (holdout - CV_mean) / CV_std
-        - No bootstrap, no permutation, no heuristics
-        
+        Compute the STDS standardized discrepancy score for data snooping.
+
+        NOT a calibrated hypothesis test - see the class docstring. This
+        computes z = (holdout - CV_mean) / CV_std and flags it against fixed,
+        empirically characterized screening cutoffs. `alpha` only sets the
+        nominal z-cutoff used for the 'is_significant' flag below; it is a
+        legacy knob and does NOT correspond to a validated Type I error rate
+        for this score (see Study 2 for the actual false-positive rate as a
+        function of #folds and #metrics).
+
         Args:
-            alpha: Significance level for flagging (default from config)
-        
+            alpha: Nominal level used to derive the flagging cutoff (default
+                from config). Kept for backward compatibility; does not imply
+                calibrated error control.
+
         Returns:
-            Test results with z-scores and interpretation
+            Discrepancy-score results (z-scores, screening flags, and a
+            descriptive interpretation) - not p-values.
         """
         if alpha is None:
             alpha = self.framework.config.stds_alpha
-        
-        # Z critical value for given alpha (two-tailed)
+
+        # Nominal z-cutoff corresponding to `alpha` under a normal approximation.
+        # This is NOT a validated critical value for STDS - see class docstring
+        # and Study 2 for the empirically measured false-positive rate.
         z_crit = scipy_stats.norm.ppf(1 - alpha/2)  # e.g., 1.96 for alpha=0.05
         
         if not self.framework._validation_completed:
@@ -834,20 +868,25 @@ class StatisticalTestDataSnooping:
         n_significant = sum(1 for m in metric_results.values() if m['is_significant'])
         n_positive = sum(1 for z in z_scores if z > 0)
         
-        # Interpretation based on standard thresholds
+        # Screening flag based on fixed, empirically characterized cutoffs
+        # (NOT nominal p-value thresholds - see class docstring and Study 2).
         if max_z > 3:
             risk_level = "HIGH"
             interpretation = (
-                f"🚨 UNUSUAL: At least one metric has z > 3 (max z = {max_z:.2f}). "
-                f"Holdout performed more than 3 standard deviations better than CV mean. "
-                f"This is statistically rare and warrants scrutiny."
+                f"🚨 FLAGGED (high): At least one metric has z > 3 (max z = {max_z:.2f}). "
+                f"Holdout performed more than 3 standard deviations better than the CV mean. "
+                f"This exceeds the high screening cutoff and warrants scrutiny - this is a "
+                f"heuristic flag, not a calibrated p-value (see Study 2 for the empirical "
+                f"false-positive rate at your K/#metrics)."
             )
         elif max_z > 2:
             risk_level = "MODERATE"
             interpretation = (
-                f"⚠️ NOTABLE: At least one metric has z > 2 (max z = {max_z:.2f}). "
+                f"⚠️ FLAGGED (notable): At least one metric has z > 2 (max z = {max_z:.2f}). "
                 f"Holdout performed better than expected on some metrics. "
-                f"Could be legitimate variation or mild optimization."
+                f"Could be legitimate variation or mild optimization; the false-positive rate "
+                f"at this cutoff can be well above 5% for small K or several metrics screened "
+                f"(see Study 2)."
             )
         elif mean_z > 1:
             risk_level = "LOW-MODERATE"
@@ -859,15 +898,15 @@ class StatisticalTestDataSnooping:
         else:
             risk_level = "LOW"
             interpretation = (
-                f"✅ NORMAL: Results consistent with holdout being drawn from "
+                f"✅ NOT FLAGGED: Results consistent with holdout being drawn from "
                 f"the same distribution as CV folds (mean z = {mean_z:.2f})."
             )
-        
+
         self.test_results = {
-            'test_name': 'Statistical Test for Data Snooping (STDS) v3.0',
+            'test_name': 'Standardized discrepancy score for data snooping (STDS) v3.0',
             'version': '3.0',
             'timestamp': datetime.now().isoformat(),
-            
+
             # Summary statistics
             'mean_z_score': mean_z,
             'max_z_score': max_z,
@@ -875,11 +914,11 @@ class StatisticalTestDataSnooping:
             'n_metrics': len(z_scores),
             'n_significant': n_significant,
             'n_positive': n_positive,
-            
+
             # Configuration
-            'alpha': alpha,
-            'z_critical': float(z_crit),
-            
+            'alpha': alpha,  # nominal knob only - see docstring; not a validated Type I error rate
+            'z_critical': float(z_crit),  # nominal cutoff, not an empirically calibrated critical value
+
             # Results
             'risk_level': risk_level,
             'interpretation': interpretation,
@@ -889,30 +928,34 @@ class StatisticalTestDataSnooping:
             
             # Methodology
             'methodology': (
-                "Standard z-score: z = (holdout - CV_mean) / CV_std. "
-                "No heuristics. |z| > 2 is unusual, |z| > 3 is very unusual."
+                "Standardized discrepancy score: z = (holdout - CV_mean) / CV_std. "
+                "|z| > 2 / |z| > 3 are fixed, empirically characterized screening "
+                "cutoffs, NOT calibrated p-value thresholds - the actual false-positive "
+                "rate at these cutoffs depends strongly on #folds and #metrics and can "
+                "be far above 5% (see Study 2, 02_study2_stds_characterization.py)."
             )
         }
-        
+
         return self.test_results
-    
+
     def generate_stds_report(self, output_path: Optional[str] = None) -> str:
         """Generate STDS report"""
         if not self.test_results or self.test_results.get('status') != 'success':
             return "No test results available. Run perform_snooping_test() first."
-        
+
         lines = []
         lines.append("=" * 80)
-        lines.append("STATISTICAL TEST FOR DATA SNOOPING (STDS) v3.0")
+        lines.append("STANDARDIZED DISCREPANCY SCORE FOR DATA SNOOPING (STDS) v3.0")
         lines.append("=" * 80)
         lines.append(f"Project: {self.framework.config.project_name}")
         lines.append(f"Computed: {self.test_results['timestamp']}")
         lines.append("")
-        
+
         lines.append("METHODOLOGY:")
         lines.append("-" * 80)
-        lines.append("Standard z-score: z = (holdout - CV_mean) / CV_std")
-        lines.append("No heuristics. No invented statistics.")
+        lines.append("Standardized discrepancy score: z = (holdout - CV_mean) / CV_std")
+        lines.append("NOT a calibrated hypothesis test - see module docstring. The |z| > 2 / |z| > 3")
+        lines.append("cutoffs below are fixed screening thresholds, not p-value-calibrated.")
         lines.append("")
         
         lines.append("SUMMARY:")
@@ -922,7 +965,7 @@ class StatisticalTestDataSnooping:
         lines.append(f"Min z-score:  {self.test_results['min_z_score']:+.4f}")
         lines.append(f"Metrics analyzed: {self.test_results['n_metrics']}")
         lines.append(f"Metrics with holdout > CV mean: {self.test_results['n_positive']}/{self.test_results['n_metrics']}")
-        lines.append(f"Metrics with |z| > {self.test_results['z_critical']:.2f}: {self.test_results['n_significant']}")
+        lines.append(f"Metrics flagged at |z| > {self.test_results['z_critical']:.2f}: {self.test_results['n_significant']}")
         lines.append(f"Risk Level: {self.test_results['risk_level']}")
         lines.append("")
         
@@ -946,17 +989,23 @@ class StatisticalTestDataSnooping:
             lines.append(f"   Percentile: {mr['percentile_rank']:.1f}%")
         
         lines.append("")
-        lines.append("REFERENCE:")
+        lines.append("REFERENCE (screening cutoffs, NOT calibrated p-values):")
         lines.append("-" * 80)
-        lines.append("|z| > 2: Unusual (p < 0.05 under normality)")
-        lines.append("|z| > 3: Very unusual (p < 0.003 under normality)")
+        lines.append("|z| > 2: 'notable' screening flag")
+        lines.append("|z| > 3: 'high' screening flag")
+        lines.append("These are fixed cutoffs, not p-value-calibrated thresholds. The empirical")
+        lines.append("false-positive rate at |z| > 2 under an honest (non-snooped) holdout ranges")
+        lines.append("from single digits to >50% depending on #folds and #metrics screened - see")
+        lines.append("Study 2 (02_study2_stds_characterization.py) for the operating characteristics")
+        lines.append("relevant to your design. Do not treat these as nominal alpha = 0.05 / 0.003.")
         lines.append("")
-        lines.append("NOTE: A high z-score indicates statistical unusualness,")
-        lines.append("not proof of wrongdoing. Interpret in context.")
-        
+        lines.append("NOTE: A high z-score indicates unusualness relative to the CV folds,")
+        lines.append("not proof of wrongdoing, and not a statistically calibrated significance")
+        lines.append("level. Interpret in context.")
+
         lines.append("")
         lines.append("=" * 80)
-        lines.append("ECLIPSE v3.0 - Standard Statistics Only")
+        lines.append("ECLIPSE v3.0 - Descriptive Screening Score, Not a Calibrated Test")
         lines.append("=" * 80)
         
         report = "\n".join(lines)
@@ -1420,7 +1469,18 @@ class StaticCodeAnalyzer:
 class CodeAuditor:
     """
     Automated Code Auditor v3.0
-    
+
+    A STATIC PATTERN-MATCHING SCREENING TOOL, not an adjudicator of
+    misconduct. It flags code patterns that are ASSOCIATED WITH protocol
+    violations (e.g. touching holdout identifiers, fit_transform on test
+    data); a flag means "this pattern is present," not "a violation is
+    confirmed." The construct check in this manuscript (Study 3) found 0%
+    specificity (100% false-positive rate) on a set of legitimate scripts
+    deliberately written to look suspicious - i.e. surface-similar code with
+    no actual violation can be flagged. Findings should therefore be
+    reviewed by a person, not treated as a definitive determination that a
+    protocol violation occurred.
+
     Enhancements:
     - Notebook (.ipynb) support
     - Semantic analysis for alias detection
@@ -1698,10 +1758,15 @@ class CodeAuditor:
         lines.append("")
         
         if not violations:
-            lines.append("✅ NO VIOLATIONS DETECTED")
+            lines.append("✅ NO SUSPICIOUS PATTERNS FLAGGED")
             lines.append("   Code appears to follow ECLIPSE protocol correctly.")
         else:
-            lines.append(f"⚠️  {len(violations)} VIOLATION(S) DETECTED")
+            lines.append(f"⚠️  {len(violations)} PATTERN(S) FLAGGED FOR REVIEW")
+            lines.append("   Flags indicate patterns ASSOCIATED WITH protocol violations, not")
+            lines.append("   confirmed violations - this is a static pattern match, and legitimate")
+            lines.append("   code can trigger it (see Study 3: 0% specificity on near-miss code).")
+            lines.append("   A human reviewer should confirm each flag before treating it as a")
+            lines.append("   protocol violation.")
             lines.append("")
             
             # Group by severity
@@ -2051,14 +2116,15 @@ class EclipseReporter:
             </div>
             
             <div class="metric-box {'danger' if stds_max_z > 3 else 'warning' if stds_max_z > 2 else ''}">
-                <h3>Data Snooping Test (STDS)</h3>
+                <h3>Data Snooping Discrepancy Score (STDS)</h3>
                 <div class="metric-value">max z = {stds_max_z:+.2f}</div>
                 <p><strong>Mean z-score:</strong> {stds_mean_z:+.4f}</p>
-                <p><strong>Risk Level:</strong> {stds_risk}</p>
+                <p><strong>Screening flag:</strong> {stds_risk}</p>
                 <p style="color: #7f8c8d; font-size: 0.9em;">
-                    Standard z-score: z = (holdout - CV_mean) / CV_std.
-                    |z| > 2 is unusual, |z| > 3 is very unusual.
-                    No heuristics - standard statistics only.
+                    Standardized discrepancy score: z = (holdout - CV_mean) / CV_std.
+                    |z| > 2 / |z| > 3 are fixed screening cutoffs, NOT calibrated
+                    p-value thresholds - see Study 2 for the empirical false-positive
+                    rate at your #folds/#metrics, which can be far above 5%.
                 </p>
             </div>
         </div>
@@ -2147,10 +2213,10 @@ class EclipseReporter:
             # STDS
             stds_data = integrity_metrics.get('stds', {})
             if stds_data.get('status') == 'success':
-                lines.append(f"\n🔍 Statistical Test for Data Snooping:")
+                lines.append(f"\n🔍 Data Snooping Discrepancy Score (STDS, not a calibrated test):")
                 lines.append(f"   Max z-score: {stds_data.get('max_z_score', 0):+.4f}")
                 lines.append(f"   Mean z-score: {stds_data.get('mean_z_score', 0):+.4f}")
-                lines.append(f"   Risk Level: {stds_data.get('risk_level', 'N/A')}")
+                lines.append(f"   Screening flag: {stds_data.get('risk_level', 'N/A')}")
                 lines.append(f"   {stds_data.get('interpretation', '')}")
         
         lines.append("")

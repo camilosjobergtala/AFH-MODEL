@@ -4,27 +4,35 @@ STUDY 2 — STDS CONSTRUCT CHECK (operating characteristics)
 ═══════════════════════════════════════════════════════════════════════════════
 
 WHAT THIS IS (and is NOT):
-  This is a CONTROLLED construct check of the v3.0 Statistical Test for Data
-  Snooping (STDS), run on SIMULATED studies with KNOWN ground truth. It
-  characterizes the test's operating behaviour — how often it flags a holdout as
-  suspicious as a function of (a) how inflated the holdout is and (b) how noisy
-  the CV folds are. It is a proof-of-concept under simulated conditions and
-  carries NO external evidential weight. The external burden remains on Study 4.
+  This is a CONTROLLED construct check of the v3.0 STDS standardized
+  discrepancy score for data snooping, run on SIMULATED studies with KNOWN
+  ground truth. It characterizes the score's operating behaviour — how often
+  it flags a holdout as suspicious as a function of (a) how inflated the
+  holdout is and (b) how noisy the CV folds are. It is a proof-of-concept
+  under simulated conditions and carries NO external evidential weight. The
+  external burden remains on Study 4. Critically, this study is what shows
+  STDS is NOT a calibrated hypothesis test: under an honest holdout, the
+  flag rate at the |z|>2 cutoff is far above a nominal 5% for small K or
+  several metrics (analysis A below).
 
-THE TEST (v3.0, used verbatim via the engine):
+THE SCORE (v3.0, used verbatim via the engine):
   For each metric, z = (holdout - CV_mean) / CV_std. A holdout is "flagged"
   here when max_z > 2 (one-sided: holdout > 2 SD above the CV mean on at least
-  one metric). This matches the engine's MODERATE/HIGH risk thresholds.
+  one metric). This matches the engine's MODERATE/HIGH screening cutoffs.
 
-SIMULATION MODEL (per the test's own H0 assumption):
+SIMULATION MODEL (per the score's own exchangeability assumption):
   - CV folds for a metric ~ Normal(mu, sigma_fold), K folds.
-  - H0 (honest): holdout ~ Normal(mu, sigma_fold)         -> measures FALSE POSITIVES
-  - H1 (snooped): holdout ~ Normal(mu*(1+delta), sigma_fold) -> measures SENSITIVITY
+  - Honest scenario: holdout ~ Normal(mu, sigma_fold)             -> measures FALSE POSITIVES
+  - Snooped scenario: holdout ~ Normal(mu*(1+delta), sigma_fold)  -> measures the DETECTION RATE
   The z-score, CV mean and CV std all come from the real engine via stds_wrapper.
 
 ANALYSES:
-  A. False-positive rate (specificity) under H0, vs #folds K and #metrics |M|.
-  B. Sensitivity vs inflation delta, at several fold-noise levels sigma_fold.
+  A. False-positive rate under H0 (equivalently, 1 - specificity), vs #folds
+     K and #metrics |M|.
+  B. True-positive (detection) rate vs inflation delta, at several fold-noise
+     levels sigma_fold. This is an empirical detection rate, not statistical
+     power in the hypothesis-testing sense (see engine docstring: STDS is a
+     descriptive discrepancy score, not a calibrated test).
   C. Boundary condition: when the holdout's noise differs from the folds'
      (an assumption violation), the false-positive rate inflates.
 
@@ -128,9 +136,10 @@ def main():
         print(f"    {k:>3} | " + " | ".join(cells))
     summary["A_fpr_by_K_M"] = [dict(zip(rows_A[0], r)) for r in rows_A[1:]]
 
-    # ── B. Sensitivity vs inflation delta, at several fold-noise levels ────────
-    print("\n[B] Sensitivity (power) vs holdout inflation, at K=5, |M|=1, by fold noise sigma_fold")
-    print("    (sensitivity = fraction of SNOOPED studies correctly flagged)")
+    # ── B. Detection rate vs inflation delta, at several fold-noise levels ─────
+    print("\n[B] Detection rate vs holdout inflation, at K=5, |M|=1, by fold noise sigma_fold")
+    print("    (detection rate = fraction of SNOOPED studies correctly flagged; an empirical")
+    print("     rate, not statistical power in the hypothesis-testing sense)")
     sigmas_B = [0.02, 0.05, 0.10]
     deltas = [0.00, 0.05, 0.10, 0.15, 0.20, 0.30]
     rows_B = [("sigma_fold", "delta_inflation", "sensitivity")]
