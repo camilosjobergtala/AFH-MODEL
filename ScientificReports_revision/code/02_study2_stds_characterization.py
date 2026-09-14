@@ -69,9 +69,11 @@ MASTER_SEED = 20250805
 MU = 0.70                 # baseline metric level (e.g., an F1 around 0.70)
 FLAG_THRESHOLD = 2.0      # max_z > 2 => flagged (one-sided, holdout suspiciously high)
 N_SIM = 2000              # simulated studies per cell
-ALPHA = 0.05              # engine's per-metric significance (z_crit ~ 1.96); FLAG uses max_z>2
+ALPHA = 0.05              # legacy; ignored by the engine since v3.1. Retained only
+                          # so this study characterises the OLD fixed max_z>2 rule,
+                          # which is what motivated the change (see 04_stds_screening_cutoffs.py).
 
-OUT_DIR = HERE / "outputs" / "study2"
+OUT_DIR = HERE.parent / "outputs" / "study2"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 rng = np.random.default_rng(MASTER_SEED)
