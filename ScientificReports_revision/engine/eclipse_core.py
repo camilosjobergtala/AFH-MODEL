@@ -39,7 +39,9 @@ CHANGELOG v3.0 (Major improvements over v2.0):
   • Code Auditor now detects indirect holdout access patterns
 
 Based on the methodology by Camilo Alejandro Sjöberg Tala (2025)
-Paper: "ECLIPSE v3.0: A Systematic Falsification Framework"
+Paper: "ECLIPSE v2.0: A Reproducible Scaffold for Severe Confirmatory
+       Testing through Preregistration, Single-Shot Validation, and
+       Static-Analysis Screening"
 
 Version: 3.1.0
 Author: Camilo Alejandro Sjöberg Tala
@@ -117,7 +119,7 @@ class FalsificationCriteria:
 
 @dataclass
 class EclipseConfig:
-    """ECLIPSE configuration with v3.0 options"""
+    """ECLIPSE configuration"""
     project_name: str
     researcher: str
     sacred_seed: int
@@ -160,7 +162,7 @@ class EclipseConfig:
                 "Use: commitment_phrase='I COMMIT TO SINGLE-SHOT VALIDATION FOR {project_name}'"
             )
         
-        # Default EIS weights with v3.0 justification
+        # Default EIS weights
         if self.eis_weights is None:
             self.eis_weights = EclipseIntegrityScore.DEFAULT_WEIGHTS.copy()
 
@@ -246,18 +248,17 @@ class EclipseValidator:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ECLIPSE INTEGRITY SCORE (EIS) - v3.0 ENHANCED
+# ECLIPSE INTEGRITY SCORE (EIS)
 # ═══════════════════════════════════════════════════════════════════════════
 
 class EclipseIntegrityScore:
     """
     Eclipse Integrity Score (EIS) v3.1
     
-    IMPROVEMENTS IN v3.0:
-    - Explicit literature justification for default weights
-    - Configurable weights via EclipseConfig
-    - More nuanced leakage risk estimation
-    - Better handling of edge cases
+    In v3.1 the leakage component is a monotone continuous logistic of the
+    standardized development-to-holdout discrepancy (see estimate_leakage_risk).
+    Weights are configurable via EclipseConfig and carry the literature
+    justification tabulated below.
     
     Default weights with justification:
     
@@ -506,7 +507,6 @@ class EclipseIntegrityScore:
                     stats = dev_metrics[metric_name]
                     dev_mean = stats.get('mean', 0)
                     dev_std = stats.get('std', 0)
-                    dev_min = stats.get('min', dev_mean)
                     holdout_val = holdout_metrics[metric_name]
                     
                     # v3.0 FIX: Handle numpy scalar types properly
@@ -516,10 +516,8 @@ class EclipseIntegrityScore:
                     if not isinstance(holdout_val, (int, float)) or dev_mean == 0:
                         continue
                     
-                    # v3.0: Context-aware risk assessment
-                    # Expected: holdout between dev_min and dev_mean
-                    # Suspicious: holdout > dev_mean + dev_std (too good)
-                    # Acceptable: holdout >= dev_min (within CV range)
+                    # v3.1: risk is a monotone continuous function of the
+                    # standardized discrepancy (see the method docstring).
                     
                     if dev_std > 0:
                         # Z-score relative to development distribution
@@ -691,7 +689,7 @@ class EclipseIntegrityScore:
             return "VERY POOR - Critical methodological flaws"
     
     def generate_eis_report(self, output_path: Optional[str] = None) -> str:
-        """Generate EIS report with v3.0 justifications"""
+        """Generate EIS report"""
         if not self.scores:
             self.compute_eis()
         
@@ -762,7 +760,7 @@ class EclipseIntegrityScore:
         lines.append("")
         lines.append("=" * 80)
         lines.append("ECLIPSE v3.1 - Literature-Justified Weights")
-        lines.append("Citation: Sjöberg Tala, C.A. (2025). ECLIPSE v3.0")
+        lines.append("Citation: Sjoberg Tala, C. A. (2026). ECLIPSE v2.0 (software v3.1)")
         lines.append("=" * 80)
         
         report = "\n".join(lines)
@@ -776,7 +774,7 @@ class EclipseIntegrityScore:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# STANDARDIZED DISCREPANCY SCORE FOR DATA SNOOPING (STDS) - v3.0
+# STANDARDIZED TEST-SET DISCREPANCY SCORE (STDS)
 # ═══════════════════════════════════════════════════════════════════════════
 
 class StatisticalTestDataSnooping:
@@ -1127,7 +1125,7 @@ class StatisticalTestDataSnooping:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# AUTOMATED CODE AUDITOR - v3.0 ENHANCED
+# AUTOMATED CODE AUDITOR
 # ═══════════════════════════════════════════════════════════════════════════
 
 class NotebookAnalyzer:
@@ -1256,7 +1254,7 @@ class SemanticAnalyzer:
 
 class StaticCodeAnalyzer:
     """
-    Multi-level static code analysis v3.0
+    Multi-level static code analysis
     
     Enhancements:
     - Semantic analysis for alias detection
@@ -1576,7 +1574,7 @@ class StaticCodeAnalyzer:
 
 class CodeAuditor:
     """
-    Automated Code Auditor v3.0
+    Automated Code Auditor v3.1
 
     A STATIC PATTERN-MATCHING SCREENING TOOL, not an adjudicator of
     misconduct. It flags code patterns that are ASSOCIATED WITH protocol
@@ -1849,7 +1847,7 @@ class CodeAuditor:
         """Generate comprehensive audit report"""
         lines = []
         lines.append("=" * 80)
-        lines.append("AUTOMATED CODE AUDIT REPORT v3.0")
+        lines.append("AUTOMATED CODE AUDIT REPORT v3.1")
         lines.append("=" * 80)
         lines.append(f"Project: {self.framework.config.project_name}")
         lines.append(f"Timestamp: {datetime.now().isoformat()}")
@@ -1904,7 +1902,7 @@ class CodeAuditor:
                     lines.append(f"   Recommendation: {v.recommendation}")
         
         lines.append("\n" + "=" * 80)
-        lines.append("v3.0 ANALYSIS METHODS:")
+        lines.append("ANALYSIS METHODS:")
         lines.append("=" * 80)
         lines.append("  • AST parsing - Direct variable access detection")
         lines.append("  • Control-flow analysis - Conditional access patterns")
@@ -2004,11 +2002,11 @@ class CryptographicCommitment:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ENHANCED REPORT GENERATOR - v3.0
+# REPORT GENERATOR
 # ═══════════════════════════════════════════════════════════════════════════
 
 class EclipseReporter:
-    """Enhanced report generator v3.0"""
+    """Report generator"""
     
     @staticmethod
     def generate_html_report(final_assessment: Dict, output_path: str = None) -> str:
@@ -2242,7 +2240,7 @@ class EclipseReporter:
         
         <div class="footer">
             <p><strong>ECLIPSE v3.1</strong> - Revised after peer review</p>
-            <p>Citation: Sjöberg Tala, C. A. (2025). ECLIPSE v3.0</p>
+            <p>Citation: Sjoberg Tala, C. A. (2026). ECLIPSE v2.0 (software v3.1)</p>
             <p style="margin-top: 10px;">
                 <span class="badge badge-success">Deterministic</span>
                 <span class="badge badge-success">Reproducible</span>
@@ -2284,7 +2282,6 @@ class EclipseReporter:
         lines.append(f"{final_assessment['verdict_description']}")
         lines.append("")
         
-        # v3.0 changes
         lines.append("-" * 100)
         lines.append("v3.1 CHANGES (peer review):")
         lines.append("-" * 100)
@@ -2328,7 +2325,7 @@ class EclipseReporter:
         lines.append("")
         lines.append("=" * 100)
         lines.append("ECLIPSE v3.1 - Revised after peer review")
-        lines.append("Citation: Sjöberg Tala, C. A. (2025). ECLIPSE v3.0")
+        lines.append("Citation: Sjoberg Tala, C. A. (2026). ECLIPSE v2.0 (software v3.1)")
         lines.append("=" * 100)
         
         text = "\n".join(lines)
@@ -2342,12 +2339,12 @@ class EclipseReporter:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# MAIN ECLIPSE FRAMEWORK v3.0
+# MAIN ECLIPSE FRAMEWORK
 # ═══════════════════════════════════════════════════════════════════════════
 
 class EclipseFramework:
     """
-    ECLIPSE v3.0: Enhanced Systematic Falsification Framework
+    ECLIPSE v3.1: Enhanced Systematic Falsification Framework
     
     MAJOR CHANGES IN v3.1 (peer review):
     - Leakage component: monotone continuous logistic replaces the four-band
@@ -2391,7 +2388,7 @@ class EclipseFramework:
         self._development_completed = False
         self._validation_completed = False
         
-        # v3.0 components
+        # instrument components
         self.integrity_scorer = None
         self.snooping_tester = None
         self.code_auditor = None
@@ -2407,13 +2404,10 @@ class EclipseFramework:
         print(f"Sacred Seed: {config.sacred_seed}")
         print(f"Mode: {'Non-interactive (CI/CD)' if config.non_interactive else 'Interactive'}")
         print("")
-        print("v3.0 ENHANCEMENTS:")
-        print("  ✅ STDS direction CORRECTED")
-        print("  ✅ STDS: standard z-score (no bootstrap/permutation)")
-        print("  ✅ Notebook (.ipynb) support")
-        print("  ✅ Non-interactive mode with crypto commitment")
-        print("  ✅ Semantic analysis for variable aliasing")
-        print("  ✅ Literature-justified EIS weights")
+        print("v3.1 (peer review):")
+        print("  - Leakage component: monotone continuous logistic")
+        print("  - STDS: nominal-significance machinery removed")
+        print("  - STDS: empirical (K, M) screening cutoffs")
         print("=" * 80)
     
     def _load_existing_state(self):
@@ -2895,7 +2889,7 @@ class EclipseFramework:
     # =========================================================================
     
     def compute_integrity_metrics(self) -> Dict[str, Any]:
-        """Compute EIS and STDS with v3.0 corrections"""
+        """Compute EIS and STDS"""
         
         print("\n📊 Computing Eclipse Integrity Score...")
         
@@ -2913,7 +2907,7 @@ class EclipseFramework:
         stds_results = {'status': 'not_applicable'}
         
         if self._validation_completed:
-            print("\n🔍 Performing STDS v3.0 (corrected)...")
+            print("\n🔍 Computing STDS discrepancy score...")
             
             if self.snooping_tester is None:
                 self.snooping_tester = StatisticalTestDataSnooping(self)
@@ -2970,7 +2964,7 @@ class EclipseFramework:
         """
         
         print("\n" + "=" * 80)
-        print("🤖 AUTOMATED CODE AUDIT v3.0")
+        print("AUTOMATED CODE AUDIT v3.1")
         print("=" * 80)
         print("Analysis methods:")
         print("  • AST parsing")
@@ -3082,7 +3076,7 @@ def run_unit_tests():
     v3.0 NEW: Built-in unit tests for critical components
     """
     print("\n" + "=" * 80)
-    print("🧪 RUNNING ECLIPSE v3.0 UNIT TESTS")
+    print("RUNNING ECLIPSE v3.1 UNIT TESTS")
     print("=" * 80)
     
     tests_passed = 0
@@ -3228,7 +3222,7 @@ def example_v3_demo():
     """Complete example demonstrating v3.0 features"""
     
     print("\n" + "=" * 80)
-    print("🧠 ECLIPSE v3.0 DEMONSTRATION")
+    print("ECLIPSE v3.1 DEMONSTRATION")
     print("=" * 80)
     
     # Generate synthetic data
@@ -3320,7 +3314,7 @@ def example_v3_demo():
         final = eclipse.stage5_final_assessment(dev_results, val_results)
         
         print("\n" + "=" * 80)
-        print("🎯 v3.0 DEMO COMPLETE")
+        print("DEMO COMPLETE")
         print("=" * 80)
         print(f"Verdict: {final['verdict']}")
         
@@ -3352,20 +3346,21 @@ def interactive_menu():
     print("""
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                              ║
-║                        ECLIPSE FRAMEWORK v3.0                                ║
+║                        ECLIPSE FRAMEWORK v3.1                                ║
 ║           Enhanced Systematic Falsification Framework                        ║
 ║                                                                              ║
-║  v3.0 IMPROVEMENTS OVER v2.0:                                               ║
-║  🔧 STDS direction CORRECTED (critical bug fix)                     ║
-║  🔧 Leakage risk no longer assumes degradation always expected              ║
-║  🆕 STDS: standard z-score (no bootstrap/permutation)                       ║
-║  🆕 Notebook (.ipynb) support in Code Auditor                               ║
-║  🆕 Non-interactive mode for CI/CD pipelines                                ║
-║  🆕 Variable aliasing detection (semantic analysis)                         ║
-║  🆕 Built-in unit tests                                                     ║
-║  📊 EIS weights with literature justification                               ║
+║  v3.1 CHANGES (peer review):                                                 ║
+║   - Leakage component: monotone continuous logistic replaces the             ║
+║     four-band step function                                                  ║
+║   - STDS: nominal-significance machinery removed; empirical (K, M)           ║
+║     screening cutoffs replace the fixed cutoffs of 2 and 3                   ║
+║   - Calibration limits stated: self-consistent, not independent              ║
 ║                                                                              ║
-║  Based on: Sjöberg Tala, C. A. (2025). ECLIPSE v3.0                         ║
+║  CARRIED OVER FROM v3.0:                                                     ║
+║   - Notebook (.ipynb) support, semantic aliasing detection,                  ║
+║     non-interactive CI/CD mode, built-in unit tests                          ║
+║                                                                              ║
+║  Based on: Sjoberg Tala, C. A. (2026). ECLIPSE v2.0 (software v3.1)         ║
 ║                                                                              ║
 ║  Zero external dependencies • Fully reproducible • Open source              ║
 ║                                                                              ║
@@ -3373,9 +3368,9 @@ def interactive_menu():
 
 Available options:
 
-  1. Run unit tests (verify v3.0 corrections)
+  1. Run unit tests
   2. Run full demonstration (IIT falsification example)
-  3. Show v3.0 changelog (what changed from v2.0)
+  3. Show changelog
   4. Exit
 
 Command line usage:
@@ -3407,8 +3402,8 @@ def print_changelog():
     """Print detailed changelog v2.0 -> v3.0"""
     print("""
 ═══════════════════════════════════════════════════════════════════════════════
-                          ECLIPSE v3.0 CHANGELOG
-                         (Changes from v2.0)
+                          ECLIPSE CHANGELOG
+                    (v2.0 -> v3.0 -> v3.1)
 ═══════════════════════════════════════════════════════════════════════════════
 
 🔧 CRITICAL BUG FIXES
@@ -3531,7 +3526,7 @@ However, you should:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="ECLIPSE v3.0: Enhanced Systematic Falsification Framework"
+        description="ECLIPSE v3.1: Enhanced Systematic Falsification Framework"
     )
     parser.add_argument(
         '--test', action='store_true',
