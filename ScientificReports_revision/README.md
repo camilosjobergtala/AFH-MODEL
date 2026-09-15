@@ -12,7 +12,7 @@ Code, data, and reproducibility materials for the *Scientific Reports* manuscrip
   - `03_study3_code_auditor_benchmark.py` — Study 3: code-auditor construct check (including the adversarial near-miss probe).
   - `04_stds_screening_cutoffs.py` — Study 2b: derivation of the empirical STDS screening cutoffs now used by the engine.
   - `05_figures.py` — regenerates Figures 2, 3, 3b and 4 from the deposited outputs. Runs no simulation: every plotted value is read from `outputs/`, so the figures cannot drift from the reported numbers.
-- **`engine/`** — the ECLIPSE implementation and instrument wrappers (`eclipse_core.py`, `eis_wrapper.py`, `stds_wrapper.py`, `auditor_wrapper.py`) and unit tests (`test_eis_wrapper.py`).
+- **`engine/`** — the ECLIPSE implementation and instrument wrappers (`eclipse_core.py`, `eis_wrapper.py`, `stds_wrapper.py`, `auditor_wrapper.py`) and unit tests (`test_eis_wrapper.py`). The wrappers are the canonical entry points used by every study script, so no analysis reimplements the scoring logic.
 - **`outputs/`** — generated results (`study1/`, `study2/`, `study2b/`, `study3/`): summary JSON files and per-analysis CSVs, plus `figures/` (PNG at 600 dpi and PDF).
 - **`STUDY4_specification.md`** — Study 4: the pre-specified nested-model specification (for prospective execution) and the cited external-evidence table. Study 4 is **not** an executed retrospective regression — see manuscript §3.4.
 - **`requirements_frozen.txt`** — pinned package versions.

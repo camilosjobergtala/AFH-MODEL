@@ -1,7 +1,23 @@
 """
 ═══════════════════════════════════════════════════════════════════════════════
-ECLIPSE v3.0: Enhanced Systematic Falsification Framework
+ECLIPSE v3.1: Enhanced Systematic Falsification Framework
 ═══════════════════════════════════════════════════════════════════════════════
+
+CHANGELOG v3.1 (peer review, Reviewers 1 and 2):
+
+  • EIS leakage component: the v3.0 four-band step function on the standardized
+    discrepancy was discontinuous, non-monotone (a holdout far BELOW the
+    development mean received higher risk than an ordinary gap), and could not
+    reach either endpoint of [0, 1]. Replaced by a monotone continuous
+    logistic function of the signed standardized discrepancy.
+  • STDS: all nominal-significance machinery removed - no alpha, no
+    normal-theory critical value, no significance flags, no p-value
+    equivalences. The fixed cutoffs of 2 and 3 are replaced by the 95th/99th
+    percentiles of max_z under a simulated honest scenario, tabulated by
+    (K folds, M metrics). See EMPIRICAL_SCREEN and 04_stds_screening_cutoffs.py.
+  • The calibration is self-consistent, not independent, and real CV folds are
+    overlapping fits, so the honest-scenario rate for a real study is expected
+    to exceed 5%. Both limits are stated in the class docstring.
 
 CHANGELOG v3.0 (Major improvements over v2.0):
 
@@ -25,9 +41,9 @@ CHANGELOG v3.0 (Major improvements over v2.0):
 Based on the methodology by Camilo Alejandro Sjöberg Tala (2025)
 Paper: "ECLIPSE v3.0: A Systematic Falsification Framework"
 
-Version: 3.0.0
+Version: 3.1.0
 Author: Camilo Alejandro Sjöberg Tala
-Contact: cst@afhmodel.org
+Contact: camilosjobergtala95@gmail.com
 ───────────────────────────────────────────────────────────────────────────────
 
 LICENSE: Apache License 2.0
@@ -117,6 +133,10 @@ class EclipseConfig:
     
     # NEW IN v3.0: Configurable thresholds
     eis_weights: Dict[str, float] = None
+    # DEPRECATED and IGNORED since v3.1. STDS screens against the empirical
+    # (K, M) cutoffs in StatisticalTestDataSnooping.EMPIRICAL_SCREEN, not
+    # against a nominal level. The field is retained only so that configs
+    # serialized by earlier versions still deserialize.
     stds_alpha: float = 0.05
     audit_pass_threshold: float = 70.0
     
@@ -677,7 +697,7 @@ class EclipseIntegrityScore:
         
         lines = []
         lines.append("=" * 80)
-        lines.append("ECLIPSE INTEGRITY SCORE (EIS) REPORT v3.0")
+        lines.append("ECLIPSE INTEGRITY SCORE (EIS) REPORT v3.1")
         lines.append("=" * 80)
         lines.append(f"Project: {self.framework.config.project_name}")
         lines.append(f"Computed: {self.scores['timestamp']}")
@@ -708,7 +728,7 @@ class EclipseIntegrityScore:
             lines.append(f"  {display_name:<35s}: {score:.4f} × {weight:.2f} = {contribution:.4f}")
         
         lines.append("")
-        lines.append("WEIGHT JUSTIFICATIONS (v3.0):")
+        lines.append("WEIGHT JUSTIFICATIONS:")
         lines.append("-" * 80)
         for key, justification in self.WEIGHT_JUSTIFICATIONS.items():
             lines.append(f"  • {key}: {justification}")
@@ -741,7 +761,7 @@ class EclipseIntegrityScore:
         
         lines.append("")
         lines.append("=" * 80)
-        lines.append("ECLIPSE v3.0 - Enhanced with Literature-Justified Weights")
+        lines.append("ECLIPSE v3.1 - Literature-Justified Weights")
         lines.append("Citation: Sjöberg Tala, C.A. (2025). ECLIPSE v3.0")
         lines.append("=" * 80)
         
@@ -1093,7 +1113,7 @@ class StatisticalTestDataSnooping:
 
         lines.append("")
         lines.append("=" * 80)
-        lines.append("ECLIPSE v3.0 - Descriptive Screening Score, Not a Calibrated Test")
+        lines.append("ECLIPSE v3.1 - Descriptive Screening Score, Not a Calibrated Test")
         lines.append("=" * 80)
         
         report = "\n".join(lines)
@@ -2022,7 +2042,7 @@ class EclipseReporter:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECLIPSE v3.0 Report - {project}</title>
+    <title>ECLIPSE v3.1 Report - {project}</title>
     <style>
         * {{ box-sizing: border-box; }}
         body {{ 
@@ -2156,9 +2176,9 @@ class EclipseReporter:
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔬 ECLIPSE v3.0 REPORT</h1>
+            <h1>ECLIPSE v3.1 REPORT</h1>
             <p style="color: #7f8c8d; margin: 10px 0;">Enhanced Systematic Falsification Framework</p>
-            <span class="version-badge">v3.0 - Corrected & Enhanced</span>
+            <span class="version-badge">v3.1 - Revised after peer review</span>
         </div>
         
         <div class="info-grid">
@@ -2179,12 +2199,12 @@ class EclipseReporter:
         <div class="verdict">{verdict}</div>
         
         <div class="changelog">
-            <h4>🆕 v3.0 Improvements Applied</h4>
+            <h4>v3.1 Changes (peer review)</h4>
             <ul>
-                <li><strong>STDS direction corrected</strong> - Now properly detects "too good" results</li>
-                <li><strong>STDS reimplemented as standard z-score</strong> - Replaces bootstrap/permutation</li>
-                <li><strong>EIS weights justified</strong> - Literature-based defaults</li>
-                <li><strong>Leakage estimation improved</strong> - No longer assumes degradation always expected</li>
+                <li><strong>Leakage component redefined</strong> - monotone continuous logistic replaces the four-band step function</li>
+                <li><strong>STDS nominal framing removed</strong> - no alpha, no critical value, no p-value equivalences</li>
+                <li><strong>Empirical screening cutoffs</strong> - 95th/99th percentiles of max z by folds and metrics</li>
+                <li><strong>Calibration limits stated</strong> - self-consistent, not independent; real rate exceeds 5%</li>
             </ul>
         </div>
         
@@ -2221,7 +2241,7 @@ class EclipseReporter:
         <p>Required criteria passed: {final_assessment.get('required_criteria_passed', 'N/A')}</p>
         
         <div class="footer">
-            <p><strong>ECLIPSE v3.0</strong> - Corrected & Enhanced</p>
+            <p><strong>ECLIPSE v3.1</strong> - Revised after peer review</p>
             <p>Citation: Sjöberg Tala, C. A. (2025). ECLIPSE v3.0</p>
             <p style="margin-top: 10px;">
                 <span class="badge badge-success">Deterministic</span>
@@ -2248,7 +2268,7 @@ class EclipseReporter:
         
         lines = []
         lines.append("=" * 100)
-        lines.append("ECLIPSE v3.0 FALSIFICATION REPORT")
+        lines.append("ECLIPSE v3.1 FALSIFICATION REPORT")
         lines.append("Enhanced with Corrected Metrics and Notebook Support")
         lines.append("=" * 100)
         lines.append("")
@@ -2266,14 +2286,12 @@ class EclipseReporter:
         
         # v3.0 changes
         lines.append("-" * 100)
-        lines.append("v3.0 IMPROVEMENTS APPLIED:")
+        lines.append("v3.1 CHANGES (peer review):")
         lines.append("-" * 100)
-        lines.append("  ✓ STDS direction corrected")
-        lines.append("  ✓ STDS reimplemented as a standard z-score")
-        lines.append("  ✓ EIS weights with literature justification")
-        lines.append("  ✓ Improved leakage risk estimation")
-        lines.append("  ✓ Notebook (.ipynb) support in Code Auditor")
-        lines.append("  ✓ Non-interactive mode for CI/CD")
+        lines.append("  - Leakage component: monotone continuous logistic")
+        lines.append("  - STDS: nominal-significance machinery removed")
+        lines.append("  - STDS: empirical (K, M) screening cutoffs")
+        lines.append("  - Calibration limits stated explicitly")
         lines.append("")
         
         # Integrity metrics
@@ -2309,7 +2327,7 @@ class EclipseReporter:
         
         lines.append("")
         lines.append("=" * 100)
-        lines.append("ECLIPSE v3.0 - Corrected & Enhanced")
+        lines.append("ECLIPSE v3.1 - Revised after peer review")
         lines.append("Citation: Sjöberg Tala, C. A. (2025). ECLIPSE v3.0")
         lines.append("=" * 100)
         
@@ -2331,6 +2349,12 @@ class EclipseFramework:
     """
     ECLIPSE v3.0: Enhanced Systematic Falsification Framework
     
+    MAJOR CHANGES IN v3.1 (peer review):
+    - Leakage component: monotone continuous logistic replaces the four-band
+      step function (Reviewer 1)
+    - STDS: nominal-significance machinery removed; empirical (K, M) screening
+      cutoffs replace the fixed cutoffs of 2 and 3 (Reviewers 1 and 2)
+
     MAJOR CHANGES FROM v2.0:
     
     🔧 BUG FIXES:
@@ -2350,7 +2374,7 @@ class EclipseFramework:
     - Code Auditor detects indirect holdout access
     """
     
-    VERSION = "3.0.0"
+    VERSION = "3.1.0"
     
     def __init__(self, config: EclipseConfig):
         self.config = config
@@ -2902,12 +2926,24 @@ class EclipseFramework:
                 print(f"   Max z-score: {max_z:+.4f}")
                 print(f"   Mean z-score: {mean_z:+.4f}")
                 
-                if max_z > 3:
-                    print("   🚨 WARNING: Unusually high z-score detected!")
-                elif max_z > 2:
-                    print("   ⚠️ Notable: Some metrics have z > 2")
+                # Screening uses the empirical (K, M) cutoffs computed by
+                # perform_snooping_test, NOT fixed values of 2 and 3.
+                lvl = stds_results.get('risk_level', 'LOW')
+                c95 = stds_results.get('screen_cutoff_95')
+                c99 = stds_results.get('screen_cutoff_99')
+                kf = stds_results.get('k_folds')
+                nm = stds_results.get('n_metrics')
+                print(f"   Screening cutoffs (K={kf}, {nm} metric(s)): "
+                      f"95th pct = {c95:.2f}, 99th pct = {c99:.2f}")
+                if lvl == "HIGH":
+                    print("   !! FLAGGED (high): max z above the 99th-percentile "
+                          "cutoff; candidate for human review, not evidence of "
+                          "misconduct")
+                elif lvl == "MODERATE":
+                    print("   !  FLAGGED (notable): max z above the 95th-percentile "
+                          "cutoff; could equally reflect legitimate variation")
                 else:
-                    print("   ✅ Results within normal range")
+                    print("   NOT FLAGGED: max z below the 95th-percentile cutoff")
                 
                 stds_path = self.output_dir / f"{self.config.project_name}_STDS_REPORT.txt"
                 self.snooping_tester.generate_stds_report(str(stds_path))
@@ -3396,11 +3432,19 @@ def print_changelog():
    v2.0 BUG: Always assumed dev→holdout degradation is expected.
    This penalized models that legitimately generalize well.
    
-   v3.0 FIX: Context-aware z-score based assessment:
-   - z > 1.5σ better: HIGH risk (0.9) - suspiciously good
-   - z > 0.5σ better: MODERATE risk (0.5)
-   - Within ±1σ: LOW risk (0.2) - normal
-   - z < -1.5σ worse: MODERATE risk (0.3) - possible distribution shift
+   v3.0: replaced with a four-band step function on the standardized
+   discrepancy z = (holdout - dev_mean) / dev_std.
+   
+   v3.1 (peer review, Reviewer 1): that step function was discontinuous,
+   was NON-MONOTONE (z <= -1.0 received higher risk than an ordinary gap),
+   and could not reach either endpoint of [0, 1]. It is replaced by a
+   monotone continuous function:
+   
+       r(z) = logistic((z - 1.0) / 0.5),   S_leak = 1 - mean_m r(z_m)
+   
+   S_leak = 0.98 at z = -1, 0.88 at z = 0, 0.50 at z = +1, 0.12 at z = +2.
+   The half-risk point and width are normative screening choices, not
+   calibrated thresholds.
 
 ───────────────────────────────────────────────────────────────────────────────
 🆕 NEW FEATURES
@@ -3410,6 +3454,15 @@ def print_changelog():
    - z = (holdout - CV_mean) / CV_std
    - Replaces the v2.0 bootstrap/permutation procedure
    - A large positive z flags a suspiciously good holdout
+   
+   v3.1 (peer review, Reviewers 1 and 2): all nominal-significance
+   machinery removed - no alpha, no normal-theory critical value, no
+   p-value equivalences. The fixed cutoffs of 2 and 3 are replaced by the
+   95th/99th percentiles of max_z under the simulated honest scenario,
+   tabulated by (K folds, M metrics) in EMPIRICAL_SCREEN and derived by
+   04_stds_screening_cutoffs.py. Under the fixed cutoff the honest-holdout
+   flag rate ranged from 5% to 55% depending on design; under the
+   empirical cutoffs it is 5% by construction.
 
 2. NOTEBOOK (.ipynb) SUPPORT
    - NotebookAnalyzer extracts code cells from Jupyter notebooks
