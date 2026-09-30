@@ -31,6 +31,7 @@ build artifacts to `.gitignore`.
 | [`IIT vs ECLIPSE/`](IIT%20vs%20ECLIPSE/) | AFH*/ECLIPSE vs. Integrated Information Theory (IIT) falsification comparison, versions V2 → V3.2 → v4. |
 | [`MODELING FOLD/`](MODELING%20FOLD/) | A single orphan script, see below. |
 | [`afh-predicciones-simulacion/`](afh-predicciones-simulacion/) | **Active, not archival.** Simulates and evaluates the 7 falsifiable predictions (Section 6.1) of the current AFH paper ("Presencia fenomenológica y el tálamo intralaminar") — synthetic data plus a re-analysis of the real Sleep-EDF results already sitting in `AFH vs ECLIPSE/FOLD/`. |
+| [`auditoria-nabla/`](auditoria-nabla/) | **Active, not archival.** Executed audit of the formal ∇ / H\* apparatus of the AFH paper (Sec. 3.6), run against the unmodified `NeuroscienceOfConsciousness_revision/code/AFH_modelo_N_nodos.py`: which direction of the Type A/B test actually separates the types, seed dependence of the reported F values, and the conditions under which β_c = 1 holds. |
 
 See `AFH vs ECLIPSE/README.md`, `HORIZON/README.md`, and `IIT vs ECLIPSE/README.md` for
 per-folder version details.

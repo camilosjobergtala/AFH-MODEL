@@ -1,0 +1,14 @@
+[1] Error de beta_c_hat (semilla=1, autovalor dominante +1, umbral verdadero = 1 exacto)
+    tau_f=  8 tau_s=200  T= 20000 ms  dt=0.5   beta_c_hat=1.0147  error= 1.47 %
+    tau_f=  8 tau_s=200  T= 20000 ms  dt=0.25  beta_c_hat=1.0391  error= 3.91 %
+    tau_f=  8 tau_s=200  T= 80000 ms  dt=0.5   beta_c_hat=1.0080  error= 0.80 %
+    tau_f=100 tau_s=600  T= 20000 ms  dt=0.5   beta_c_hat=1.0553  error= 5.53 %
+    tau_f=100 tau_s=600  T= 20000 ms  dt=0.25  beta_c_hat=1.1444  error=14.44 %
+    tau_f=100 tau_s=600  T= 80000 ms  dt=0.5   beta_c_hat=1.0291  error= 2.91 %
+
+[2] Autovalor dominante de L=B@C en 1000 semillas (m=4, n=5): {'real positivo': 316, 'real negativo': 332, 'complejo': 352}
+
+[3] Umbral exacto por tipo de autovalor dominante (tau_u=tau_c=10 ms)
+    D=tau_f+tau_s=208 ms   mu=+1: beta_c=1 (estatico)   mu=-1: beta_c=1.0190 (oscilatorio)   mu=e^(i pi/2): beta_c=1.0047 (oscilatorio)
+    D=tau_f+tau_s=430 ms   mu=+1: beta_c=1 (estatico)   mu=-1: beta_c=1.0049 (oscilatorio)   mu=e^(i pi/2): beta_c=1.0012 (oscilatorio)
+    D=tau_f+tau_s=700 ms   mu=+1: beta_c=1 (estatico)   mu=-1: beta_c=1.0019 (oscilatorio)   mu=e^(i pi/2): beta_c=1.0005 (oscilatorio)

@@ -1,0 +1,21 @@
+semilla de matrices = 2   autovalor dominante del lazo L=B@C: -1.000+0.000i (real negativo)
+                                                                 Tipo B     Tipo A   p<0,05 (B / A)
+T1 original: C(t-400ms) -> U(t), AR p=5          (F medio)      1088.85       1.20   1.0 / 0.1
+T2 formal:   retorno real r(t-400ms) -> U(t)     (F medio)      1230.19   10792.45   1.0 / 1.0
+T3 T1 + pasado de U a la latencia del lazo       (F medio)         1.90       0.70   0.2 / 0.0
+T4 reflexividad: R2 de r(t) desde pasado de U    (R2 oos)          1.00      -0.23
+
+semilla de matrices = 1   autovalor dominante del lazo L=B@C: +1.000+0.000i (real positivo)
+                                                                 Tipo B     Tipo A   p<0,05 (B / A)
+T1 original: C(t-400ms) -> U(t), AR p=5          (F medio)        13.45       0.72   0.6 / 0.0
+T2 formal:   retorno real r(t-400ms) -> U(t)     (F medio)      1526.67   55772.75   1.0 / 1.0
+T3 T1 + pasado de U a la latencia del lazo       (F medio)         0.65       1.82   0.0 / 0.2
+T4 reflexividad: R2 de r(t) desde pasado de U    (R2 oos)          1.00      -0.23
+
+semilla de matrices = 3   autovalor dominante del lazo L=B@C: +1.000+0.000i (real positivo)
+                                                                 Tipo B     Tipo A   p<0,05 (B / A)
+T1 original: C(t-400ms) -> U(t), AR p=5          (F medio)        15.99       0.56   1.0 / 0.0
+T2 formal:   retorno real r(t-400ms) -> U(t)     (F medio)      2464.91  184029.72   1.0 / 1.0
+T3 T1 + pasado de U a la latencia del lazo       (F medio)         4.01       1.96   0.6 / 0.2
+T4 reflexividad: R2 de r(t) desde pasado de U    (R2 oos)          1.00      -0.22
+
