@@ -77,6 +77,34 @@ algo que un lector atento podría preguntar.
 
 ---
 
+## 3b. Intento de reproducir el "4.4–5.0%" por el motor completo
+
+Script: `reproducir_rango_stds.py`. Resultados: `reproducir_rango_stds_resultados.json`
+[ejecutado, 615 s].
+
+**Condiciones, fijadas antes de correr:**
+- Cada estudio simulado pasa por `run_stds()` → `perform_snooping_test()` del core.
+- N = 60.000 por celda y semilla 20250805.
+- Escenario honesto: folds y holdout ~ Normal(0.70, 0.05), δ = 0.
+- Criterio de marcado: `risk_level != "LOW"`, es decir, max_z por encima del corte del percentil 95.
+- Cada conjunto de diseños usa su propio generador iniciado con la misma semilla.
+
+| Conjunto | Celdas | Tasa por celda (%) | Rango |
+|---|---|---|---|
+| (a) Tabla 5: K ∈ {3,5,10,20} × \|M\| ∈ {1,3,5} | 12 | 5.21, 5.10, 4.90, 4.89, 4.73, 4.99, 4.85, 4.96, 4.79, 5.03, 5.13, 5.00 | **4.73–5.21 %** |
+| (b) Paso [2] de `04`: (3,1), (5,3), (10,1), (20,5) | 4 | 5.21, 4.94, 4.84, 4.88 | **4.84–5.21 %** |
+
+El error estándar Monte Carlo es ≈ 0.09 puntos por celda.
+
+La celda (3,1) da el mismo valor en ambos conjuntos porque es la primera celda de los dos, con el
+mismo generador y la misma semilla, así que las muestras son idénticas. No es una coincidencia
+independiente.
+
+Ninguno de los dos conjuntos da 4.4–5.0 %. Este resultado se reporta sin conclusión, a la espera
+de revisión.
+
+---
+
 ## 4. Textos del código que contradicen el encuadre del paper (ya conocidos)
 
 | # | Problema |

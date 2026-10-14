@@ -1,0 +1,154 @@
+{
+  "master_seed": 20250805,
+  "n_sim": 60000,
+  "mu": 0.7,
+  "sigma_fold": 0.05,
+  "criterion": "risk_level != \"LOW\" (max_z > p95 cutoff)",
+  "sets": {
+    "a_tabla5_12_celdas": {
+      "cells": [
+        {
+          "k_folds": 3,
+          "n_metrics": 1,
+          "flagged": 3123,
+          "valid": 60000,
+          "rate_pct": 5.205,
+          "mc_se_pct": 0.091
+        },
+        {
+          "k_folds": 3,
+          "n_metrics": 3,
+          "flagged": 3058,
+          "valid": 60000,
+          "rate_pct": 5.097,
+          "mc_se_pct": 0.09
+        },
+        {
+          "k_folds": 3,
+          "n_metrics": 5,
+          "flagged": 2941,
+          "valid": 60000,
+          "rate_pct": 4.902,
+          "mc_se_pct": 0.088
+        },
+        {
+          "k_folds": 5,
+          "n_metrics": 1,
+          "flagged": 2935,
+          "valid": 60000,
+          "rate_pct": 4.892,
+          "mc_se_pct": 0.088
+        },
+        {
+          "k_folds": 5,
+          "n_metrics": 3,
+          "flagged": 2836,
+          "valid": 60000,
+          "rate_pct": 4.727,
+          "mc_se_pct": 0.087
+        },
+        {
+          "k_folds": 5,
+          "n_metrics": 5,
+          "flagged": 2991,
+          "valid": 60000,
+          "rate_pct": 4.985,
+          "mc_se_pct": 0.089
+        },
+        {
+          "k_folds": 10,
+          "n_metrics": 1,
+          "flagged": 2909,
+          "valid": 60000,
+          "rate_pct": 4.848,
+          "mc_se_pct": 0.088
+        },
+        {
+          "k_folds": 10,
+          "n_metrics": 3,
+          "flagged": 2979,
+          "valid": 60000,
+          "rate_pct": 4.965,
+          "mc_se_pct": 0.089
+        },
+        {
+          "k_folds": 10,
+          "n_metrics": 5,
+          "flagged": 2874,
+          "valid": 60000,
+          "rate_pct": 4.79,
+          "mc_se_pct": 0.087
+        },
+        {
+          "k_folds": 20,
+          "n_metrics": 1,
+          "flagged": 3019,
+          "valid": 60000,
+          "rate_pct": 5.032,
+          "mc_se_pct": 0.089
+        },
+        {
+          "k_folds": 20,
+          "n_metrics": 3,
+          "flagged": 3081,
+          "valid": 60000,
+          "rate_pct": 5.135,
+          "mc_se_pct": 0.09
+        },
+        {
+          "k_folds": 20,
+          "n_metrics": 5,
+          "flagged": 3001,
+          "valid": 60000,
+          "rate_pct": 5.002,
+          "mc_se_pct": 0.089
+        }
+      ],
+      "range_pct": [
+        4.727,
+        5.205
+      ]
+    },
+    "b_04_paso2_4_disenos": {
+      "cells": [
+        {
+          "k_folds": 3,
+          "n_metrics": 1,
+          "flagged": 3123,
+          "valid": 60000,
+          "rate_pct": 5.205,
+          "mc_se_pct": 0.091
+        },
+        {
+          "k_folds": 5,
+          "n_metrics": 3,
+          "flagged": 2966,
+          "valid": 60000,
+          "rate_pct": 4.943,
+          "mc_se_pct": 0.088
+        },
+        {
+          "k_folds": 10,
+          "n_metrics": 1,
+          "flagged": 2906,
+          "valid": 60000,
+          "rate_pct": 4.843,
+          "mc_se_pct": 0.088
+        },
+        {
+          "k_folds": 20,
+          "n_metrics": 5,
+          "flagged": 2926,
+          "valid": 60000,
+          "rate_pct": 4.877,
+          "mc_se_pct": 0.088
+        }
+      ],
+      "range_pct": [
+        4.843,
+        5.205
+      ]
+    }
+  },
+  "seconds": 614.6
+}
