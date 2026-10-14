@@ -9,6 +9,9 @@
   `Lab/`, `Ashes/` y `NeuroscienceOfConsciousness_revision/`, que no forman parte del paper.
 - **Entorno:** Linux, Python con las versiones de `requirements_frozen.txt`.
 
+El punto 11 (barras de la Fig. 4B) se retiró tras revisión: la leyenda publicada ya dice "5% by
+construction", así que no es una discrepancia del paper. Los demás puntos conservan su número.
+
 Cada punto indica cómo se verificó:
 - **[ejecutado]**: lo reproduje corriendo código; el script está en esta carpeta.
 - **[lectura]**: sale de leer el código.
@@ -30,6 +33,7 @@ Cada punto indica cómo se verificó:
 | STDS en §2.6.4 | sd poblacional, exclusión cuando σ = 0, max_z y mean_z: coincide [lectura] |
 | Penalizaciones del auditor (30/15/5/2, 10 por defecto) y umbral 70 | Coincide [lectura] |
 | Las 4 categorías adicionales del auditor que menciona el paper | Existen en el código [lectura] |
+| Controles del auditor usados en los puntos 4 y 5 (`if accuracy > 0.8: evaluate(model, X_test)` y `print(X_test[0])`) | Ambos se detectan (`conditional_holdout_access`, `holdout_access`), así que los resultados negativos de los puntos 4 y 5 no se deben a un fallo del script de prueba [ejecutado] |
 | `STUDY4_specification.md` vs. paper (modelos A–E, refs. 26–27, 556 modelos / 1.147 validaciones) | Coincide con el paper. **No** verifiqué las cifras contra los artículos citados |
 | `run_unit_tests()` del core | 5/5 pasan [ejecutado] |
 
@@ -61,9 +65,8 @@ procedimiento.
 
 | # | Paper | Lo que da el depósito | Evidencia |
 |---|---|---|---|
-| 9 | §3.2: "Verified end to end through the engine, the realized honest-scenario rate is 4.4–5.0% across the sampled designs". El README dice lo mismo | Ningún script depositado produce ese rango. `04_…py` imprime (sin guardarlo) un chequeo con 4 diseños por la ruta vectorizada: 4.77–5.15 %. Mi chequeo de punta a punta por el motor, con 16 diseños y N = 2000 por celda: 3.60–5.70 %, compatible con 5 % dentro del ruido Monte Carlo | `verificar_otros.py` D [ejecutado] |
+| 9 | §3.2: "Verified end to end through the engine, the realized honest-scenario rate is 4.4–5.0% across the sampled designs". El README dice lo mismo | **El rango publicado no es reproducible desde el depósito**, lo que es distinto de afirmar que esté mal. Ningún script, ni el actual ni ninguno del historial de git, lo produce. La frase entró al README en el commit `91db9d7` (14-09-2026), el mismo que creó `04_stds_screening_cutoffs.py`. Ese archivo tiene una sola versión en todo el historial. Su paso [2] calcula la tasa en 4 diseños por la ruta vectorizada, no por el motor, y solo la imprime: da 4.77–5.15 %, de forma determinista. En ningún commit hay un script de `code/` que mida tasas de marcado por el motor (uso de `risk_level` o `screen_cutoff`). Intento de reproducción por el motor completo: ver la sección 3b | `verificar_otros.py` D (historial de git) [ejecutado] |
 | 10 | §3.2 y README: "against 5.1–54.4% under the fixed cutoff" | Mezcla dos fuentes. En el Estudio 2b (`stds_screening_cutoffs.csv`) el rango es **3.5–54.4 %**: la Fig. 4B muestra K = 20 / M = 1 en 3.5 %. En la Tabla 2 (Estudio 2) es 5.1–55.2 % | [ejecutado] |
-| 11 | Fig. 4B: barras "empirical cutoff" de la tasa de marcado honesta | Son una **constante** de 5.0 (`05_figures.py:172`, `np.full(len(sub), 5.0)`), no un valor medido. La leyenda dice "5% by construction", pero el README y el docstring de `05_figures.py` afirman que "every plotted value is read from outputs/" | `verificar_otros.py` C [ejecutado] |
 | 12 | Estudio 1: el componente de fuga está "essentially uncorrelated with the others (\|r\| ≤ 0.08)" | El máximo es 0.086 (con preregistro), que redondea a 0.09. La propia Fig. 2A muestra −0.09 | [ejecutado] |
 | 13 | §2.6.4: el máximo de 0.975 se obtiene "with a balanced split and a holdout at or below the development mean" | Con el holdout **en** la media, S_leak = 0.88 y el EIS máximo es ≈ 0.957. 0.975 solo se alcanza en el límite, con el holdout muy por debajo de la media de desarrollo (es un supremo). Con el 70/30 por defecto, el máximo es ≈ 0.955 (el paper no lo menciona) | [ejecutado] |
 
@@ -108,10 +111,10 @@ algo que un lector atento podría preguntar.
 
 ## Prioridad sugerida
 
-1. **Para el correo a la revista:** los puntos 1–6 (mecanismos descritos que no existen), el 9–11
-   (cifras no reproducibles y una figura con valores constantes) y el 22–23 (errores de
+1. **Para el correo a la revista:** los puntos 1–6 (mecanismos descritos que no existen), el 9 y el 10
+   (cifras no reproducibles o que mezclan fuentes) y el 22–23 (errores de
    referencias que pueden corregirse en las pruebas).
 2. **Código (versión nueva, sin tocar la del paper):** 1, 2, 3, 14, 15 y 16; el 4 y el 5 si se
    quiere que el auditor haga lo que el paper describe, o si no, corregir el texto.
-3. **Paquete de reproducibilidad:** 9 (guardar el chequeo de punta a punta), 11 (graficar las
-   tasas medidas), 17, 18, 19 y 20.
+3. **Paquete de reproducibilidad:** 9 (depositar el cálculo que respalde la cifra publicada), 17, 18,
+   19 y 20.

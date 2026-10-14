@@ -5,10 +5,12 @@ Uso (desde la raíz del repositorio, con requirements_frozen.txt instalado):
 
 Comprueba:
   A. Que la Etapa 5 no ejecuta el auditor de código (el paper dice que genera cuatro salidas).
-  B. Que el auditor no detecta dos patrones que el paper atribuye a sus niveles 2 y 3.
-  C. Que las barras "empirical cutoff" de la Fig. 4B son una constante, no un valor medido.
-  D. Tasa de marcado del STDS bajo el escenario honesto, de punta a punta por el motor
-     (para contrastar con "4.4–5.0%" del paper). N=2000 por celda: error MC ≈ ±1 pp.
+     Evidencia débil (búsqueda en el código fuente), suficiente para una afirmación negativa.
+  B. Que el auditor no detecta dos patrones que el paper atribuye a sus niveles 2 y 3,
+     con dos controles que SÍ deben detectarse. Si un control falla, el bloque B no vale.
+  D. Si algún script del depósito o del historial de git produce el rango "4.4–5.0%" que el
+     paper reporta para el STDS. No simula nada: solo revisa el historial
+     (ver reproducir_rango_stds.py para el intento de reproducción).
 """
 import sys, io, json, inspect, logging, tempfile, contextlib
 from pathlib import Path
@@ -27,7 +29,13 @@ src_im = inspect.getsource(ec.EclipseFramework.compute_integrity_metrics)
 print("   stage5 menciona audit/CodeAuditor:", any(s in src5 for s in ("audit", "CodeAuditor")))
 print("   compute_integrity_metrics menciona audit/CodeAuditor:", any(s in src_im for s in ("audit", "CodeAuditor")))
 
-print("\nB. Patrones que el paper atribuye a los niveles 2 y 3 del auditor")
+print("\nB. Patrones que el paper atribuye a los niveles 2 y 3 del auditor (con controles)")
+controles = {
+    "CONTROL - acceso condicional (nivel 2, sí debe detectarse)":
+        ("if accuracy > 0.8:\n    evaluate(model, X_test)\n", "conditional_holdout_access"),
+    "CONTROL - acceso directo al holdout (sí debe detectarse)":
+        ("print(X_test[0])\n", "holdout_access"),
+}
 casos = {
     "Tabla 1, 'Information leakage' (data-flow): y = test_data.mean()":
         "import numpy as np\ny = test_data.mean()\n",
@@ -35,24 +43,33 @@ casos = {
         "for threshold in grid:\n    perf = evaluate(model, X_eval, threshold)\n",
 }
 d = Path(tempfile.mkdtemp())
-for nombre, code in casos.items():
-    p = d / "c.py"; p.write_text(code)
+controles_ok = True
+for i, (nombre, (code, esperado)) in enumerate(controles.items()):
+    p = d / f"control_{i}.py"; p.write_text(code)
+    cats = audit_script(str(p))["categories"]
+    ok = esperado in cats
+    controles_ok &= ok
+    print(f"   {nombre}\n      -> categorías reportadas: {cats}  (esperado {esperado!r}: {'OK' if ok else 'FALLA'})")
+if not controles_ok:
+    print("   ** Al menos un control falló: los resultados de B no son válidos. **")
+for i, (nombre, code) in enumerate(casos.items()):
+    p = d / f"caso_{i}.py"; p.write_text(code)
     print(f"   {nombre}\n      -> categorías reportadas: {audit_script(str(p))['categories']}")
 
-print("\nC. Fig. 4B: ¿de dónde salen las barras 'empirical cutoff'?")
-fig = (ROOT / "code" / "05_figures.py").read_text().splitlines()
-for i, line in enumerate(fig, 1):
-    if "np.full(len(sub), 5.0)" in line:
-        print(f"   05_figures.py:{i}: {line.strip()}")
-
-print("\nD. STDS de punta a punta por el motor, escenario honesto (N=2000 por celda)")
-rng = np.random.default_rng(20250805); rates = []
-for k in (3, 5, 10, 20):
-    for m in (1, 2, 3, 5):
-        f = 0
-        for _ in range(2000):
-            folds = {f"m{j}": list(rng.normal(0.7, 0.05, k)) for j in range(m)}
-            hold = {f"m{j}": float(rng.normal(0.7, 0.05)) for j in range(m)}
-            f += run_stds(StudyMetrics(folds, hold))["risk_level"] != "LOW"
-        rates.append(f / 20); print(f"   K={k:>2} M={m}: {f/20:.2f}%")
-print(f"   rango: {min(rates):.2f}%–{max(rates):.2f}%")
+print("\nD. ¿Qué script produce el '4.4–5.0%' del paper? (historial de git, sin simular)")
+import subprocess
+REPO = ROOT.parent
+def git(*args):
+    return subprocess.run(["git", "-C", str(REPO), *args], capture_output=True, text=True).stdout.strip()
+print("   Commits que introducen la cadena '4.4%' o '4.4–5.0':")
+print("     " + (git("log", "--all", "--format=%h %cs %s", "-G", "4\\.4%|4\\.4.?[–-].?5\\.0", "--",
+                   "ScientificReports_revision") or "(ninguno)").replace("\n", "\n     "))
+print("   Versiones de code/04_stds_screening_cutoffs.py en el historial:")
+print("     " + git("log", "--all", "--format=%h %cs %s", "--",
+                    "ScientificReports_revision/code/04_stds_screening_cutoffs.py").replace("\n", "\n     "))
+hits = set()
+for c in git("rev-list", "--all").split():
+    out = git("grep", "-l", "-E", "risk_level|screen_cutoff", c, "--", "ScientificReports_revision/code")
+    hits.update(out.split())
+print("   Scripts de code/ que, en algún commit, usan risk_level o screen_cutoff "
+      "(tasa de marcado por el motor):", sorted(hits) or "ninguno")
