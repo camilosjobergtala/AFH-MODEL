@@ -1,0 +1,36 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== Controles positivos ===
+  C1 max_z motor vs numpy, máx. diferencia: 0.00e+00  OK
+  C2 risk_level != LOW  vs  max_z > p95: 0 desacuerdos en 2000  OK
+  C3 holdout inflado (+4 SD), K=5, M=1: 100.0% marcado  OK
+
+=== Simulación honesta por el motor (N = 60000 por celda, semilla 20250805) ===
+
+(a) Tabla 5, 12 celdas
+  K= 3 |M|=1:  5.21%  (EE MC ±0.09; 3123/60000)
+  K= 3 |M|=3:  5.10%  (EE MC ±0.09; 3058/60000)
+  K= 3 |M|=5:  4.90%  (EE MC ±0.09; 2941/60000)
+  K= 5 |M|=1:  4.89%  (EE MC ±0.09; 2935/60000)
+  K= 5 |M|=3:  4.73%  (EE MC ±0.09; 2836/60000)
+  K= 5 |M|=5:  4.98%  (EE MC ±0.09; 2991/60000)
+  K=10 |M|=1:  4.85%  (EE MC ±0.09; 2909/60000)
+  K=10 |M|=3:  4.96%  (EE MC ±0.09; 2979/60000)
+  K=10 |M|=5:  4.79%  (EE MC ±0.09; 2874/60000)
+  K=20 |M|=1:  5.03%  (EE MC ±0.09; 3019/60000)
+  K=20 |M|=3:  5.13%  (EE MC ±0.09; 3081/60000)
+  K=20 |M|=5:  5.00%  (EE MC ±0.09; 3001/60000)
+  Rango: 4.73% – 5.21%
+
+(b) paso [2] de 04, 4 diseños
+  K= 3 |M|=1:  5.21%  (EE MC ±0.09; 3123/60000)
+  K= 5 |M|=3:  4.94%  (EE MC ±0.09; 2966/60000)
+  K=10 |M|=1:  4.84%  (EE MC ±0.09; 2906/60000)
+  K=20 |M|=5:  4.88%  (EE MC ±0.09; 2926/60000)
+  Rango: 4.84% – 5.21%
+
+Tiempo: 637 s
+Paper: 4.4–5.0%. Este script no saca conclusiones; compara tú los rangos.

@@ -1,0 +1,35 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+Claves del split_file: ['development_ids', 'development_ratio', 'eclipse_version', 'holdout_ids', 'holdout_ratio', 'integrity_verification', 'n_development', 'n_holdout', 'project_name', 'sacred_seed', 'split_date', 'total_samples']
+  development_ratio = 0.7 | split_date = 2026-10-14T22:20:34.353032
+  integrity_verification = {'split_hash': '4a6fff10c4a4ac1c90c1d7ef2691051c6ee253753697a57bd2da4d646b7db0a5', 'algorithm': 'SHA-256'} 
+
+=== P1: ¿el hash del split detecta cambios en la asignación dev/holdout? ===
+  Intercambiar 1 ID entre dev y holdout                          -> verify_integrity: VÁLIDO
+      dict completo: {"version": "3.1.0", "all_valid": true, "files": {"split": {"valid": true}}}
+  Reemplazar el holdout por otros 30 IDs (mismo conjunto total)  -> verify_integrity: VÁLIDO
+      dict completo: {"version": "3.1.0", "all_valid": true, "files": {"split": {"valid": true}}}
+  Cambiar el ratio guardado (0.7/0.3 -> 0.5/0.5)                 -> verify_integrity: VÁLIDO
+      dict completo: {"version": "3.1.0", "all_valid": true, "files": {"split": {"valid": true}}}
+  Cambiar la fecha del split                                     -> verify_integrity: VÁLIDO
+      dict completo: {"version": "3.1.0", "all_valid": true, "files": {"split": {"valid": true}}}
+  Control: cambiar la semilla                                    -> verify_integrity: DETECTADO
+      dict completo: {"version": "3.1.0", "all_valid": false, "files": {"split": {"valid": false}}}
+  Control: eliminar un ID                                        -> verify_integrity: DETECTADO
+      dict completo: {"version": "3.1.0", "all_valid": false, "files": {"split": {"valid": false}}}
+
+=== P4: ¿la Etapa 4 (validación única) queda bloqueada tras usarse? ===
+  Intento 1 de Etapa 4: se EJECUTÓ sobre el holdout
+  Intento 2 de Etapa 4: se EJECUTÓ sobre el holdout
+  Intento 3 de Etapa 4: se EJECUTÓ sobre el holdout
+  ¿Existe el archivo de resultados tras la Etapa 4?: False
+  ¿El framework tiene atributo holdout_file?: False
+  Archivos que el framework escribió en output_dir, con sus permisos tras la Etapa 4:
+    -rw-r--r--  p4_CRITERIA_BINDING.json
+    -rw-r--r--  p4_SPLIT_IMMUTABLE.json
+  (el split_file contiene la lista de holdout_ids: True, n=30)
+  Intento tras Etapa 5: rechazado (el bloqueo existe solo después de la Etapa 5)
+  Intento tras Etapa 5 con force=True: se EJECUTÓ

@@ -1,0 +1,38 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== Control positivo: editar un umbral SIN recalcular el hash ===
+  verify_integrity: {'split': True, 'criteria': False} -> DETECTADO (OK)
+
+T1 Criterios editados (umbral 0.70 -> 0.50) y hash recalculado con la misma receta del core
+  verify_integrity: {'split': True, 'criteria': True}
+
+T2 Fecha de registro de criterios cambiada a 2020-01-01
+  verify_integrity: {'split': True, 'criteria': True}
+
+T3 Re-registro de criterios con force=True (umbral nuevo 0.50)
+  umbral antes/después: 0.7 -> 0.5
+  verify_integrity: {'split': True, 'criteria': True}
+  archivos en la carpeta (¿queda copia del registro anterior?): ['t3_CRITERIA_BINDING.json', 't3_SPLIT_IMMUTABLE.json']
+
+T4 Re-split con force=True y otra semilla
+  holdout cambiado: True | IDs del holdout que cambiaron: 25
+  verify_integrity: {'split': True, 'criteria': True}
+  archivos en la carpeta (¿queda copia del split anterior?): ['t4_CRITERIA_BINDING.json', 't4_SPLIT_IMMUTABLE.json']
+
+T5 ¿La Etapa 1 devuelve al usuario la lista de IDs del holdout?
+  stage1 devolvió 30 IDs de holdout al código que la llamó; ejemplo: ['s079', 's085', 's069']
+
+T6 Etapa 3 con datos que incluyen el holdout (los 100 IDs, no solo los 70 de desarrollo)
+  La Etapa 3 se ejecutó sin error con 100 unidades (incluye 30 del holdout).
+
+T7 Resultados finales editados tras la Etapa 5
+  Archivos que verify_integrity comprueba: ['criteria', 'split'] | all_valid: True
+
+T8 ¿Compara algún código la fecha de registro de criterios con la de la validación?
+  Líneas de eclipse_core.py que mencionan registration_date: [359, 592, 2545]
+    359: if 'registration_date' in criteria_data and 'criteria_hash' in criteria_data:
+    592: if 'registration_date' in criteria_data:
+    2545: 'registration_date': datetime.now().isoformat(),

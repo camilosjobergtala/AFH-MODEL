@@ -1,0 +1,22 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== Control positivo: S_leak frente a los valores publicados ===
+  z = -1: S_leak = 0.9820  (paper 0.98)  OK
+  z = +0: S_leak = 0.8808  (paper 0.88)  OK
+  z = +1: S_leak = 0.5000  (paper 0.50)  OK
+  z = +2: S_leak = 0.1192  (paper 0.12)  OK
+  Control: OK
+
+=== Hallazgo: split 50/50, N = 200, indicadores al máximo ===
+  holdout EN la media (z = 0)                 : EIS = 0.9571   S_pre = 0.90  S_split = 1.0000  S_leak = 0.8808
+  holdout 1 SD bajo la media (z = -1)         : EIS = 0.9723   S_pre = 0.90  S_split = 1.0000  S_leak = 0.9820
+  holdout muy por debajo (f1 = 0.0, z = -14)  : EIS = 0.9750   S_pre = 0.90  S_split = 1.0000  S_leak = 1.0000
+
+=== Split 70/30 por defecto, N = 1000, holdout muy por debajo ===
+  EIS = 0.9548   S_split = 0.8991
+
+=== Resultado ===
+Con el holdout en la media el máximo es 0.9571; 0.975 se alcanza solo con el holdout muy por debajo (0.9750).

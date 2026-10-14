@@ -1,0 +1,26 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== Control positivo (debe dar 'controlflow') ===
+  Acceso condicional
+    código: if accuracy > 0.8: |     evaluate(model, X_test)
+    hallazgos (categoría, método): [('conditional_holdout_access', 'controlflow'), ('holdout_access', 'ast')]
+  Control: OK
+
+=== Casos del paper: bucle de optimización de umbral ===
+  Bucle de umbral, datos neutros
+    código: for threshold in grid: |     perf = evaluate(model, X_eval, threshold)
+    hallazgos (categoría, método): ninguno
+  Bucle de umbral sobre holdout
+    código: for threshold in grid: |     test_performance = evaluate(model, X_test, threshold)
+    hallazgos (categoría, método): [('holdout_access', 'ast'), ('model_selection_bias', 'pattern')]
+
+=== Métodos de StaticCodeAnalyzer (búsqueda de un análisis de cobertura) ===
+  ['__init__', '_analyze_code', '_control_flow_analysis', '_detect_holdout_access', '_detect_multiple_testing', '_detect_threshold_manipulation', '_pattern_matching', '_semantic_analysis', 'analyze_file', 'analyze_notebook']
+  ¿Algún método con 'coverage' o 'branch' en el nombre?: False
+
+=== Resultado ===
+Bucle de umbral (neutro)  -> hallazgo 'controlflow': False
+Bucle de umbral (holdout) -> hallazgo 'controlflow': False (si aparece 'holdout_access' es por el nombre X_test, nivel 1, no por el bucle)

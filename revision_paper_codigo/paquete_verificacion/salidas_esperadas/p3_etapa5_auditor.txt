@@ -1,0 +1,20 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== Hallazgo ===
+Llamadas al auditor durante la Etapa 5     : 0
+Claves de la salida de la Etapa 5          : ['assessment_date', 'assessment_timestamp', 'configuration', 'criteria_evaluation', 'development_summary', 'eclipse_version', 'final_hash', 'integrity_metrics', 'project_name', 'required_criteria_passed', 'researcher', 'validation_summary', 'verdict', 'verdict_description']
+Claves dentro de 'integrity_metrics'       : ['eis', 'stds']
+Archivos escritos tras la Etapa 5          : ['p3_CRITERIA_BINDING.json', 'p3_EIS_REPORT.txt', 'p3_FINAL_RESULT.json', 'p3_REPORT.html', 'p3_REPORT.txt', 'p3_SPLIT_IMMUTABLE.json', 'p3_STDS_REPORT.txt']
+¿Hay algún reporte de auditoría?           : False
+
+=== Control positivo: audit_code() llamado a mano ===
+Llamadas al auditor registradas por el espía: 1 (esperado: 1)
+Violaciones detectadas en el control        : ['holdout_access']
+Archivos con 'AUDIT' tras el control        : ['p3_CODE_AUDIT.txt']
+Control positivo: OK
+
+=== Resultado ===
+La Etapa 5 llamó al auditor 0 veces. No ejecuta el auditor.

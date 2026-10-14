@@ -1,0 +1,18 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== Hallazgo ===
+Tamaños de entrenamiento en cada llamada: [56, 56, 56, 56, 56] (n_dev = 70)
+¿Alguna llamada con todo D_dev?        : False
+Claves devueltas por la Etapa 3        : ['aggregated_metrics', 'fold_results', 'n_folds', 'n_successful', 'timestamp']
+¿Devuelve algún modelo?                : False
+
+=== Control positivo ===
+Llamadas registradas durante la Etapa 3: 5 (esperado: 5)
+Llamada manual con todo D_dev registrada con tamaño: 70 (esperado: 70)
+Control positivo: OK
+
+=== Resultado ===
+La Etapa 3 entrenó sobre todo D_dev: False

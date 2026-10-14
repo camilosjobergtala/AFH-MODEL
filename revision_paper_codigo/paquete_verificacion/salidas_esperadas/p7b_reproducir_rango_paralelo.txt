@@ -1,0 +1,135 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== Controles positivos (idénticos a p7) ===
+  C1 max_z motor vs numpy, máx. diferencia: 0.00e+00  OK
+  C2 risk_level != LOW  vs  max_z > p95: 0 desacuerdos en 2000  OK
+  C3 holdout inflado (+4 SD), K=5, M=1: 100.0% marcado  OK
+
+=== Simulación honesta por el motor (N = 60000 por celda, semilla 20250805, 3 procesos) ===
+    … (a) K= 3 |M|=1: 10000/60000 casos (5 s)
+    … (a) K= 3 |M|=3: 10000/60000 casos (6 s)
+    … (a) K= 3 |M|=5: 10000/60000 casos (8 s)
+    … (a) K= 3 |M|=1: 20000/60000 casos (9 s)
+    … (a) K= 3 |M|=3: 20000/60000 casos (12 s)
+    … (a) K= 3 |M|=1: 30000/60000 casos (14 s)
+    … (a) K= 3 |M|=5: 20000/60000 casos (15 s)
+    … (a) K= 3 |M|=3: 30000/60000 casos (18 s)
+    … (a) K= 3 |M|=1: 40000/60000 casos (19 s)
+    … (a) K= 3 |M|=5: 30000/60000 casos (23 s)
+    … (a) K= 3 |M|=1: 50000/60000 casos (24 s)
+    … (a) K= 3 |M|=3: 40000/60000 casos (24 s)
+  terminada (a) K= 3 |M|=1:  5.21%  (3123/60000)  [1/16, 29 s]
+    … (a) K= 3 |M|=3: 50000/60000 casos (30 s)
+    … (a) K= 3 |M|=5: 40000/60000 casos (30 s)
+    … (a) K= 5 |M|=1: 10000/60000 casos (4 s)
+  terminada (a) K= 3 |M|=3:  5.10%  (3058/60000)  [2/16, 37 s]
+    … (a) K= 5 |M|=1: 20000/60000 casos (9 s)
+    … (a) K= 3 |M|=5: 50000/60000 casos (37 s)
+    … (a) K= 5 |M|=1: 30000/60000 casos (13 s)
+    … (a) K= 5 |M|=3: 10000/60000 casos (6 s)
+  terminada (a) K= 3 |M|=5:  4.90%  (2941/60000)  [3/16, 45 s]
+    … (a) K= 5 |M|=1: 40000/60000 casos (17 s)
+    … (a) K= 5 |M|=3: 20000/60000 casos (12 s)
+    … (a) K= 5 |M|=1: 50000/60000 casos (22 s)
+    … (a) K= 5 |M|=5: 10000/60000 casos (8 s)
+    … (a) K= 5 |M|=3: 30000/60000 casos (19 s)
+  terminada (a) K= 5 |M|=1:  4.89%  (2935/60000)  [4/16, 56 s]
+    … (a) K=10 |M|=1: 10000/60000 casos (5 s)
+    … (a) K= 5 |M|=5: 20000/60000 casos (16 s)
+    … (a) K= 5 |M|=3: 40000/60000 casos (26 s)
+    … (a) K=10 |M|=1: 20000/60000 casos (10 s)
+    … (a) K= 5 |M|=3: 50000/60000 casos (32 s)
+    … (a) K= 5 |M|=5: 30000/60000 casos (23 s)
+    … (a) K=10 |M|=1: 30000/60000 casos (14 s)
+  terminada (a) K= 5 |M|=3:  4.73%  (2836/60000)  [5/16, 75 s]
+    … (a) K=10 |M|=1: 40000/60000 casos (19 s)
+    … (a) K= 5 |M|=5: 40000/60000 casos (30 s)
+    … (a) K=10 |M|=1: 50000/60000 casos (23 s)
+    … (a) K=10 |M|=3: 10000/60000 casos (6 s)
+  terminada (a) K=10 |M|=1:  4.85%  (2909/60000)  [6/16, 84 s]
+    … (a) K= 5 |M|=5: 50000/60000 casos (39 s)
+    … (a) K=10 |M|=3: 20000/60000 casos (12 s)
+    … (a) K=10 |M|=5: 10000/60000 casos (7 s)
+  terminada (a) K= 5 |M|=5:  4.99%  (2991/60000)  [7/16, 92 s]
+    … (a) K=10 |M|=3: 30000/60000 casos (19 s)
+    … (a) K=20 |M|=1: 10000/60000 casos (5 s)
+    … (a) K=10 |M|=5: 20000/60000 casos (15 s)
+    … (a) K=10 |M|=3: 40000/60000 casos (25 s)
+    … (a) K=20 |M|=1: 20000/60000 casos (10 s)
+    … (a) K=10 |M|=3: 50000/60000 casos (31 s)
+    … (a) K=20 |M|=1: 30000/60000 casos (15 s)
+    … (a) K=10 |M|=5: 30000/60000 casos (24 s)
+    … (a) K=20 |M|=1: 40000/60000 casos (21 s)
+  terminada (a) K=10 |M|=3:  4.96%  (2979/60000)  [8/16, 114 s]
+    … (a) K=10 |M|=5: 40000/60000 casos (32 s)
+    … (a) K=20 |M|=1: 50000/60000 casos (26 s)
+    … (a) K=20 |M|=3: 10000/60000 casos (7 s)
+  terminada (a) K=20 |M|=1:  5.03%  (3019/60000)  [9/16, 123 s]
+    … (a) K=10 |M|=5: 50000/60000 casos (41 s)
+    … (a) K=20 |M|=3: 20000/60000 casos (14 s)
+    … (a) K=20 |M|=5: 10000/60000 casos (9 s)
+  terminada (a) K=10 |M|=5:  4.79%  (2874/60000)  [10/16, 133 s]
+    … (a) K=20 |M|=3: 30000/60000 casos (21 s)
+    … (b) K= 3 |M|=1: 10000/60000 casos (4 s)
+    … (a) K=20 |M|=5: 20000/60000 casos (17 s)
+    … (a) K=20 |M|=3: 40000/60000 casos (28 s)
+    … (b) K= 3 |M|=1: 20000/60000 casos (9 s)
+    … (b) K= 3 |M|=1: 30000/60000 casos (13 s)
+    … (a) K=20 |M|=5: 30000/60000 casos (26 s)
+    … (a) K=20 |M|=3: 50000/60000 casos (35 s)
+    … (b) K= 3 |M|=1: 40000/60000 casos (18 s)
+  terminada (a) K=20 |M|=3:  5.13%  (3081/60000)  [11/16, 155 s]
+    … (b) K= 3 |M|=1: 50000/60000 casos (22 s)
+    … (a) K=20 |M|=5: 40000/60000 casos (34 s)
+  terminada (b) K= 3 |M|=1:  5.21%  (3123/60000)  [12/16, 160 s]
+    … (b) K= 5 |M|=3: 10000/60000 casos (6 s)
+    … (b) K=10 |M|=1: 10000/60000 casos (5 s)
+    … (a) K=20 |M|=5: 50000/60000 casos (43 s)
+    … (b) K= 5 |M|=3: 20000/60000 casos (13 s)
+    … (b) K=10 |M|=1: 20000/60000 casos (10 s)
+    … (b) K= 5 |M|=3: 30000/60000 casos (19 s)
+  terminada (a) K=20 |M|=5:  5.00%  (3001/60000)  [13/16, 174 s]
+    … (b) K=10 |M|=1: 30000/60000 casos (15 s)
+    … (b) K=10 |M|=1: 40000/60000 casos (20 s)
+    … (b) K= 5 |M|=3: 40000/60000 casos (26 s)
+    … (b) K=20 |M|=5: 10000/60000 casos (9 s)
+    … (b) K=10 |M|=1: 50000/60000 casos (25 s)
+    … (b) K= 5 |M|=3: 50000/60000 casos (31 s)
+  terminada (b) K=10 |M|=1:  4.84%  (2906/60000)  [14/16, 190 s]
+    … (b) K=20 |M|=5: 20000/60000 casos (17 s)
+  terminada (b) K= 5 |M|=3:  4.94%  (2966/60000)  [15/16, 193 s]
+    … (b) K=20 |M|=5: 30000/60000 casos (26 s)
+    … (b) K=20 |M|=5: 40000/60000 casos (34 s)
+    … (b) K=20 |M|=5: 50000/60000 casos (42 s)
+  terminada (b) K=20 |M|=5:  4.88%  (2926/60000)  [16/16, 225 s]
+
+  C4 todos los casos válidos en todas las celdas: OK (16 celdas x 60000)
+  C5 archivos temporales distintos usados por los procesos: 3 (debe ser > 1 si hubo más de un proceso)  OK
+
+(a) Tabla 5, 12 celdas
+  K= 3 |M|=1:  5.21%  (EE MC ±0.09; 3123/60000)
+  K= 3 |M|=3:  5.10%  (EE MC ±0.09; 3058/60000)
+  K= 3 |M|=5:  4.90%  (EE MC ±0.09; 2941/60000)
+  K= 5 |M|=1:  4.89%  (EE MC ±0.09; 2935/60000)
+  K= 5 |M|=3:  4.73%  (EE MC ±0.09; 2836/60000)
+  K= 5 |M|=5:  4.98%  (EE MC ±0.09; 2991/60000)
+  K=10 |M|=1:  4.85%  (EE MC ±0.09; 2909/60000)
+  K=10 |M|=3:  4.96%  (EE MC ±0.09; 2979/60000)
+  K=10 |M|=5:  4.79%  (EE MC ±0.09; 2874/60000)
+  K=20 |M|=1:  5.03%  (EE MC ±0.09; 3019/60000)
+  K=20 |M|=3:  5.13%  (EE MC ±0.09; 3081/60000)
+  K=20 |M|=5:  5.00%  (EE MC ±0.09; 3001/60000)
+  Rango: 4.73% – 5.21%
+
+(b) paso [2] de 04, 4 diseños
+  K= 3 |M|=1:  5.21%  (EE MC ±0.09; 3123/60000)
+  K= 5 |M|=3:  4.94%  (EE MC ±0.09; 2966/60000)
+  K=10 |M|=1:  4.84%  (EE MC ±0.09; 2906/60000)
+  K=20 |M|=5:  4.88%  (EE MC ±0.09; 2926/60000)
+  Rango: 4.84% – 5.21%
+
+Tiempo: 225 s
+Paper: 4.4–5.0%. Este script no saca conclusiones; compara tú los rangos.

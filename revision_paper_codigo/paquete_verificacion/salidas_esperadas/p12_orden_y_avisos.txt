@@ -1,0 +1,22 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== O1: dependencia del orden de entrada ===
+  Control (mismo orden dos veces): holdout idéntico y mismo hash: OK
+  Orden inverso -> holdout igual al del orden directo: False
+  IDs del holdout que difieren: 18 de 30
+  split_hash igual en ambos órdenes: True
+  Claves del archivo del split (¿guarda el orden de entrada?): ['development_ids', 'development_ratio', 'eclipse_version', 'holdout_ids', 'holdout_ratio', 'integrity_verification', 'n_development', 'n_holdout', 'project_name', 'sacred_seed', 'split_date', 'total_samples']
+
+=== O2: avisos de la Etapa 3 ===
+  Control (Etapa 3 sin criterios): warnings capturados: ['Criteria not registered. Consider completing Stage 2 first.'] -> OK
+  Etapa 3 con los 100 IDs (incluye 30 del holdout):
+    warnings: ninguno
+    logs    : ninguno
+    líneas en pantalla que mencionan holdout/warn: ninguna
+
+=== Resultado ===
+O1: el holdout depende del orden de entrada y el hash no lo refleja: True
+O2: la Etapa 3 no emite ningún aviso con datos del holdout: True

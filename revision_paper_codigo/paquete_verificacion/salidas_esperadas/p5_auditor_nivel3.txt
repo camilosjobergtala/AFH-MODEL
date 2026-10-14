@@ -1,0 +1,23 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== Controles positivos ===
+  Nivel 3: variable derivada del holdout en fit()
+    código: tmp = test_data | feat = tmp | model.fit(feat)
+    hallazgos (categoría, método): [('holdout_access', 'ast'), ('indirect_holdout_access', 'semantic')]
+  Nivel 1: acceso directo
+    código: print(X_test[0])
+    hallazgos (categoría, método): [('holdout_access', 'ast')]
+  Control nivel 3: OK
+  Control nivel 1: OK
+
+=== Caso: ejemplo literal de la Tabla 1 ===
+  Tabla 1, Information leakage
+    código: y = test_data.mean()
+    hallazgos (categoría, método): [('holdout_access', 'ast')]
+
+=== Resultado ===
+Ejemplo de la Tabla 1 -> hallazgo de nivel 3 ('semantic'): False
+Ejemplo de la Tabla 1 -> métodos que sí lo marcan       : ['ast']

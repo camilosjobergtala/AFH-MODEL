@@ -1,0 +1,18 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== Control positivo ===
+  max |r| (matriz) = 0.4045, summary = 0.4045; media |r| (matriz) = 0.1414, summary = 0.1414  OK
+  Matriz recalculada desde el corpus = matriz depositada: OK
+  Control: OK
+
+=== Fila del componente de fuga (leakage_score) ===
+  leakage_score vs preregistration     : r = -0.0858   |r| = 0.0858   (2 decimales: -0.09)
+  leakage_score vs split_strength      : r = -0.0020   |r| = 0.0020   (2 decimales: -0.00)
+  leakage_score vs protocol_adherence  : r = -0.0082   |r| = 0.0082   (2 decimales: -0.01)
+  leakage_score vs transparency        : r = +0.0441   |r| = 0.0441   (2 decimales: +0.04)
+
+=== Resultado ===
+Paper: |r| ≤ 0.08.   Máximo |r| del componente de fuga en los datos depositados: 0.0858

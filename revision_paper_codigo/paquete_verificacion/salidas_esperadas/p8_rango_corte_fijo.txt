@@ -1,0 +1,45 @@
+SHA-256 eclipse_core.py (bytes tal cual)        : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 eclipse_core.py (normalizado a LF)      : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+SHA-256 esperado (commit 93339b4)               : 9d4320d225375fb5ed326b1cc282779125595ef500ff81bda81d7dd528b059b3
+Coincide con la versión del paper.
+
+=== Control positivo: CSV de 2b vs EMPIRICAL_SCREEN del motor ===
+  Filas leídas: 16 (esperado 16). Diferencias: ninguna
+  Control: OK
+
+=== Study 2b: ScientificReports_revision/outputs/study2b/stds_screening_cutoffs.csv (honest_rate_at_fixed_2) ===
+  K= 3 |M|=1: 14.65%
+  K= 3 |M|=2: 27.12%
+  K= 3 |M|=3: 37.59%
+  K= 3 |M|=5: 54.45%
+  K= 5 |M|=1:  9.05%
+  K= 5 |M|=2: 16.95%
+  K= 5 |M|=3: 24.60%
+  K= 5 |M|=5: 37.15%
+  K=10 |M|=1:  5.25%
+  K=10 |M|=2: 10.15%
+  K=10 |M|=3: 15.03%
+  K=10 |M|=5: 23.62%
+  K=20 |M|=1:  3.53%
+  K=20 |M|=2:  7.07%
+  K=20 |M|=3: 10.37%
+  K=20 |M|=5: 16.85%
+  Rango (16 diseños)                         : 3.53% – 54.45%
+  Rango (12 diseños |M| en 1,3,5, como Fig. 4B): 3.53% – 54.45%
+
+=== Study 2: ScientificReports_revision/outputs/study2/study2_fpr_by_K_M.csv (fpr, Tabla 2) ===
+  K= 3 |M|=1: 15.40%
+  K= 3 |M|=3: 39.30%
+  K= 3 |M|=5: 55.25%
+  K= 5 |M|=1:  8.55%
+  K= 5 |M|=3: 25.20%
+  K= 5 |M|=5: 37.55%
+  K=10 |M|=1:  5.15%
+  K=10 |M|=3: 15.25%
+  K=10 |M|=5: 24.95%
+  Rango (9 diseños): 5.15% – 55.25%
+
+=== Resultado ===
+Paper: 5.1–54.4%.
+Mínimo en Study 2b: 3.53%   Máximo en Study 2b: 54.45%
+Mínimo en Study 2 : 5.15%   Máximo en Study 2 : 55.25%
