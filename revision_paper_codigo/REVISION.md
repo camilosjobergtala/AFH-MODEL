@@ -55,7 +55,7 @@ Los estudios no usan `stage1`, `stage4`, `stage5` ni `verify_integrity` (verific
 | 7 | Etapa 1: estratificado con clases desbalanceadas, temporal con series de tiempo | Solo barajado aleatorio (`:2468`) | [lectura] |
 | 8 | Etapa 3: "A final model is then trained on all of D_dev" | `stage3_development` no lo hace; `stage4` recibe el modelo del usuario | [lectura] |
 
-Los puntos 1 y 2 ya los conocías. Los 3–6 son nuevos. El 7 y el 8 se pueden leer como
+Los puntos 1 y 2 se identificaron primero (P1 y P4). Los 3–6 salieron de esta revisión. El 7 y el 8 se pueden leer como
 recomendaciones, pero el paper los presenta dentro de "Implementation details" o como parte del
 procedimiento.
 
@@ -68,7 +68,7 @@ procedimiento.
 | 9 | §3.2: "Verified end to end through the engine, the realized honest-scenario rate is 4.4–5.0% across the sampled designs". El README dice lo mismo | **El rango publicado no es reproducible desde el depósito**, lo que es distinto de afirmar que esté mal. Ningún script, ni el actual ni ninguno del historial de git, lo produce. La frase entró al README en el commit `91db9d7` (14-09-2026), el mismo que creó `04_stds_screening_cutoffs.py`. Ese archivo tiene una sola versión en todo el historial. Su paso [2] calcula la tasa en 4 diseños por la ruta vectorizada, no por el motor, y solo la imprime: da 4.77–5.15 %, de forma determinista. En ningún commit hay un script de `code/` que mida tasas de marcado por el motor (uso de `risk_level` o `screen_cutoff`). Intento de reproducción por el motor completo: ver la sección 3b | `verificar_otros.py` D (historial de git) [ejecutado] |
 | 10 | §3.2 y README: "against 5.1–54.4% under the fixed cutoff" | Mezcla dos fuentes. En el Estudio 2b (`stds_screening_cutoffs.csv`) el rango es **3.5–54.4 %**: la Fig. 4B muestra K = 20 / M = 1 en 3.5 %. En la Tabla 2 (Estudio 2) es 5.1–55.2 % | [ejecutado] |
 | 12 | Estudio 1: el componente de fuga está "essentially uncorrelated with the others (\|r\| ≤ 0.08)" | El máximo es 0.086 (con preregistro), que redondea a 0.09. La propia Fig. 2A muestra −0.09 | [ejecutado] |
-| 13 | §2.6.4: el máximo de 0.975 se obtiene "with a balanced split and a holdout at or below the development mean" | Con el holdout **en** la media, S_leak = 0.88 y el EIS máximo es ≈ 0.957. 0.975 solo se alcanza en el límite, con el holdout muy por debajo de la media de desarrollo (es un supremo). Con el 70/30 por defecto, el máximo es ≈ 0.955 (el paper no lo menciona) | [ejecutado] |
+| 13 | §2.6.4: el máximo de 0.975 se obtiene "with a balanced split and a holdout at or below the development mean" | Con el holdout **en** la media, S_leak = 0.88 y el EIS máximo es ≈ 0.957. 0.975 solo se alcanza en el límite, con el holdout muy por debajo de la media de desarrollo (es un supremo). Con el 70/30 por defecto, el máximo es ≈ 0.955 (el paper no lo menciona) | 0.975 y 0.955: [ejecutado]; 0.957: calculado a mano con la fórmula de §2.6.4 |
 
 **Observación, no error:** las Tablas 2, 3 y 4 reportan 8.6 %, 11 % y 9.0 % para la misma
 condición (K = 5, M = 1, σ = 0.05, δ = 0), porque vienen de simulaciones independientes. El
