@@ -12,7 +12,15 @@ ECLIPSE descrito en:
 > Reports. DOI: 10.1038/s41598-026-74760-5
 
 Usa sin modificarla la implementación de referencia en
-`ScientificReports_revision/engine/eclipse_core.py` (instrument version 3.1).
+`ScientificReports_revision/engine/eclipse_core.py` (instrument version 3.1; commit `93339b4`,
+archivado en Zenodo, DOI 10.5281/zenodo.22760496).
+
+**Solo para investigación confirmatoria.** Como dice el paper, ECLIPSE no está pensado para
+investigación exploratoria o generadora de hipótesis, donde la flexibilidad analítica es necesaria.
+
+**Adoptar el flujo y usar los scores son cosas distintas.** El paper recomienda adoptar el flujo
+de trabajo y dice que la evidencia no respalda usar los scores, en particular el EIS, para
+evaluar estudios. Por eso el modo predeterminado del Workbench es *solo disciplina*.
 
 ---
 
@@ -90,17 +98,28 @@ Además:
 El Workbench corrige en la capa de orquestación, sin modificar el core, comportamientos que
 encontré al revisarlo (detalle y evidencia en `DESIGN.md` §0.2):
 
-- El `split_hash` del core no compromete qué IDs van a dev y cuáles a holdout. El Workbench añade
-  un `assignment_hash`.
+- El `split_hash` del core no compromete qué IDs van a dev y cuáles a holdout, aunque el paper
+  describe un hash sobre los índices del holdout, la semilla, el ratio y un timestamp. El
+  Workbench añade un `assignment_hash` que sí cubre la asignación.
 - En el core, la Etapa 4 puede repetirse antes de la Etapa 5, y `force=True` se salta el bloqueo.
-  El Workbench escribe el bloqueo antes de abrir el holdout y nunca usa `force`.
+  Tampoco existe el bloqueo del archivo de holdout que describe el paper. El Workbench escribe el
+  bloqueo antes de abrir el holdout y nunca usa `force`.
+- El core no entrena el modelo final sobre todo el conjunto de desarrollo, como describe el paper.
+  El Workbench lo hace explícito al congelar el modelo.
 - El modo `non_interactive` del core confirma automáticamente. El Workbench no lo usa.
 - El Workbench no muestra las etiquetas "EXCELLENT … VERY POOR" del EIS ni el veredicto en
   verde/rojo del reporte HTML del core.
 
-**Limitación que el Workbench no corrige:** la Etapa 3 del core hace CV por filas. Si hay varias
-filas por sujeto, pueden caer filas del mismo sujeto en entrenamiento y validación del mismo fold.
-El Workbench lo advierte, pero corregirlo requiere un cambio en el core.
+**Limitaciones que el Workbench no corrige:**
+
+- La Etapa 3 del core hace CV por filas. Si hay varias filas por sujeto, pueden caer filas del
+  mismo sujeto en entrenamiento y validación del mismo fold.
+- El paper recomienda un split estratificado (clases desbalanceadas) o temporal (series de
+  tiempo), y el core solo hace un split aleatorio.
+
+El Workbench advierte de ambas, pero corregirlas requiere cambios en el core.
+
+**Auditor:** solo analiza código Python. El código en R o MATLAB no se audita.
 
 ## Instalación y uso
 

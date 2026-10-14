@@ -120,6 +120,64 @@ Ninguno se corrige tocando el core en esta propuesta. La capa de orquestación l
   garantía temporal frente a terceros es anclar un hash fuera (registro en OSF, OpenTimestamps,
   correo a un tercero, etc.) *antes* de liberar el holdout.
 
+### 0.4 Contraste con el paper publicado
+
+Fuente: Sjöberg Tala, *Scientific Reports*, DOI 10.1038/s41598-026-74760-5 (Article in Press,
+publicado el 14-10-2026). El paper declara como versión de referencia la del commit
+`93339b4c2d3f56db1dab87a5dafac7641cf921a7` (Zenodo 10.5281/zenodo.22760496). Es el mismo commit
+`93339b4` sobre el que se hizo la revisión de §0.2. Las citas indican la sección del paper.
+
+**Coincide con el código:**
+
+- Fórmulas del EIS (§2.6.4): S_pre ≤ 0.9 tras la validación, techo de 0.975, κ(N) del split,
+  valores posibles de S_prot, logística de S_leak (0.98 / 0.88 / 0.50 / 0.12 en z = −1 / 0 / +1 / +2)
+  y pesos 0.25/0.20/0.25/0.15/0.15.
+- STDS: z con sd poblacional, cortes de la Tabla 5 idénticos a `EMPIRICAL_SCREEN`, sin p-valores y
+  con las dos limitaciones de la calibración (§2.6.4, §3.2).
+- Auditor: penalizaciones 30/15/5/2, umbral recomendado ≥ 70 "heurístico, no estricto",
+  especificidad 0 % en near-miss (Tabla 7) y solo Python (§4.4).
+
+**El paper describe algo que el código no hace.** Esto es lo más importante que salió de la
+lectura:
+
+| # | Lo que dice el paper | Lo que hace el código | Consecuencia |
+|---|---|---|---|
+| P1 | Etapa 1, *Algorithm*: "A SHA-256 hash is computed over the indices of D_hold, the seed s, the split ratio, and a timestamp… Any subsequent modification to the split indices, seed, or sample identifiers changes the hash" | `sha256(f"{seed}_{sorted(todos_los_ids)}")` (`eclipse_core.py:2477`): no incluye qué IDs son holdout, ni el ratio, ni el timestamp | **Verificado:** mover un ID de holdout a dev no cambia el hash y `verify_integrity()` da válido (§0.2-1). La afirmación del paper no se cumple en la implementación |
+| P2 | Etapa 1, *Implementation details*: con clases desbalanceadas, muestreo estratificado; con series temporales, split temporal (primer 70 % / último 30 %) | Solo barajado aleatorio con semilla (`:2468`) | El Workbench no puede ofrecer estratificado ni temporal sin una segunda implementación del split |
+| P3 | Etapa 3: "A final model is then trained on all of D_dev" | `stage3_development` no entrena un modelo final. `stage4` recibe un `final_model` que provee el usuario | El Workbench debe hacerlo explícito en el paso "congelar" (§3.4) |
+| P4 | Etapa 4: "File locking ensures that after validation, the holdout data file becomes read-only. Result immutability is achieved by writing validation results to a version-controlled file with timestamp" | No hay bloqueo de archivo. Los resultados de la Etapa 4 no se escriben hasta la Etapa 5. La Etapa 4 se puede repetir | **Verificado** (§0.2-4) |
+| P5 | Etapa 4: confirmación tecleada "I ACCEPT SINGLE-SHOT VALIDATION" | Igual en modo interactivo, pero el modo `non_interactive` la sustituye por `"AUTOMATED"` (`:2708`). El paper no menciona ese modo | — |
+| P6 | §2.6.1: tres bandas (0.80–1.00 "strong operationalized features", 0.60–0.79 moderate, < 0.60 weak), 0.70 umbral provisional; "EIS does not measure methodological rigor objectively" | `_interpret_eis` usa seis etiquetas, "EXCELLENT – Exceptional methodological rigor" … "VERY POOR – Critical methodological flaws". El reporte imprime "✅ Study meets high methodological standards" con EIS ≥ 0.80 | El texto del código contradice el encuadre del paper |
+| P7 | §2.6.1: los pesos son "literature-informed heuristic defaults… not derived from meta-analysis", citando las refs. 17, 25, 8 y 18 sin cifras | `WEIGHT_JUSTIFICATIONS` incluye cifras ("~60 %", "17/20 surveyed ML studies") que **no aparecen en el paper** | Responde la antigua pregunta 8: la interfaz debe usar la redacción del paper, no la del código |
+| P8 | Etapa 2, paso 4: el archivo "is marked immutable via version control" | El core no interactúa con git | El Workbench puede ofrecer un commit automático opcional |
+
+El paper es explícito sobre los límites: "These mechanisms structurally reduce opportunities for
+accidental iterative access but do not prevent deliberate circumvention" (Etapa 4). Las
+discrepancias P1 y P4 no contradicen esa advertencia, pero sí son afirmaciones concretas sobre
+mecanismos que hoy no existen en el código. El autor decide cómo tratarlas (§7, pregunta 0).
+
+**Decisiones del diseño que el paper respalda:**
+
+- §4.2, *Practical implications*: "Adopting the workflow… We recommend it. Using the scores — EIS
+  in particular — … the evidence reported here does not support it." Esto justifica que el
+  **modo solo disciplina sea el predeterminado** y que el modo con scores sea opcional (§2.1).
+- §4.2, editores: "the appropriate analogue at this stage is deposition of the artifacts, not
+  publication of the score." El producto central del Workbench es el bundle depositable, no el
+  score.
+- §4.1, *Goodhart*: "Researchers who learn that preregistration completeness, split entropy, and
+  transparency indicators raise EIS may engineer compliance without engineering rigor." Una
+  herramienta que rellena automáticamente esos campos materializa ese riesgo (§0.2-10), así que
+  la interfaz tiene que decirlo.
+- §4.4: solo confirmatorio ("does not target exploratory or hypothesis-generating research").
+  Va en el onboarding.
+- §2.6.3: lista de supuestos y condiciones límite del STDS (datos temporales, no i.i.d., clases
+  muy desbalanceadas, K pequeño, etc.). El Workbench pregunta en la Etapa 1 por la estructura de
+  los datos y muestra en la Etapa 5 las condiciones límite que aplican. Es la misma lista del
+  paper, sin validación nueva.
+- Etapa 1, *Implementation details*: "Sacred seed selection requires researchers to declare the
+  seed before seeing data… The seed must be justified and recorded." Esto reemplaza mi propuesta
+  anterior de derivar la semilla automáticamente (§3.2).
+
 ---
 
 ## 1. Arquitectura de alto nivel
@@ -223,7 +281,7 @@ ese vínculo no existe, y el reporte lo dice.
 | Entidad | Campos clave | Mutabilidad |
 |---|---|---|
 | `Workspace` | ruta, `workspace_log.jsonl` (protocolos creados, sobre qué hash de datos) | Append-only |
-| `Protocol` | `protocol_id` (ULID), título, investigador, `mode ∈ {full, discipline_only}`, versión del Workbench, SHA-256 de `eclipse_core.py`, `supersedes` (ID previo o nulo) | Inmutable tras la creación |
+| `Protocol` | `protocol_id` (ULID), título, investigador, `mode ∈ {discipline_only (predeterminado, §0.4), full}`, versión del Workbench, SHA-256 de `eclipse_core.py` y commit del core (referencia del paper: `93339b4`), `supersedes` (ID previo o nulo) | Inmutable tras la creación |
 | `Dataset` | SHA-256 del archivo, formato, columna de unidad, n filas, n unidades | Inmutable tras la Etapa 1 |
 | `SplitCommitment` | semilla, procedencia de la semilla, ratio, `assignment_hash`, `split_hash` del core | Inmutable |
 | `CriteriaRegistration` | lista de `FalsificationCriteria`, `criteria_hash` (core), `n_folds_cv`, métricas declaradas, plan de análisis (texto, hasheado) | Inmutable |
@@ -373,11 +431,13 @@ Las acciones irreversibles describen qué se bloquea; no felicitan.
 
 **Nuevo protocolo:** título, investigador y **modo**, que queda fijo:
 
-- *Completo*: muestra el EIS, el STDS y el auditor en la Etapa 5.
-- *Solo disciplina*: no calcula ni muestra scores; el bundle contiene lo necesario para que
-  terceros los calculen.
+- *Solo disciplina* (**predeterminado**): no calcula ni muestra scores; el bundle contiene lo
+  necesario para que terceros los calculen. El paper recomienda adoptar el flujo y dice que la
+  evidencia no respalda usar los scores (§4.2).
+- *Completo* (opcional): muestra el EIS, el STDS y el auditor en la Etapa 5.
 
-Cada modo va acompañado de un párrafo sobre el riesgo de Goodhart.
+Cada modo va acompañado de la cita del paper sobre Goodhart (§4.1). El onboarding también dice
+que ECLIPSE es para investigación confirmatoria, no exploratoria (§4.4 del paper).
 
 ### 3.1 Línea de tiempo (vista persistente)
 
@@ -398,8 +458,15 @@ Cada modo va acompañado de un párrafo sobre el riesgo de Goodhart.
    explicación.
 3. Elegir el ratio (por defecto 70/30), con la nota "el EIS penaliza ratios distintos de 50/50 en
    `split_strength`; no cambie el ratio por eso".
-4. Semilla: **derivada automáticamente** por defecto (de `sha256(hash_datos ‖ protocol_id)`). La
-   opción avanzada "usar mi semilla" queda registrada como `seed_provenance: user`.
+4. Semilla: **declarada por el investigador con justificación**, como prescribe el paper (Etapa 1,
+   *Implementation details*: "declare the seed before seeing data… justified and recorded"; por
+   ejemplo, una fecha de envío del manuscrito). Ambas se registran en el log. Una semilla derivada
+   automáticamente queda como alternativa, también registrada.
+4b. **Estructura de los datos** (la lista de §2.6.3 del paper): ¿temporales?, ¿varias filas por
+   unidad?, ¿clases muy desbalanceadas? Las respuestas no bloquean nada. Se registran y determinan
+   qué condiciones límite del STDS se muestran en la Etapa 5. Si los datos son temporales o
+   desbalanceados, se advierte que el core solo hace un split aleatorio, aunque el paper
+   recomienda uno temporal o estratificado (§0.4, P2).
 5. **No se muestra una vista previa de qué unidades van a cada lado ni la distribución del
    outcome en el holdout.** Ver el holdout antes de comprometerse es justo lo que el protocolo
    prohíbe, y una vista previa con re-sorteo invita a buscar semillas.
@@ -437,7 +504,9 @@ Cada modo va acompañado de un párrafo sobre el riesgo de Goodhart.
 4. **Auditor anticipado:** botón **[Revisar patrones en el código]**. Se ejecuta aquí, cuando
    todavía se puede corregir, con el aviso fijo del Estudio 3.
 5. Comprobación: ¿las métricas de los criterios están en la salida?
-6. **[Congelar modelo]**: elegir corrida → snapshot del código y del modelo + hash → **preflight**:
+6. **[Congelar modelo]**: elegir la configuración de una corrida → **entrenar el modelo final
+   sobre todo D_dev**. El paper lo exige en la Etapa 3 ("A final model is then trained on all of
+   D_dev") y el core no lo hace (§0.4, P3) → snapshot del código y del modelo + hash → **preflight**:
    ejecuta `evaluate` del modelo congelado sobre un fold de desarrollo para detectar errores
    técnicos antes de gastar el holdout.
 
@@ -458,7 +527,9 @@ Cada modo va acompañado de un párrafo sobre el riesgo de Goodhart.
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-- La frase incluye el ID del protocolo, así que no sirve una frase genérica guardada.
+- La frase es la del paper ("I ACCEPT SINGLE-SHOT VALIDATION") seguida de "FOR <ID>", para que
+  no sirva una frase genérica guardada. `core_bridge` le entrega al `input()` del core la frase
+  exacta que este espera.
 - Web: el campo bloquea el pegado y el envío lleva un nonce de un solo uso emitido al
   renderizar. Bloquear el pegado es fricción de intención, no seguridad, y la documentación lo
   dice.
@@ -486,6 +557,10 @@ Cada modo va acompañado de un párrafo sobre el riesgo de Goodhart.
    refleja el uso de la herramienta, no evidencia independiente de rigor.
  ³ S_leak sube cuando el holdout rinde PEOR que el desarrollo. No intente optimizarlo.
  El EIS no está calibrado contra resultados externos (manuscrito §3–§4.4).
+ Bandas del paper (§2.6.1, provisionales, no calibradas): ≥0.80 / 0.60–0.79 / <0.60, a leer
+ contra el techo. No se usan las etiquetas "EXCELLENT…" del código (§0.4, P6).
+ Pesos: "literature-informed heuristic defaults… not derived from meta-analysis" (paper),
+ sin las cifras de WEIGHT_JUSTIFICATIONS (§0.4, P7).
 ```
 
 **STDS:** z por métrica, max z, cortes al 95 y al 99 % para (K, M) y si son exactos o vecinos. El
@@ -611,6 +686,12 @@ Ver `eclipse_workbench/README.md`.
 
 ## 7. Preguntas antes de empezar
 
+0. **Discrepancias entre el paper y el código (§0.4, P1–P8).** P1 (el hash no cubre la asignación
+   del holdout) y P4 (no hay bloqueo de archivo y la Etapa 4 se puede repetir) son afirmaciones
+   del paper publicado que el código de referencia no cumple. ¿Cómo quiere tratarlas: una
+   corrección en el core (versión nueva), una nota en el README del paper, una consulta a la
+   revista sobre una fe de erratas, o solo la compensación en el Workbench? Recomiendo, como
+   mínimo, documentarlas en `ScientificReports_revision/README.md`. La decisión es suya.
 1. **Modo de ejecución de modelos.** ¿Priorizo el PythonRunner (el Workbench ejecuta el código
    del usuario y puede garantizar el orden), el ExternalRunner (R o notebooks con métricas
    autorreportadas, con garantías más débiles), o ambos desde el inicio? Recomiendo empezar por
@@ -622,7 +703,8 @@ Ver `eclipse_workbench/README.md`.
    ejemplo como 3.1.1 o 3.2), pero eso cambia el instrumento descrito en el paper. Recomiendo
    dejar el 3.1 congelado para la reproducibilidad del manuscrito, compensar en la orquestación
    (§1.3) y discutir un 3.2 aparte. El CV agrupado (punto 6) solo se resuelve bien en el core.
-4. **Semilla.** ¿Derivada automáticamente por defecto (recomendado) o elegida por el usuario?
+4. **Semilla.** Ya está resuelto con el paper: la declara el investigador con justificación. ¿Le
+   parece bien ofrecer la semilla derivada solo como alternativa?
 5. **Custodia del holdout.** ¿Basta el modo local (fricción), o quiere el modo custodio en el
    alcance temprano?
 6. **Ubicación.** El `CLAUDE.md` describe este repo como colección de investigación, no como
@@ -631,12 +713,13 @@ Ver `eclipse_workbench/README.md`.
    versión o commit? Para usuarios externos recomiendo un repo propio.
 7. **Anclaje externo.** ¿Qué mecanismos acepta: instrucciones manuales para OSF, OpenTimestamps
    (requiere red), u otro?
-8. **Citas de los pesos del EIS.** `WEIGHT_JUSTIFICATIONS` (`eclipse_core.py`, junto a
-   `DEFAULT_WEIGHTS`) atribuye "~60 % menos falsos positivos" a Nosek et al. (2018) y "17/20
-   estudios de ML" a Kapoor y Narayanan (2022). No verifiqué esas cifras contra los artículos en
-   esta sesión. Antes de mostrarlas en la interfaz conviene que usted confirme que corresponden.
-   Mientras tanto, la interfaz mostraría los pesos como "elección normativa del autor" sin las
-   cifras.
+8. **Citas de los pesos del EIS.** El paper no contiene las cifras de `WEIGHT_JUSTIFICATIONS`
+   ("~60 %", "17/20"); usa una justificación cualitativa (§0.4, P7). La interfaz usará la
+   redacción del paper. ¿Quiere además corregir esas cadenas en el core en una versión futura?
+   No verifiqué las cifras contra los artículos originales.
+8b. **Split estratificado y temporal (P2).** El paper los recomienda y el core no los implementa.
+   ¿Los dejamos fuera del Workbench (solo advertencia, mi recomendación para no crear una segunda
+   implementación del split) hasta que existan en el core?
 9. **Tipo de tareas.** ¿Solo datos tabulares con métricas de clasificación binaria al inicio
    (`EclipseValidator.binary_classification_metrics` existe en el core), o también regresión?
 10. **Idioma.** ¿Interfaz y README en inglés (público internacional), en español, o en ambos?
