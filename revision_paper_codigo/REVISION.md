@@ -9,6 +9,13 @@
   `Lab/`, `Ashes/` y `NeuroscienceOfConsciousness_revision/`, que no forman parte del paper.
 - **Entorno:** Linux, Python con las versiones de `requirements_frozen.txt`.
 
+**Estado:** todos los puntos se verificaron dos veces, en dos entornos:
+1. En Linux, en la nube (mi entorno).
+2. De forma independiente por el autor, en Windows, sobre un clon limpio del commit `93339b4`.
+
+Los resultados son idénticos en ambos entornos (ver la sección 7). El barrido de todas las
+afirmaciones del texto sobre hash, inmutabilidad y sellado está en `BARRIDO_TEXTO.md`.
+
 El punto 11 (barras de la Fig. 4B) se retiró tras revisión: la leyenda publicada ya dice "5% by
 construction", así que no es una discrepancia del paper. Los demás puntos conservan su número.
 
@@ -100,8 +107,11 @@ La celda (3,1) da el mismo valor en ambos conjuntos porque es la primera celda d
 mismo generador y la misma semilla, así que las muestras son idénticas. No es una coincidencia
 independiente.
 
-Ninguno de los dos conjuntos da 4.4–5.0 %. Este resultado se reporta sin conclusión, a la espera
-de revisión.
+Ninguno de los dos conjuntos da 4.4–5.0 %.
+
+El autor lo reprodujo de forma independiente en Windows con `verificacion_windows/p7_reproducir_rango.py`
+y con su versión paralela `p7b_reproducir_rango_paralelo.py`. Los 16 conteos son idénticos caso por
+caso (ver la sección 7).
 
 ---
 
@@ -137,11 +147,45 @@ de revisión.
 
 ---
 
+## 7. Reproducción independiente en Windows
+
+- **Quién y dónde:** el autor, el 14-10-2026, en Windows, con Python global y las versiones de
+  `requirements_frozen.txt` (numpy 2.4.4, pandas 3.0.2, scipy 1.17.1, scikit-learn 1.8.0,
+  matplotlib 3.10.8).
+- **Código:** clon limpio en el commit `93339b4`.
+- **Hash:** el SHA-256 de `eclipse_core.py` normalizado a LF es `9d4320d2…b059b3`, que coincide con el
+  del paper. El hash sin normalizar, `744082bb…`, difiere solo porque Git convirtió los finales de
+  línea a CRLF.
+- **Scripts:** los de `verificacion_windows/`. Cada uno comprueba el hash, incluye controles
+  positivos y no modifica el clon: `git status` posterior no mostró archivos del repositorio
+  modificados.
+
+| Punto | Script | Controles | Resultado en Windows | ¿Idéntico al de Linux? |
+|---|---|---|---|---|
+| 1, 2 (P1, P4) | `verificar_p1_p4.py` | — | Confirmados | Sí |
+| 3 | `p3_etapa5_auditor.py` | OK | 0 llamadas al auditor en la Etapa 5 | Sí |
+| 4 | `p4_auditor_nivel2.py` | OK | Ningún bucle de umbral da `controlflow`; no hay análisis de cobertura | Sí |
+| 5 | `p5_auditor_nivel3.py` | OK | `y = test_data.mean()` solo se marca por `ast` | Sí |
+| 8 | `p6_etapa3_modelo_final.py` | OK | Entrena con 56 cinco veces, nunca con 70; no devuelve modelo | Sí |
+| 9 | `p7` / `p7b` | C1–C5 OK | (a) 4.73–5.21 %, (b) 4.84–5.21 %; los 16 conteos idénticos | Sí |
+| 10 | `p8_rango_corte_fijo.py` | OK | Study 2b 3.53–54.45 %; Study 2 5.15–55.25 % | Sí |
+| 12 | `p10_correlacion_fuga.py` | OK | máx. \|r\| de fuga = 0.0858 | Sí |
+| 13 | `p9_techo_eis.py` | OK | 0.9571 en la media; 0.9750 muy por debajo; 0.9548 con 70/30 | Sí |
+| Barrido (T1–T8) | `p11_afirmaciones_integridad.py` | OK | T1–T7 no se detectan; T8: no hay comparación de fechas | Sí |
+
+**Conteos de p7 en Windows** (casos marcados de 60.000):
+- (a): 3123, 3058, 2941, 2935, 2836, 2991, 2909, 2979, 2874, 3019, 3081, 3001.
+- (b): 3123, 2966, 2906, 2926.
+
+---
+
 ## Prioridad sugerida
 
 1. **Para el correo a la revista:** los puntos 1–6 (mecanismos descritos que no existen), el 9 y el 10
-   (cifras no reproducibles o que mezclan fuentes) y el 22–23 (errores de
-   referencias que pueden corregirse en las pruebas).
+   (cifras no reproducibles o que mezclan fuentes) y el 22–23 (errores de referencias que pueden
+   corregirse en las pruebas). Conviene revisar también las afirmaciones falsas de `BARRIDO_TEXTO.md`
+   que están fuera de Métodos, como la Fig. 1 ("Sealed — no access until Stage 4", "enforces
+   separation"), "data splits cannot be silently modified" y "criteria cannot be silently adjusted".
 2. **Código (versión nueva, sin tocar la del paper):** 1, 2, 3, 14, 15 y 16; el 4 y el 5 si se
    quiere que el auditor haga lo que el paper describe, o si no, corregir el texto.
 3. **Paquete de reproducibilidad:** 9 (depositar el cálculo que respalde la cifra publicada), 17, 18,
