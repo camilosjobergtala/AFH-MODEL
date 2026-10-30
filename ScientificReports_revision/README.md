@@ -1,5 +1,22 @@
 # ECLIPSE v2.0 — Reproducibility materials
 
+> ## Code of the published article
+>
+> This directory holds the code that produced the results in Sjöberg Tala
+> (2026), *Scientific Reports*,
+> [10.1038/s41598-026-74760-5](https://doi.org/10.1038/s41598-026-74760-5) —
+> commit `93339b4c2d3f56db1dab87a5dafac7641cf921a7`, archived at Zenodo
+> [10.5281/zenodo.22760496](https://doi.org/10.5281/zenodo.22760496).
+> **It is unchanged and will stay unchanged**: it is the reference for the
+> published results.
+>
+> A revised implementation (ECLIPSE 3, core 3.2), which corrects how several of
+> the framework's mechanisms were described in the article, is archived at
+> Zenodo [10.5281/zenodo.23599462](https://doi.org/10.5281/zenodo.23599462).
+> It reproduces every deposited numerical output of the published studies.
+
+> **Note (October 2026).** The code and data supporting the article *ECLIPSE v2.0* (Scientific Reports, DOI [10.1038/s41598-026-74760-5](https://doi.org/10.1038/s41598-026-74760-5)) correspond to commit `93339b4` (tag `scientific-reports-2026`), archived at Zenodo ([10.5281/zenodo.22760496](https://doi.org/10.5281/zenodo.22760496)), and remain unchanged in `ScientificReports_revision/`. Further development of ECLIPSE takes place in a separate repository, which will be linked here when it is released.
+
 Code, data, and reproducibility materials for the *Scientific Reports* manuscript
 **"ECLIPSE v2.0: A Reproducible Scaffold for Severe Confirmatory Testing through Preregistration, Single-Shot Validation, and Static-Analysis Screening"** (C. A. Sjöberg Tala).
 

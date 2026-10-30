@@ -1,3 +1,5 @@
+> **Note (October 2026).** The code and data supporting the article *ECLIPSE v2.0* (Scientific Reports, DOI [10.1038/s41598-026-74760-5](https://doi.org/10.1038/s41598-026-74760-5)) correspond to commit `93339b4` (tag `scientific-reports-2026`), archived at Zenodo ([10.5281/zenodo.22760496](https://doi.org/10.5281/zenodo.22760496)), and remain unchanged in `ScientificReports_revision/`. Further development of ECLIPSE takes place in a separate repository, which will be linked here when it is released.
+
 
 This repository collects the author's research across several projects.
 
