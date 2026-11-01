@@ -14,6 +14,32 @@
 > the framework's mechanisms were described in the article, is archived at
 > Zenodo [10.5281/zenodo.23599462](https://doi.org/10.5281/zenodo.23599462).
 > It reproduces every deposited numerical output of the published studies.
+>
+> ECLIPSE 3.2 is in development and patches the software. Improvements:
+>
+> - **Split record (Stage 1):** the SHA-256 hash covers the development/holdout
+>   assignment, the seed, the split ratios and the sample count; the split no
+>   longer depends on the order of the input, and duplicate identifiers are
+>   rejected.
+> - **Preregistration (Stage 2):** the criteria hash also covers the
+>   registration date and the project name; registering criteria after
+>   validation is refused; a receipt of the hashes can be deposited with an
+>   external time-stamping service.
+> - **Development (Stage 3):** requires Stage 2; can check that the identifiers
+>   supplied belong to the development set; trains the final model on all
+>   development data.
+> - **Single-shot validation (Stage 4):** a lock is written before validation
+>   runs, and a second attempt is refused, including after a failed attempt and
+>   from a new session; the holdout file can be hashed and set read-only.
+> - **Final assessment (Stage 5):** requires a completed Stage 4 and takes the
+>   development and holdout metrics from the stored records; the code auditor
+>   can be run as part of it.
+> - **Audit trail:** an append-only, hash-chained log of every stage; overrides
+>   are archived, logged and reported.
+> - **Integrity check:** `verify_integrity()` also covers the validation
+>   record, the final result and the log.
+> - **Code auditor:** labelled experimental (0% specificity on near-miss
+>   scripts, Study 3); its computation is unchanged.
 
 > **Note (October 2026).** The code and data supporting the article *ECLIPSE v2.0* (Scientific Reports, DOI [10.1038/s41598-026-74760-5](https://doi.org/10.1038/s41598-026-74760-5)) correspond to commit `93339b4` (tag `scientific-reports-2026`), archived at Zenodo ([10.5281/zenodo.22760496](https://doi.org/10.5281/zenodo.22760496)), and remain unchanged in `ScientificReports_revision/`. Further development of ECLIPSE takes place in a separate repository, which will be linked here when it is released.
 
