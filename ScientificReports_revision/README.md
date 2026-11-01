@@ -10,8 +10,9 @@
 > **It is unchanged and will stay unchanged**: it is the reference for the
 > published results.
 >
-> A revised implementation (ECLIPSE 3, core 3.2), which corrects how several of
-> the framework's mechanisms were described in the article, is archived at
+> A revised implementation (ECLIPSE 3, core 3.2), which strengthens several of
+> the framework's mechanisms beyond version 3.1, the version used in the
+> article, is archived at
 > Zenodo [10.5281/zenodo.23599462](https://doi.org/10.5281/zenodo.23599462).
 > It reproduces every deposited numerical output of the published studies.
 >
